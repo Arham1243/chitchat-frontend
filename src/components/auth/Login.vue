@@ -103,6 +103,9 @@ const isSubmitEnabled = computed(() => {
     </div>
 </template>
 <style>
+.p-button-outlined .pi {
+    color: var(--primary-color);
+}
 .p-password {
     width: 100%;
 }
