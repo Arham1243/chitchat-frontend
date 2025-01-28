@@ -5,6 +5,7 @@ import PrimeVue from 'primevue/config';
 import Aura from '@primevue/themes/aura';
 import '@/assets/css/styles.scss';
 import 'primeicons/primeicons.css';
+import 'primeflex/primeflex.scss';
 
 import InputField from '@/components/common/InputField.vue';
 import Button from 'primevue/button';
