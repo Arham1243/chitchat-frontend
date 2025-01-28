@@ -26,3 +26,12 @@ package-lock.json
 # Favicons & icons
 public/
 src/assets
+# Ignore all image files
+*.png
+*.jpg
+*.jpeg
+*.gif
+*.svg
+*.webp
+*.bmp
+*.tiff
