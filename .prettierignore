@@ -26,5 +26,3 @@ package-lock.json
 # Favicons & icons
 public/
 src/assets
-sonar-project.properties
-src/modules/**/assets
