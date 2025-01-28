@@ -6,19 +6,5 @@
     "singleQuote": true,
     "vueIndentScriptAndStyle": false,
     "printWidth": 80,
-    "bracketSameLine": false,
-    "overrides": [
-        {
-            "files": ["*.js", "*.ts", "*.vue", "*.json", "*.md"],
-            "options": {
-                "parser": "babel"
-            }
-        },
-        {
-            "files": [".editorconfig", ".gitattributes"],
-            "options": {
-                "parser": "none"
-            }
-        }
-    ]
+    "bracketSameLine": false
 }
