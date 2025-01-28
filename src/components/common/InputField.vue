@@ -41,7 +41,6 @@ const props = defineProps({
         :max="999999999999999"
     />
     <Password v-else-if="props.variant == 'password'" v-bind="$attrs" />
-    <MultiSelect v-else-if="props.variant == 'multiselect'" v-bind="$attrs" />
 
     <SelectButton v-else-if="props.variant == 'selectButton'" v-bind="$attrs" />
     <DatePicker v-else-if="props.variant == 'date'" v-bind="$attrs" />

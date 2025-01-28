@@ -10,53 +10,16 @@ import 'primeflex/primeflex.scss';
 import InputField from '@/components/common/InputField.vue';
 import Button from 'primevue/button';
 import Password from 'primevue/password';
+import Divider from 'primevue/divider';
 import InputNumber from 'primevue/inputnumber';
 import InputText from 'primevue/inputtext';
 import Textarea from 'primevue/textarea';
 import AutoComplete from 'primevue/autocomplete';
 import Checkbox from 'primevue/checkbox';
 import RadioButton from 'primevue/radiobutton';
-import MultiSelect from 'primevue/multiselect';
 import SelectButton from 'primevue/selectbutton';
 import DatePicker from 'primevue/datepicker';
 import Tooltip from 'primevue/tooltip';
-import { definePreset } from '@primevue/themes';
-
-const stylePreset = definePreset(Aura, {
-    semantic: {
-        primary: {
-            50: '{indigo.50}',
-            100: '{indigo.100}',
-            200: '{indigo.200}',
-            300: '{indigo.300}',
-            400: '{indigo.400}',
-            500: '{indigo.500}',
-            600: '{indigo.600}',
-            700: '{indigo.700}',
-            800: '{indigo.800}',
-            900: '{indigo.900}',
-            950: '{indigo.950}'
-        },
-        colorScheme: {
-            dark: {
-                surface: {
-                    0: '#ffffff',
-                    50: '{neutral.50}',
-                    100: '{neutral.100}',
-                    200: '{neutral.200}',
-                    300: '{neutral.300}',
-                    400: '{neutral.400}',
-                    500: '{neutral.500}',
-                    600: '{neutral.600}',
-                    700: '{neutral.700}',
-                    800: '{neutral.800}',
-                    900: '{neutral.900}',
-                    950: '{neutral.950}'
-                }
-            }
-        }
-    }
-});
 
 export function registerPlugins(app) {
     app.use(utils);
@@ -64,14 +27,16 @@ export function registerPlugins(app) {
     app.use(router);
     app.use(PrimeVue, {
         theme: {
-            preset: stylePreset,
+            preset: Aura,
             options: {
                 darkModeSelector: false
             }
-        }
+        },
+        ripple: true
     });
 
     app.component('Button', Button);
+    app.component('Divider', Divider);
     app.component('Tooltip', Tooltip);
     app.component('InputField', InputField);
     app.component('Password', Password);
@@ -81,7 +46,6 @@ export function registerPlugins(app) {
     app.component('AutoComplete', AutoComplete);
     app.component('Checkbox', Checkbox);
     app.component('RadioButton', RadioButton);
-    app.component('MultiSelect', MultiSelect);
     app.component('SelectButton', SelectButton);
     app.component('DatePicker', DatePicker);
 
@@ -95,6 +59,7 @@ const directives = {
 const components = {
     InputField,
     Button,
+    Divider,
     Password,
     InputNumber,
     InputText,
@@ -102,7 +67,6 @@ const components = {
     AutoComplete,
     Checkbox,
     RadioButton,
-    MultiSelect,
     SelectButton,
     DatePicker,
     Tooltip

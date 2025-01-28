@@ -7,20 +7,28 @@ const router = useRouter();
 const authStore = useAuthStore();
 
 const loading = ref(false);
-const credentials = ref({
-    email: '',
-    password: '',
-    remember_me: true
-});
 
+const genders = ref([
+    { name: 'Male', id: 'male' },
+    { name: 'Female', id: 'female' },
+    { name: 'Other', id: 'other' }
+]);
+
+const credentials = ref({
+    full_name: '',
+    dob: '',
+    gender: genders.value[0],
+    email: '',
+    password: ''
+});
 const pushRoute = (name, query = {}) => {
     router.push({ name, query });
 };
 
-const login = async () => {
+const signup = async () => {
     try {
         loading.value = true;
-        const res = await authStore.login(credentials.value);
+        const res = await authStore.signup(credentials.value);
         const session = res.data.session;
         pushRoute('Home', { session });
     } catch (error) {
@@ -29,23 +37,58 @@ const login = async () => {
         loading.value = false;
     }
 };
-
 const isSubmitEnabled = computed(() => {
     const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
     return (
+        credentials.value.full_name &&
         credentials.value.email &&
         emailRegex.test(credentials.value.email) &&
+        credentials.value.gender &&
         credentials.value.password &&
-        credentials.value.password.length > 7
+        credentials.value.password.length > 7 &&
+        credentials.value.dob
     );
 });
 </script>
 
 <template>
     <div>
-        <h4 class="font-medium text-2xl text-center mb-4">Log in</h4>
-        <form @submit.prevent="login">
+        <h4 class="font-medium text-2xl text-center mb-2">
+            Create a new account
+        </h4>
+        <p class="text-xs text-center mb-4 text-100">Its quick and easy.</p>
+
+        <form @submit.prevent="signup">
             <div class="p-fluid formgrid grid">
+                <div class="field col-12 mb-3 pb-1">
+                    <InputField
+                        id="full_name"
+                        placeholder="Full name"
+                        variant="text"
+                        v-model="credentials.full_name"
+                        class="w-full text-sm"
+                    />
+                </div>
+                <div class="field col-12 mb-3 pb-1">
+                    <InputField
+                        id="dob"
+                        placeholder="Date of birth"
+                        variant="date"
+                        v-model="credentials.dob"
+                        class="w-full text-sm"
+                    />
+                </div>
+                <div class="field col-12 mb-3 pb-1">
+                    <InputField
+                        id="gender"
+                        variant="selectButton"
+                        v-model="credentials.gender"
+                        placeholder="Gender"
+                        class="w-full"
+                        optionLabel="name"
+                        :options="genders"
+                    />
+                </div>
                 <div class="field col-12 mb-3 pb-1">
                     <InputField
                         id="email"
@@ -67,24 +110,21 @@ const isSubmitEnabled = computed(() => {
                     />
                 </div>
             </div>
-            <div class="flex justify-content-between align-items-center pb-4">
+            <div
+                class="text-sm font-normal flex justify-content-center gap-1 align-items-center pb-4"
+            >
+                Already have and account
                 <router-link
-                    class="text-sm text-primary font-medium"
-                    :to="{ name: 'forget-password' }"
+                    class="text-primary font-medium"
+                    :to="{ name: 'login' }"
                 >
-                    Forgot password?
-                </router-link>
-
-                <router-link
-                    class="text-sm text-primary font-medium"
-                    :to="{ name: 'signup' }"
-                    >Sign up</router-link
+                    Log in</router-link
                 >
             </div>
             <Button
                 :disabled="!isSubmitEnabled"
                 class="w-full text-sm"
-                label="Log in"
+                label="Sign up"
                 :loading="loading"
                 type="submit"
             />
@@ -97,7 +137,7 @@ const isSubmitEnabled = computed(() => {
             icon="pi pi-google"
             class="w-full mt-1 text-sm border-black-alpha-20 text-black-alpha-70"
             variant="outlined"
-            label="Log in with Google"
+            label="Continue with Google"
             type="submit"
         />
     </div>
@@ -105,5 +145,13 @@ const isSubmitEnabled = computed(() => {
 <style>
 .p-password {
     width: 100%;
+}
+.p-datepicker-input {
+    color: var(--p-inputtext-color);
+    font-size: 0.875rem !important;
+}
+.p-togglebutton {
+    width: 100%;
+    font-size: 0.875rem !important;
 }
 </style>

@@ -1,3 +1,17 @@
+:root {
+  --primary-color: var(--p-primary-color);
+}
+
 * {
+  padding: 0;
+  margin: 0;
+  box-sizing: border-box;
+  text-decoration: none !important;
+  list-style-type: none;
   font-family: 'Inter', sans-serif;
+}
+
+::selection {
+  background-color: var(--p-primary-color);
+  color: #fff;
 }
