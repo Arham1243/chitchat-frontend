@@ -1,1 +1,1 @@
-export * as SkeletonService from './Skeleton.service';
+export * as AuthService from './Auth.service';
