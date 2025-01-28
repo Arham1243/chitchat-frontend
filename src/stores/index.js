@@ -1,5 +1,5 @@
 import { createPinia } from 'pinia';
 
-export * from './Skeleton';
+export * from './Auth';
 
 export default createPinia();
