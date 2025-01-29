@@ -9,9 +9,9 @@ import Logo from '@/assets/images/logo.png';
         <div class="grid w-full justify-content-center">
             <div class="auth-wrapper">
                 <div class="text-center mb-4">
-                    <img :src="Logo" width="180" class="logo" />
+                    <img :src="Logo" width="180" class="logo" alt="logo" />
                 </div>
-                <div class="auth-box bg-white border-round-lg text-color">
+                <div class="auth-box border-round-lg text-color">
                     <router-view></router-view>
                 </div>
             </div>

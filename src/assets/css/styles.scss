@@ -1,5 +1,6 @@
 :root {
   --primary-color: var(--p-primary-color);
+  --primary-light-color: #ECFDF5;
 }
 
 * {
@@ -14,4 +15,86 @@
 ::selection {
   background-color: var(--p-primary-color);
   color: #fff;
+}
+
+html,
+body {
+  overflow-x: hidden;
+}
+
+.imgFluid {
+  max-width: 100%;
+  height: auto;
+}
+
+.bg-primary-light {
+  background: var(--primary-light-color) !important;
+}
+
+.box {
+  background: #fff;
+  border-radius: 0.5rem;
+  box-shadow: 0 0 1px 1px #00000020;
+  padding: 1.25rem 0.8rem;
+  margin-bottom: 1.5rem;
+}
+
+.box-header {
+  padding-bottom: 1.25rem;
+}
+
+.box-header .title {
+  font-size: 0.99rem;
+  color: #65686C;
+  font-weight: 600;
+}
+
+
+body .swiper-button-prev,
+body .swiper-button-next {
+  background: #fff;
+  width: 45px;
+  height: 45px;
+  border-radius: 100%;
+  color: #737578;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+body .swiper-button-prev:hover,
+body .swiper-button-next:hover {
+  background: #F1F1F1;
+}
+
+body .swiper-button-prev::after,
+body .swiper-button-next::after {
+  font-size: 1rem;
+  font-weight: 600;
+}
+
+body .swiper-button-prev::after {
+  margin-right: 3px;
+}
+
+body .swiper-button-next::after {
+  margin-left: 3px;
+}
+
+body .swiper-button-disabled {
+  display: none;
+}
+
+body .swiper-wrapper {
+  padding-left: 0.05rem;
+}
+
+.page-content {
+  padding: 0 2.75rem;
+}
+
+.page-title {
+  font-size: 1.25rem;
+  font-weight: 700;
+  margin-bottom: 1rem;
 }

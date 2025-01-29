@@ -4,8 +4,24 @@ import AuthLayout from '@/layout/AuthLayout.vue';
 export default [
     {
         path: '/',
-        name: 'Home',
-        component: AppLayout
+        component: AppLayout,
+        children: [
+            {
+                path: '',
+                name: 'home',
+                component: () => import('@/views/Home.vue')
+            },
+            {
+                path: 'friends',
+                name: 'friends',
+                component: () => import('@/views/Friends.vue')
+            },
+            {
+                path: 'friends/my',
+                name: 'my-friends',
+                component: () => import('@/views/MyFriends.vue')
+            }
+        ]
     },
     {
         path: '/auth',
