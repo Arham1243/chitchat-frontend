@@ -1,4 +1,5 @@
 <script setup>
+import results from '@/mocks/users.json';
 import { ref, onMounted, onUnmounted, watch } from 'vue';
 
 const showSearchResults = ref(false);
@@ -7,75 +8,14 @@ const search = ref('');
 const searchWrapper = ref(null);
 const filteredResults = ref([]);
 
-const results = ref([
-    {
-        full_name: 'Arham Khan',
-        username: 'arhamkhan',
-        profile_picture: '/src/assets/images/placeholder-user.png',
-        user_type: 'friend'
-    },
-    {
-        full_name: 'Arham Khan 2',
-        profile_picture: '/src/assets/images/placeholder-user.png',
-        user_type: 'friend'
-    },
-    {
-        full_name: 'Arham Khan',
-        username: 'arhamkhan',
-        profile_picture: '/src/assets/images/placeholder-user.png',
-        user_type: 'people'
-    },
-    {
-        full_name: 'Arham Khan 3',
-        profile_picture: '/src/assets/images/placeholder-user.png',
-        user_type: 'people'
-    },
-    {
-        full_name: 'Arham Khan',
-        username: 'arhamkhan',
-        profile_picture: '/src/assets/images/placeholder-user.png',
-        user_type: 'friend'
-    },
-    {
-        full_name: 'Arham Khan 3',
-        profile_picture: '/src/assets/images/placeholder-user.png',
-        user_type: 'people'
-    },
-    {
-        full_name: 'Arham Khan',
-        username: 'arhamkhan',
-        profile_picture: '/src/assets/images/placeholder-user.png',
-        user_type: 'people'
-    },
-    {
-        full_name: 'Arham Khan 3',
-        profile_picture: '/src/assets/images/placeholder-user.png',
-        user_type: 'friend'
-    },
-    {
-        full_name: 'Arham Khan',
-        username: 'arhamkhan',
-        profile_picture: '/src/assets/images/placeholder-user.png',
-        user_type: 'people'
-    },
-    {
-        full_name: 'Arham Khan',
-        username: 'arhamkhan',
-        profile_picture: '/src/assets/images/placeholder-user.png',
-        user_type: 'people'
-    },
-    {
-        full_name: 'Arham Khan',
-        username: 'arhamkhan',
-        profile_picture: '/src/assets/images/placeholder-user.png',
-        user_type: 'friend'
-    }
-]);
-
 const handleClickOutside = (event) => {
     if (searchWrapper.value && !searchWrapper.value.contains(event.target)) {
         showSearchResults.value = false;
     }
+};
+const reset = () => {
+    showSearchResults.value = false;
+    search.value = '';
 };
 
 onMounted(() => {
@@ -90,10 +30,10 @@ const searchResults = (query) => {
     return new Promise((resolve) => {
         setTimeout(() => {
             if (!query) {
-                resolve([...results.value]);
+                resolve([...results]);
             } else {
                 resolve(
-                    results.value.filter((item) =>
+                    results.filter((item) =>
                         item.full_name
                             .toLowerCase()
                             .includes(query.toLowerCase())
@@ -164,7 +104,12 @@ watch(search, async (newSearch) => {
                     </div>
                 </div>
                 <template v-if="filteredResults.length">
-                    <div
+                    <router-link
+                        @click="reset"
+                        :to="{
+                            name: 'user-detail',
+                            params: { username: result.username }
+                        }"
                         v-show="!loading"
                         class="result"
                         v-for="(result, index) in filteredResults"
@@ -176,20 +121,37 @@ watch(search, async (newSearch) => {
                                 :src="result.profile_picture"
                                 :alt="result.full_name"
                                 class="imgFluid"
-                                v-if="result.user_type == 'friend'"
+                                v-if="result.is_friend == 'yes'"
                             />
                             <i
-                                v-else-if="result.user_type == 'people'"
+                                v-else-if="
+                                    result.is_friend === 'no' ||
+                                    result.is_friend === 'pending'
+                                "
                                 class="fa fa-search"
                             ></i>
                         </div>
                         <div class="info">
                             <div class="name">{{ result.full_name }}</div>
-                            <div class="type">{{ result.user_type }}</div>
+                            <div class="type" v-if="result.is_friend === 'yes'">
+                                friend
+                            </div>
+                            <div
+                                class="type"
+                                v-if="
+                                    result.is_friend === 'no' ||
+                                    result.is_friend === 'pending'
+                                "
+                            >
+                                people
+                            </div>
                         </div>
                         <div
                             class="picture"
-                            v-if="result.user_type == 'friend'"
+                            v-if="
+                                result.is_friend === 'no' ||
+                                result.is_friend === 'pending'
+                            "
                         >
                             <img
                                 :src="result.profile_picture"
@@ -197,11 +159,11 @@ watch(search, async (newSearch) => {
                                 class="imgFluid"
                             />
                         </div>
-                    </div>
+                    </router-link>
                 </template>
                 <div v-else class="result text-center" v-show="!loading">
                     <div class="info pb-1">
-                        <div class="type" style="text-transform: inherit">
+                        <div class="type mr-4" style="text-transform: inherit">
                             No results found.
                         </div>
                     </div>

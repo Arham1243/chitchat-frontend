@@ -32,11 +32,20 @@ import AvatarGroup from 'primevue/avatargroup';
 import IconField from 'primevue/iconfield';
 import InputIcon from 'primevue/inputicon';
 import Skeleton from 'primevue/skeleton';
+import Image from 'primevue/image';
+import ConfirmationService from 'primevue/confirmationservice';
+import ToastService from 'primevue/toastservice';
+import ConfirmDialog from 'primevue/confirmdialog';
+import Toast from 'primevue/toast';
+import TabPanels from 'primevue/tabpanels';
+import TabPanel from 'primevue/tabpanel';
 
 export function registerPlugins(app) {
     app.use(utils);
     app.use(pinia);
     app.use(router);
+    app.use(ConfirmationService);
+    app.use(ToastService);
     app.use(PrimeVue, {
         theme: {
             preset: Aura,
@@ -70,6 +79,11 @@ export function registerPlugins(app) {
     app.component('IconField', IconField);
     app.component('InputIcon', InputIcon);
     app.component('Skeleton', Skeleton);
+    app.component('Image', Image);
+    app.component('ConfirmDialog', ConfirmDialog);
+    app.component('Toast', Toast);
+    app.component('TabPanels', TabPanels);
+    app.component('TabPanel', TabPanel);
 
     app.directive('tooltip', Tooltip);
     app.directive('ripple', Ripple);
@@ -102,7 +116,12 @@ const components = {
     AvatarGroup,
     Skeleton,
     IconField,
-    InputIcon
+    InputIcon,
+    Image,
+    ConfirmDialog,
+    Toast,
+    TabPanels,
+    TabPanel
 };
 const plugins = [utils, pinia, router];
 

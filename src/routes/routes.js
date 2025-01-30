@@ -13,7 +13,7 @@ export default [
             },
             {
                 path: '/:username',
-                name: 'friends-detail',
+                name: 'user-detail',
                 component: () => import('@/views/FriendsDetail.vue'),
                 props: true
             },

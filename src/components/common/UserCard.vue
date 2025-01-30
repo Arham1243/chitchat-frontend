@@ -1,4 +1,11 @@
 <script setup>
+import { useConfirm } from 'primevue/useconfirm';
+import { useToast } from 'primevue/usetoast';
+import { ref } from 'vue';
+const unfriendConfirm = useConfirm();
+const toast = useToast();
+const busy = ref(false);
+
 const props = defineProps({
     user: {
         type: Object,
@@ -9,12 +16,52 @@ const props = defineProps({
     }
 });
 const user = props.user;
+const emit = defineEmits(['userUnfriended']);
+
+const unfriendConfirmation = (user) => {
+    unfriendConfirm.require({
+        message: `Are you sure you want to remove ${user.full_name} as your friend?
+`,
+        header: `Unfriend ${user.full_name}`,
+        icon: 'fa-regular fa-circle-xmark',
+        rejectLabel: 'Cancel',
+        rejectProps: {
+            label: 'Cancel',
+            severity: 'secondary',
+            variant: 'text'
+        },
+        acceptProps: {
+            label: 'Confirm',
+            severity: 'danger'
+        },
+        accept: () => {
+            unfriend(user);
+        },
+        reject: () => {}
+    });
+};
+
+const unfriend = (user) => {
+    busy.value = true;
+    new Promise(() => {
+        setTimeout(() => {
+            toast.add({
+                severity: 'success',
+                summary: `${user.full_name} removed`,
+                detail: `${user.full_name} was unfriended successfully`,
+                life: 3000
+            });
+            busy.value = false;
+            emit('userUnfriended', user);
+        }, 1500);
+    });
+};
 </script>
 <template>
     <div class="user-card">
         <router-link
             :to="{
-                name: 'friends-detail',
+                name: 'user-detail',
                 params: { username: user.username }
             }"
             class="user-card__image"
@@ -26,9 +73,15 @@ const user = props.user;
             />
         </router-link>
         <div class="user-card__content">
-            <div class="name">
+            <router-link
+                :to="{
+                    name: 'user-detail',
+                    params: { username: user.username }
+                }"
+                class="name hover:underline"
+            >
                 {{ user.full_name }}
-            </div>
+            </router-link>
             <div class="mutual">
                 <AvatarGroup
                     v-if="user.mutual_friends && user.mutual_friends.length > 0"
@@ -61,6 +114,8 @@ const user = props.user;
                 label="Remove"
                 severity="secondary"
                 icon="fa-solid fa-user-minus"
+                @click="unfriendConfirmation(user)"
+                :loading="busy"
             />
         </div>
     </div>
@@ -101,14 +156,18 @@ const user = props.user;
     color: #8d9093;
 }
 .user-card__content .name {
+    color: #000;
     font-size: 1rem;
     font-weight: 500;
 }
 .user-card__content .p-button {
     font-size: 0.9rem;
 }
-.grid .user-card {
+.grid .user-card:not(.swiper-slide .user-card) {
     margin-right: 0.9rem;
     margin-bottom: 0.95rem;
+}
+.swiper-slide .user-card {
+    width: auto;
 }
 </style>

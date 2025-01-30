@@ -17,6 +17,8 @@ import AppMenu from '@/layout/AppMenu.vue';
                 </router-view>
             </div>
         </div>
+        <ConfirmDialog />
+        <Toast />
     </div>
 </template>
 <style>

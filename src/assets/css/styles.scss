@@ -22,6 +22,11 @@ body {
   overflow-x: hidden;
 }
 
+a {
+  color: #000;
+  display: inline-block;
+}
+
 .imgFluid {
   max-width: 100%;
   height: auto;
@@ -87,10 +92,6 @@ body .swiper-button-disabled {
 
 body .swiper-wrapper {
   padding-left: 0.05rem;
-}
-
-body .swiper-slide {
-  margin-right: 0 !important;
 }
 
 .page-content {

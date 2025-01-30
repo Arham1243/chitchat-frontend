@@ -1,83 +1,27 @@
 <script setup>
-import { ref } from 'vue';
+import { onBeforeMount, ref } from 'vue';
 import UserCard from '@/components/common/UserCard.vue';
-const loading = ref(true);
+import usersMock from '@/mocks/users.json';
+
+const loading = ref(false);
 const users = ref([]);
-setTimeout(() => {
-    loading.value = false;
-    users.value = [
-        {
-            full_name: 'Arham Khan',
-            username: 'arhamkhan',
-            profile_picture: '/src/assets/images/placeholder-user.png',
-            mutual_friends: [
-                {
-                    full_name: 'John Doe',
-                    profile_picture: '/src/assets/images/placeholder-user.png'
-                },
-                {
-                    full_name: 'Jane Doe',
-                    profile_picture: '/src/assets/images/placeholder-user.png'
-                }
-            ]
-        },
-        {
-            full_name: 'Arham Khan',
-            username: 'arhamkhan',
-            profile_picture: '/src/assets/images/placeholder-user.png'
-        },
-        {
-            full_name: 'Arham Khan',
-            username: 'arhamkhan',
-            profile_picture: '/src/assets/images/placeholder-user.png'
-        },
-        {
-            full_name: 'Arham Khan',
-            username: 'arhamkhan',
-            profile_picture: '/src/assets/images/placeholder-user.png'
-        },
-        {
-            full_name: 'Arham Khan',
-            username: 'arhamkhan',
-            profile_picture: '/src/assets/images/placeholder-user.png'
-        },
-        {
-            full_name: 'Arham Khan',
-            username: 'arhamkhan',
-            profile_picture: '/src/assets/images/placeholder-user.png'
-        },
-        {
-            full_name: 'Arham Khan',
-            username: 'arhamkhan',
-            profile_picture: '/src/assets/images/placeholder-user.png'
-        },
-        {
-            full_name: 'Arham Khan',
-            username: 'arhamkhan',
-            profile_picture: '/src/assets/images/placeholder-user.png'
-        },
-        {
-            full_name: 'Arham Khan',
-            username: 'arhamkhan',
-            profile_picture: '/src/assets/images/placeholder-user.png'
-        },
-        {
-            full_name: 'Arham Khan',
-            username: 'arhamkhan',
-            profile_picture: '/src/assets/images/placeholder-user.png'
-        },
-        {
-            full_name: 'Arham Khan',
-            username: 'arhamkhan',
-            profile_picture: '/src/assets/images/placeholder-user.png'
-        },
-        {
-            full_name: 'Arham Khan',
-            username: 'arhamkhan',
-            profile_picture: '/src/assets/images/placeholder-user.png'
-        }
-    ];
-}, 1500);
+const handleUserUnfriended = () => {
+    getItems();
+};
+onBeforeMount(() => {
+    getItems();
+});
+
+const getItems = () => {
+    loading.value = true;
+    new Promise((resolve) => {
+        setTimeout(() => {
+            loading.value = false;
+            users.value = usersMock;
+            resolve();
+        }, 1500);
+    });
+};
 </script>
 
 <template>
@@ -104,7 +48,11 @@ setTimeout(() => {
                         v-for="(user, index) in users"
                         :key="index"
                     >
-                        <UserCard :user="user" show-remove />
+                        <UserCard
+                            :user="user"
+                            show-remove
+                            @userUnfriended="handleUserUnfriended"
+                        />
                     </div>
                 </div>
             </div>

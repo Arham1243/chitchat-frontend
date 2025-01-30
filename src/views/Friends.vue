@@ -1,84 +1,25 @@
 <script setup>
-import { ref } from 'vue';
+import { onBeforeMount, ref } from 'vue';
 import UserCard from '@/components/common/UserCard.vue';
+import usersMock from '@/mocks/users.json';
 
 const loading = ref(true);
 const users = ref([]);
-setTimeout(() => {
-    loading.value = false;
-    users.value = [
-        {
-            full_name: 'Arham Khan',
-            username: 'arhamkhan',
-            profile_picture: '/src/assets/images/placeholder-user.png',
-            mutual_friends: [
-                {
-                    full_name: 'John Doe',
-                    profile_picture: '/src/assets/images/placeholder-user.png'
-                },
-                {
-                    full_name: 'Jane Doe',
-                    profile_picture: '/src/assets/images/placeholder-user.png'
-                }
-            ]
-        },
-        {
-            full_name: 'Arham Khan',
-            username: 'arhamkhan',
-            profile_picture: '/src/assets/images/placeholder-user.png'
-        },
-        {
-            full_name: 'Arham Khan',
-            username: 'arhamkhan',
-            profile_picture: '/src/assets/images/placeholder-user.png'
-        },
-        {
-            full_name: 'Arham Khan',
-            username: 'arhamkhan',
-            profile_picture: '/src/assets/images/placeholder-user.png'
-        },
-        {
-            full_name: 'Arham Khan',
-            username: 'arhamkhan',
-            profile_picture: '/src/assets/images/placeholder-user.png'
-        },
-        {
-            full_name: 'Arham Khan',
-            username: 'arhamkhan',
-            profile_picture: '/src/assets/images/placeholder-user.png'
-        },
-        {
-            full_name: 'Arham Khan',
-            username: 'arhamkhan',
-            profile_picture: '/src/assets/images/placeholder-user.png'
-        },
-        {
-            full_name: 'Arham Khan',
-            username: 'arhamkhan',
-            profile_picture: '/src/assets/images/placeholder-user.png'
-        },
-        {
-            full_name: 'Arham Khan',
-            username: 'arhamkhan',
-            profile_picture: '/src/assets/images/placeholder-user.png'
-        },
-        {
-            full_name: 'Arham Khan',
-            username: 'arhamkhan',
-            profile_picture: '/src/assets/images/placeholder-user.png'
-        },
-        {
-            full_name: 'Arham Khan',
-            username: 'arhamkhan',
-            profile_picture: '/src/assets/images/placeholder-user.png'
-        },
-        {
-            full_name: 'Arham Khan',
-            username: 'arhamkhan',
-            profile_picture: '/src/assets/images/placeholder-user.png'
-        }
-    ];
-}, 1500);
+
+onBeforeMount(() => {
+    getItems();
+});
+
+const getItems = () => {
+    loading.value = true;
+    new Promise((resolve) => {
+        setTimeout(() => {
+            loading.value = false;
+            users.value = usersMock;
+            resolve();
+        }, 1500);
+    });
+};
 </script>
 
 <template>
