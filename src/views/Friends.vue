@@ -86,10 +86,14 @@ setTimeout(() => {
         <div class="page-content">
             <div class="page-title">People you may know</div>
             <div class="friends">
-                <div class="grid pr-4" v-if="loading">
-                    <div class="col-3 pb-0" v-for="index in 8" :key="index">
+                <div class="grid grid-nogutter pr-2" v-if="loading">
+                    <div
+                        class="p-col-12 p-md-6 p-lg-3 pb-0"
+                        v-for="index in 8"
+                        :key="index"
+                    >
                         <Skeleton
-                            class="mb-2"
+                            class="mb-2 mr-2"
                             height="322px"
                             width="205px"
                         ></Skeleton>
@@ -97,7 +101,7 @@ setTimeout(() => {
                 </div>
                 <div v-else class="grid grid-nogutter">
                     <div
-                        class="col-3"
+                        class="p-col-12 p-md-6 p-lg-3"
                         v-for="(user, index) in users"
                         :key="index"
                     >

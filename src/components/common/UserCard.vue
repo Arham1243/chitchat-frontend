@@ -68,6 +68,7 @@ const user = props.user;
 
 <style scoped>
 .user-card {
+    width: 200px;
     background: #fff;
     border-radius: 0.5rem;
     overflow: hidden;

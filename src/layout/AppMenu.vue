@@ -22,7 +22,7 @@ const items = ref([
     }
 ]);
 const isActive = (to) => {
-    return route.name === to.name; // Compare route names
+    return route.name === to.name;
 };
 </script>
 <template>
