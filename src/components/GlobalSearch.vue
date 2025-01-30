@@ -10,6 +10,7 @@ const filteredResults = ref([]);
 const results = ref([
     {
         full_name: 'Arham Khan',
+        username: 'arhamkhan',
         profile_picture: '/src/assets/images/placeholder-user.png',
         user_type: 'friend'
     },
@@ -20,6 +21,7 @@ const results = ref([
     },
     {
         full_name: 'Arham Khan',
+        username: 'arhamkhan',
         profile_picture: '/src/assets/images/placeholder-user.png',
         user_type: 'people'
     },
@@ -30,6 +32,7 @@ const results = ref([
     },
     {
         full_name: 'Arham Khan',
+        username: 'arhamkhan',
         profile_picture: '/src/assets/images/placeholder-user.png',
         user_type: 'friend'
     },
@@ -40,6 +43,7 @@ const results = ref([
     },
     {
         full_name: 'Arham Khan',
+        username: 'arhamkhan',
         profile_picture: '/src/assets/images/placeholder-user.png',
         user_type: 'people'
     },
@@ -50,16 +54,19 @@ const results = ref([
     },
     {
         full_name: 'Arham Khan',
+        username: 'arhamkhan',
         profile_picture: '/src/assets/images/placeholder-user.png',
         user_type: 'people'
     },
     {
         full_name: 'Arham Khan',
+        username: 'arhamkhan',
         profile_picture: '/src/assets/images/placeholder-user.png',
         user_type: 'people'
     },
     {
         full_name: 'Arham Khan',
+        username: 'arhamkhan',
         profile_picture: '/src/assets/images/placeholder-user.png',
         user_type: 'friend'
     }
@@ -145,12 +152,12 @@ watch(search, async (newSearch) => {
                             <Skeleton
                                 width="7rem"
                                 height="10px"
-                                borderRadius="16px"
+                                borderRadius="100px"
                             ></Skeleton>
                             <Skeleton
                                 width="3rem"
                                 height="9px"
-                                borderRadius="16px"
+                                borderRadius="100px"
                                 class="mt-1"
                             ></Skeleton>
                         </div>

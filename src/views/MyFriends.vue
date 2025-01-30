@@ -8,6 +8,7 @@ setTimeout(() => {
     users.value = [
         {
             full_name: 'Arham Khan',
+            username: 'arhamkhan',
             profile_picture: '/src/assets/images/placeholder-user.png',
             mutual_friends: [
                 {
@@ -22,46 +23,57 @@ setTimeout(() => {
         },
         {
             full_name: 'Arham Khan',
+            username: 'arhamkhan',
             profile_picture: '/src/assets/images/placeholder-user.png'
         },
         {
             full_name: 'Arham Khan',
+            username: 'arhamkhan',
             profile_picture: '/src/assets/images/placeholder-user.png'
         },
         {
             full_name: 'Arham Khan',
+            username: 'arhamkhan',
             profile_picture: '/src/assets/images/placeholder-user.png'
         },
         {
             full_name: 'Arham Khan',
+            username: 'arhamkhan',
             profile_picture: '/src/assets/images/placeholder-user.png'
         },
         {
             full_name: 'Arham Khan',
+            username: 'arhamkhan',
             profile_picture: '/src/assets/images/placeholder-user.png'
         },
         {
             full_name: 'Arham Khan',
+            username: 'arhamkhan',
             profile_picture: '/src/assets/images/placeholder-user.png'
         },
         {
             full_name: 'Arham Khan',
+            username: 'arhamkhan',
             profile_picture: '/src/assets/images/placeholder-user.png'
         },
         {
             full_name: 'Arham Khan',
+            username: 'arhamkhan',
             profile_picture: '/src/assets/images/placeholder-user.png'
         },
         {
             full_name: 'Arham Khan',
+            username: 'arhamkhan',
             profile_picture: '/src/assets/images/placeholder-user.png'
         },
         {
             full_name: 'Arham Khan',
+            username: 'arhamkhan',
             profile_picture: '/src/assets/images/placeholder-user.png'
         },
         {
             full_name: 'Arham Khan',
+            username: 'arhamkhan',
             profile_picture: '/src/assets/images/placeholder-user.png'
         }
     ];

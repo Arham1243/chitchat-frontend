@@ -12,13 +12,19 @@ const user = props.user;
 </script>
 <template>
     <div class="user-card">
-        <div class="user-card__image">
+        <router-link
+            :to="{
+                name: 'friends-detail',
+                params: { username: user.username }
+            }"
+            class="user-card__image"
+        >
             <img
                 class="imgFluid"
                 :src="user.profile_picture"
                 :alt="user.full_name"
             />
-        </div>
+        </router-link>
         <div class="user-card__content">
             <div class="name">
                 {{ user.full_name }}

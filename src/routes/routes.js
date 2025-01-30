@@ -12,6 +12,12 @@ export default [
                 component: () => import('@/views/Home.vue')
             },
             {
+                path: '/:username',
+                name: 'friends-detail',
+                component: () => import('@/views/FriendsDetail.vue'),
+                props: true
+            },
+            {
                 path: 'friends',
                 name: 'friends',
                 component: () => import('@/views/Friends.vue')

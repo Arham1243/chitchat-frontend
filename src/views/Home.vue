@@ -12,6 +12,7 @@ setTimeout(() => {
     users.value = [
         {
             full_name: 'Arham Khan',
+            username: 'arhamkhan',
             profile_picture: '/src/assets/images/placeholder-user.png',
             mutual_friends: [
                 {
@@ -26,46 +27,57 @@ setTimeout(() => {
         },
         {
             full_name: 'Arham Khan',
+            username: 'arhamkhan',
             profile_picture: '/src/assets/images/placeholder-user.png'
         },
         {
             full_name: 'Arham Khan',
+            username: 'arhamkhan',
             profile_picture: '/src/assets/images/placeholder-user.png'
         },
         {
             full_name: 'Arham Khan',
+            username: 'arhamkhan',
             profile_picture: '/src/assets/images/placeholder-user.png'
         },
         {
             full_name: 'Arham Khan',
+            username: 'arhamkhan',
             profile_picture: '/src/assets/images/placeholder-user.png'
         },
         {
             full_name: 'Arham Khan',
+            username: 'arhamkhan',
             profile_picture: '/src/assets/images/placeholder-user.png'
         },
         {
             full_name: 'Arham Khan',
+            username: 'arhamkhan',
             profile_picture: '/src/assets/images/placeholder-user.png'
         },
         {
             full_name: 'Arham Khan',
+            username: 'arhamkhan',
             profile_picture: '/src/assets/images/placeholder-user.png'
         },
         {
             full_name: 'Arham Khan',
+            username: 'arhamkhan',
             profile_picture: '/src/assets/images/placeholder-user.png'
         },
         {
             full_name: 'Arham Khan',
+            username: 'arhamkhan',
             profile_picture: '/src/assets/images/placeholder-user.png'
         },
         {
             full_name: 'Arham Khan',
+            username: 'arhamkhan',
             profile_picture: '/src/assets/images/placeholder-user.png'
         },
         {
             full_name: 'Arham Khan',
+            username: 'arhamkhan',
             profile_picture: '/src/assets/images/placeholder-user.png'
         }
     ];
@@ -84,10 +96,10 @@ setTimeout(() => {
                         v-for="index in 2"
                         :key="index"
                         style="margin-right: 0.75rem"
-                        height="320px"
+                        height="310px"
                         width="200px"
                     ></Skeleton>
-                    <Skeleton height="320px" width="100px"></Skeleton>
+                    <Skeleton height="310px" width="100px"></Skeleton>
                 </div>
                 <Swiper
                     v-else

@@ -10,9 +10,11 @@ import AppMenu from '@/layout/AppMenu.vue';
                 <div class="col-3">
                     <AppMenu />
                 </div>
-                <Transition name="fade" mode="out-in">
-                    <router-view></router-view>
-                </Transition>
+                <router-view v-slot="{ Component }">
+                    <transition name="fade" mode="out-in">
+                        <component :is="Component" />
+                    </transition>
+                </router-view>
             </div>
         </div>
     </div>
@@ -25,7 +27,7 @@ import AppMenu from '@/layout/AppMenu.vue';
 }
 .fade-enter-active,
 .fade-leave-active {
-    transition: opacity 0.5s ease-in-out;
+    transition: opacity 100ms ease-in-out;
 }
 .fade-enter-from,
 .fade-leave-to {
