@@ -1,5 +1,6 @@
 <script setup>
 import Logo from '@/assets/images/logo.png';
+import GlobalSearch from '@/components/GlobalSearch.vue';
 import { computed, ref } from 'vue';
 import { useRoute } from 'vue-router';
 const route = useRoute();
@@ -18,9 +19,11 @@ const activeTab = computed(() => route.name);
     <header class="header flex align-items-center justify-content-between px-3">
         <div class="header-logo">
             <router-link :to="{ name: 'home' }">
-                <img :src="Logo" width="150" class="logo" alt="logo" />
+                <img :src="Logo" width="120" class="mt-1" alt="logo" />
             </router-link>
+            <GlobalSearch />
         </div>
+
         <div class="header-nav">
             <Tabs :value="activeTab">
                 <TabList>
@@ -88,7 +91,6 @@ const activeTab = computed(() => route.name);
 .header {
     background: #fff;
     box-shadow: 0 0 15px 5px #00000020;
-    line-height: 0;
     position: fixed;
     top: 0;
     width: 100%;
@@ -135,6 +137,9 @@ const activeTab = computed(() => route.name);
 }
 .header-logo {
     width: 33%;
+    display: flex;
+    align-items: center;
+    gap: 1rem;
 }
 .header-options__item {
     width: 2.75rem;

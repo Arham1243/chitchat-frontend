@@ -24,9 +24,14 @@ const user = props.user;
                 {{ user.full_name }}
             </div>
             <div class="mutual">
-                <AvatarGroup v-if="user.mutual_friends">
+                <AvatarGroup
+                    v-if="user.mutual_friends && user.mutual_friends.length > 0"
+                >
                     <Avatar
-                        v-for="(friend, index) in user.mutual_friends"
+                        v-for="(friend, index) in user.mutual_friends.slice(
+                            0,
+                            2
+                        )"
                         :key="index"
                         :image="friend.profile_picture"
                         shape="circle"

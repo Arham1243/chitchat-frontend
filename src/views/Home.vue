@@ -18,6 +18,22 @@ const users = ref([
             {
                 full_name: 'Jane Doe',
                 profile_picture: '/src/assets/images/placeholder-user.png'
+            },
+            {
+                full_name: 'John Doe',
+                profile_picture: '/src/assets/images/placeholder-user.png'
+            },
+            {
+                full_name: 'Jane Doe',
+                profile_picture: '/src/assets/images/placeholder-user.png'
+            },
+            {
+                full_name: 'John Doe',
+                profile_picture: '/src/assets/images/placeholder-user.png'
+            },
+            {
+                full_name: 'Jane Doe',
+                profile_picture: '/src/assets/images/placeholder-user.png'
             }
         ]
     },

@@ -29,6 +29,8 @@ import TabList from 'primevue/tablist';
 import Tab from 'primevue/tab';
 import Avatar from 'primevue/avatar';
 import AvatarGroup from 'primevue/avatargroup';
+import IconField from 'primevue/iconfield';
+import InputIcon from 'primevue/inputicon';
 
 export function registerPlugins(app) {
     app.use(utils);
@@ -64,6 +66,8 @@ export function registerPlugins(app) {
     app.component('DatePicker', DatePicker);
     app.component('Avatar', Avatar);
     app.component('AvatarGroup', AvatarGroup);
+    app.component('IconField', IconField);
+    app.component('InputIcon', InputIcon);
 
     app.directive('tooltip', Tooltip);
     app.directive('ripple', Ripple);
@@ -93,7 +97,9 @@ const components = {
     DatePicker,
     Tooltip,
     Avatar,
-    AvatarGroup
+    AvatarGroup,
+    IconField,
+    InputIcon
 };
 const plugins = [utils, pinia, router];
 
