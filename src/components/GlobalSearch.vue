@@ -1,30 +1,12 @@
 <script setup>
-import { ref, computed, onMounted, onUnmounted } from 'vue';
+import { ref, onMounted, onUnmounted, watch } from 'vue';
 
 const showSearchResults = ref(false);
+const loading = ref(false);
 const search = ref('');
 const searchWrapper = ref(null);
+const filteredResults = ref([]);
 
-const handleClickOutside = (event) => {
-    if (searchWrapper.value && !searchWrapper.value.contains(event.target)) {
-        showSearchResults.value = false;
-    }
-};
-
-onMounted(() => {
-    document.addEventListener('click', handleClickOutside);
-});
-
-onUnmounted(() => {
-    document.removeEventListener('click', handleClickOutside);
-});
-
-const filteredResults = computed(() => {
-    if (!search.value) return results.value;
-    return results.value.filter((result) =>
-        result.full_name.toLowerCase().includes(search.value.toLowerCase())
-    );
-});
 const results = ref([
     {
         full_name: 'Arham Khan',
@@ -82,7 +64,47 @@ const results = ref([
         user_type: 'friend'
     }
 ]);
+
+const handleClickOutside = (event) => {
+    if (searchWrapper.value && !searchWrapper.value.contains(event.target)) {
+        showSearchResults.value = false;
+    }
+};
+
+onMounted(() => {
+    document.addEventListener('click', handleClickOutside);
+});
+
+onUnmounted(() => {
+    document.removeEventListener('click', handleClickOutside);
+});
+
+const searchResults = (query) => {
+    return new Promise((resolve) => {
+        setTimeout(() => {
+            if (!query) {
+                resolve([...results.value]);
+            } else {
+                resolve(
+                    results.value.filter((item) =>
+                        item.full_name
+                            .toLowerCase()
+                            .includes(query.toLowerCase())
+                    )
+                );
+            }
+        }, 1500);
+    });
+};
+
+watch(search, async (newSearch) => {
+    loading.value = true;
+    const results = await searchResults(newSearch);
+    filteredResults.value = results;
+    loading.value = false;
+});
 </script>
+
 <template>
     <div class="search-field-wrapper" ref="searchWrapper">
         <div class="icon-field-wrapper">
@@ -107,37 +129,74 @@ const results = ref([
             <div
                 :class="{
                     'search-results': true,
-                    scroll: filteredResults.length > 7
+                    scroll: !loading && filteredResults.length > 7
                 }"
             >
-                <div
-                    class="result"
-                    v-for="(result, index) in filteredResults"
-                    :key="index"
-                    v-ripple
-                >
-                    <div class="avatar">
-                        <img
-                            :src="result.profile_picture"
-                            :alt="result.full_name"
-                            class="imgFluid"
+                <div v-if="loading">
+                    <div
+                        class="result"
+                        v-for="index in 2"
+                        :key="'skeleton-' + index"
+                    >
+                        <div class="avatar">
+                            <Skeleton shape="circle" size="37px"></Skeleton>
+                        </div>
+                        <div class="info">
+                            <Skeleton
+                                width="7rem"
+                                height="10px"
+                                borderRadius="16px"
+                            ></Skeleton>
+                            <Skeleton
+                                width="3rem"
+                                height="9px"
+                                borderRadius="16px"
+                                class="mt-1"
+                            ></Skeleton>
+                        </div>
+                    </div>
+                </div>
+                <template v-if="filteredResults.length">
+                    <div
+                        v-show="!loading"
+                        class="result"
+                        v-for="(result, index) in filteredResults"
+                        :key="index"
+                        v-ripple
+                    >
+                        <div class="avatar">
+                            <img
+                                :src="result.profile_picture"
+                                :alt="result.full_name"
+                                class="imgFluid"
+                                v-if="result.user_type == 'friend'"
+                            />
+                            <i
+                                v-else-if="result.user_type == 'people'"
+                                class="fa fa-search"
+                            ></i>
+                        </div>
+                        <div class="info">
+                            <div class="name">{{ result.full_name }}</div>
+                            <div class="type">{{ result.user_type }}</div>
+                        </div>
+                        <div
+                            class="picture"
                             v-if="result.user_type == 'friend'"
-                        />
-                        <i
-                            v-else-if="result.user_type == 'people'"
-                            class="fa fa-search"
-                        ></i>
+                        >
+                            <img
+                                :src="result.profile_picture"
+                                :alt="result.full_name"
+                                class="imgFluid"
+                            />
+                        </div>
                     </div>
-                    <div class="info">
-                        <div class="name">{{ result.full_name }}</div>
-                        <div class="type">{{ result.user_type }}</div>
-                    </div>
-                    <div class="picture" v-if="result.user_type == 'friend'">
-                        <img
-                            :src="result.profile_picture"
-                            :alt="result.full_name"
-                            class="imgFluid"
-                        />
+                </template>
+                <div v-else class="result text-center" v-show="!loading">
+                    <div class="info pb-1">
+                        <div class="type" style="text-transform: inherit">
+                            No results found.
+                        </div>
                     </div>
                 </div>
             </div>
@@ -187,6 +246,7 @@ body .header-logo .p-inputicon {
     background: #fff;
     box-shadow: 0 0 15px 5px #00000020;
     padding-top: 4rem;
+    padding-bottom: 0.5rem;
 }
 .search-results.scroll {
     height: 25.5rem;

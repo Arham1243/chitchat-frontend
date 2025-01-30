@@ -31,6 +31,7 @@ import Avatar from 'primevue/avatar';
 import AvatarGroup from 'primevue/avatargroup';
 import IconField from 'primevue/iconfield';
 import InputIcon from 'primevue/inputicon';
+import Skeleton from 'primevue/skeleton';
 
 export function registerPlugins(app) {
     app.use(utils);
@@ -68,6 +69,7 @@ export function registerPlugins(app) {
     app.component('AvatarGroup', AvatarGroup);
     app.component('IconField', IconField);
     app.component('InputIcon', InputIcon);
+    app.component('Skeleton', Skeleton);
 
     app.directive('tooltip', Tooltip);
     app.directive('ripple', Ripple);
@@ -98,6 +100,7 @@ const components = {
     Tooltip,
     Avatar,
     AvatarGroup,
+    Skeleton,
     IconField,
     InputIcon
 };
