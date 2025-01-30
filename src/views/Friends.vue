@@ -82,16 +82,16 @@ setTimeout(() => {
 </script>
 
 <template>
-    <div class="col-9 pl-3">
+    <div class="col-8 col-offset-1">
         <div class="page-content">
             <div class="page-title">People you may know</div>
             <div class="friends">
-                <div class="grid grid-nogutter" v-if="loading">
-                    <div class="col-3" v-for="index in 8" :key="index">
+                <div class="grid pr-4" v-if="loading">
+                    <div class="col-3 pb-0" v-for="index in 8" :key="index">
                         <Skeleton
-                            class="mb-3"
+                            class="mb-2"
                             height="322px"
-                            width="215px"
+                            width="205px"
                         ></Skeleton>
                     </div>
                 </div>

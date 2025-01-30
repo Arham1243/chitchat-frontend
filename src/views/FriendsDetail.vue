@@ -2,10 +2,9 @@
 import { ref } from 'vue';
 const loading = ref(true);
 const user = ref({});
-import { useRoute } from 'vue-router';
-
-const route = useRoute();
-const username = ref(route.params.username);
+// import { useRoute } from 'vue-router';
+// const route = useRoute();
+// const username = ref(route.params.username);
 
 setTimeout(() => {
     loading.value = false;
@@ -28,5 +27,5 @@ setTimeout(() => {
 </script>
 
 <template>
-    <div class="col-5 ml-6 pl-5"></div>
+    <div class="col-8 col-offset-1 bg-primary">asd</div>
 </template>

@@ -85,7 +85,7 @@ setTimeout(() => {
 </script>
 
 <template>
-    <div class="col-5 ml-6 pl-5">
+    <div class="col-5 col-offset-1">
         <div class="box pr-0">
             <div class="box-header">
                 <div class="title">People you may know</div>
@@ -99,7 +99,7 @@ setTimeout(() => {
                         height="310px"
                         width="200px"
                     ></Skeleton>
-                    <Skeleton height="310px" width="100px"></Skeleton>
+                    <Skeleton height="310px" width="132px"></Skeleton>
                 </div>
                 <Swiper
                     v-else
