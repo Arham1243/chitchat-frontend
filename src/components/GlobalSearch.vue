@@ -221,16 +221,7 @@ body .header-logo .p-inputicon {
     height: 25.5rem;
     overflow-y: auto;
 }
-.search-results::-webkit-scrollbar {
-    width: 7px;
-}
-.search-results::-webkit-scrollbar-track {
-    background: transparent;
-}
-.search-results::-webkit-scrollbar-thumb {
-    background: #89898967;
-    border-radius: 100px;
-}
+
 .search-results .result {
     display: flex;
     align-items: center;

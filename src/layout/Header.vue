@@ -1,22 +1,65 @@
 <script setup>
+import { ref, computed, onUnmounted, watch } from 'vue';
+import { useRoute } from 'vue-router';
 import Logo from '@/assets/images/logo.png';
 import GlobalSearch from '@/components/GlobalSearch.vue';
 import Placeholder from '@/assets/images/placeholder-user.png';
+import notifications from '@/mocks/notifications.json';
+import unreadNotifications from '@/mocks/unreadNotifications.json';
 
-import { computed, ref } from 'vue';
-import { useRoute } from 'vue-router';
-const route = useRoute();
+const user = {
+    full_name: 'Arham Khan',
+    username: 'arhamkhan'
+};
 
-const items = ref([
+const NAV_ITEMS = [
     { to: 'home', icon: 'fa-solid fa-house' },
-    {
-        to: 'friends',
-        icon: 'fa-solid fa-users'
-    },
+    { to: 'friends', icon: 'fa-solid fa-users' },
     { to: 'my-friends', icon: 'fa-solid fa-user-group' }
-]);
+];
+
+const route = useRoute();
+const optionBoxWrapper = ref(null);
+const showOptionBox = ref(false);
+const contentType = ref(null);
+const triggerElements = ref(
+    new Map([
+        ['account', ref(null)],
+        ['notifications', ref(null)]
+    ])
+);
+
 const activeTab = computed(() => route.name);
+
+const handleClickOutside = (event) => {
+    const isOutsideBox = !optionBoxWrapper.value?.contains(event.target);
+    const isOutsideTriggers = Array.from(triggerElements.value.values()).every(
+        (ref) => !ref.value?.$el.contains(event.target)
+    );
+
+    if (showOptionBox.value && isOutsideBox && isOutsideTriggers) {
+        showOptionBox.value = false;
+    }
+};
+
+const toggleOptionBox = (type) => {
+    contentType.value =
+        showOptionBox.value && contentType.value === type ? null : type;
+    showOptionBox.value = contentType.value !== null;
+};
+
+onUnmounted(() => {
+    document.removeEventListener('click', handleClickOutside);
+});
+
+watch(showOptionBox, (visible) => {
+    document[visible ? 'addEventListener' : 'removeEventListener'](
+        'click',
+        handleClickOutside
+    );
+});
 </script>
+
 <template>
     <header class="header flex align-items-center justify-content-between px-3">
         <div class="header-logo">
@@ -30,15 +73,14 @@ const activeTab = computed(() => route.name);
             <Tabs :value="activeTab">
                 <TabList>
                     <Tab
+                        v-for="tab in NAV_ITEMS"
+                        :key="tab.to"
                         class="header-tab"
-                        v-for="tab in items"
-                        :key="tab.label"
                         :value="tab.to"
                     >
                         <router-link
-                            v-if="tab.to"
-                            v-slot="{ href, navigate }"
                             :to="{ name: tab.to }"
+                            v-slot="{ href, navigate }"
                             custom
                         >
                             <a
@@ -54,6 +96,7 @@ const activeTab = computed(() => route.name);
                 </TabList>
             </Tabs>
         </div>
+
         <ul class="header-options flex align-items-center justify-content-end">
             <li>
                 <router-link :to="{ name: 'home' }">
@@ -67,8 +110,14 @@ const activeTab = computed(() => route.name);
                     </OverlayBadge>
                 </router-link>
             </li>
+
             <li>
                 <OverlayBadge
+                    :ref="
+                        (el) =>
+                            (triggerElements.get('notifications').value = el)
+                    "
+                    @click="toggleOptionBox('notifications')"
                     severity="danger"
                     v-tooltip.bottom="'notifications'"
                     class="header-options__item no-badge cursor-pointer"
@@ -76,8 +125,11 @@ const activeTab = computed(() => route.name);
                     <i class="fa-solid fa-bell" />
                 </OverlayBadge>
             </li>
+
             <li>
                 <OverlayBadge
+                    :ref="(el) => (triggerElements.get('account').value = el)"
+                    @click="toggleOptionBox('account')"
                     v-tooltip.bottom="'account'"
                     severity="danger"
                     class="header-options__item no-badge cursor-pointer"
@@ -85,16 +137,286 @@ const activeTab = computed(() => route.name);
                     <img
                         :src="Placeholder"
                         class="border-circle"
-                        alt="accout"
+                        alt="account"
                         width="43"
                         height="43"
                     />
                 </OverlayBadge>
             </li>
         </ul>
+
+        <div v-if="showOptionBox" class="option-box" ref="optionBoxWrapper">
+            <template v-if="contentType === 'account'">
+                <router-link
+                    @click="showOptionBox = false"
+                    :to="{
+                        name: 'user-detail',
+                        params: { username: user.username }
+                    }"
+                    class="user-profile"
+                    v-ripple
+                >
+                    <div class="profile-picture">
+                        <img
+                            :src="Placeholder"
+                            class="border-circle"
+                            alt="account"
+                            width="36"
+                            height="36"
+                        />
+                    </div>
+                    <div class="name">{{ user.full_name }}</div>
+                </router-link>
+                <div class="lookups-list">
+                    <div class="lookups-item cursor-pointer" v-ripple>
+                        <div class="wrapper">
+                            <div class="icon">
+                                <i class="fa-solid fa-moon" />
+                            </div>
+                            <div class="title">Appearance</div>
+                        </div>
+                        <i class="fa-solid fa-chevron-right" />
+                    </div>
+                    <div class="lookups-item" v-ripple>
+                        <div class="wrapper">
+                            <div class="icon">
+                                <i class="fa-solid fa-right-from-bracket" />
+                            </div>
+                            <div class="title">Logout</div>
+                        </div>
+                    </div>
+                </div>
+            </template>
+
+            <template v-else-if="contentType === 'notifications'">
+                <div class="option-box__header">
+                    <div class="title">Notifications</div>
+                </div>
+                <Tabs value="0">
+                    <TabList>
+                        <Tab value="0">All</Tab>
+                        <Tab value="1">Unread</Tab>
+                    </TabList>
+                    <TabPanels>
+                        <TabPanel value="0"
+                            ><div
+                                :class="[
+                                    'lookups-list border-none mt-0',
+                                    { scroll: notifications.length > 4 }
+                                ]"
+                            >
+                                <div
+                                    v-for="(
+                                        notification, index
+                                    ) in notifications"
+                                    :key="index"
+                                    class="lookups-item lookups-item--notify"
+                                    v-ripple
+                                >
+                                    <div class="wrapper">
+                                        <div class="icon">
+                                            <img
+                                                :src="Placeholder"
+                                                class="border-circle"
+                                                alt="account"
+                                                width="56"
+                                                height="56"
+                                            />
+                                        </div>
+                                        <div>
+                                            <div class="title">
+                                                <span>{{
+                                                    notification.name
+                                                }}</span>
+                                                {{ notification.message }}
+                                            </div>
+                                            <div
+                                                class="time"
+                                                v-tooltip.top="
+                                                    `${notification.name} ${notification.message}`
+                                                "
+                                            >
+                                                {{ notification.time }}
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div
+                                        v-if="!notification.is_read"
+                                        class="read-dot"
+                                    ></div>
+                                </div>
+                            </div>
+                        </TabPanel>
+                        <TabPanel value="1"
+                            ><div
+                                :class="[
+                                    'lookups-list border-none mt-0',
+                                    { scroll: unreadNotifications.length > 4 }
+                                ]"
+                            >
+                                <div
+                                    v-for="(
+                                        notification, index
+                                    ) in unreadNotifications"
+                                    :key="index"
+                                    class="lookups-item lookups-item--notify"
+                                    v-ripple
+                                >
+                                    <div class="wrapper">
+                                        <div class="icon">
+                                            <img
+                                                :src="Placeholder"
+                                                class="border-circle"
+                                                alt="account"
+                                                width="56"
+                                                height="56"
+                                            />
+                                        </div>
+                                        <div>
+                                            <div class="title">
+                                                <span>{{
+                                                    notification.name
+                                                }}</span>
+                                                {{ notification.message }}
+                                            </div>
+                                            <div
+                                                class="time"
+                                                v-tooltip.top="
+                                                    `${notification.name} ${notification.message}`
+                                                "
+                                            >
+                                                {{ notification.time }}
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div
+                                        v-if="!notification.is_read"
+                                        class="read-dot"
+                                    ></div>
+                                </div>
+                            </div>
+                        </TabPanel>
+                    </TabPanels>
+                </Tabs>
+            </template>
+        </div>
     </header>
 </template>
+
 <style>
+.header-options li {
+    position: relative;
+}
+.option-box {
+    width: 345px;
+    position: absolute;
+    top: 100%;
+    right: 1rem;
+    border-radius: 0.5rem;
+    z-index: 100;
+    background: #fff;
+    box-shadow: 0 0 15px 5px #00000020;
+    padding: 0.5rem;
+}
+.option-box__header {
+    padding: 0.5rem 0.75rem;
+}
+
+.option-box__header .title {
+    font-size: 1.25rem;
+    font-weight: 700;
+}
+.user-profile {
+    width: 100%;
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 0.65rem 0.5rem;
+    border-radius: 0.5rem;
+}
+.user-profile:hover {
+    background: #f2f2f2;
+}
+.lookups-list.scroll {
+    height: 70vh;
+    overflow-y: auto;
+}
+.user-profile .name {
+    font-size: 1rem;
+    font-weight: 700;
+}
+.lookups-list {
+    border-top: 1px solid #cccccc7a;
+    margin-top: 0.5rem;
+    padding-top: 0.5rem;
+}
+.lookups-item {
+    border-radius: 0.5rem;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0.75rem 0.5rem;
+}
+.lookups-item--notify {
+    padding-inline: 1.25rem;
+}
+.lookups-item--notify .read-dot {
+    width: 15px;
+    aspect-ratio: 1 / 1;
+    border-radius: 100%;
+    background: var(--primary-color);
+    flex: 0.044;
+}
+.lookups-item .time {
+    width: fit-content;
+    font-size: 0.7rem;
+    font-weight: 600;
+    margin-top: 0.2rem;
+    color: var(--primary-color);
+}
+.lookups-item .wrapper {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+}
+
+.lookups-item--notify .wrapper {
+    gap: 1.5rem;
+    flex: 1;
+}
+.lookups-item:hover {
+    background: #f2f2f2;
+}
+
+.lookups-item .icon {
+    background: #e0e6ee;
+    color: #1c1d21;
+    width: 36px;
+    aspect-ratio: 1/1;
+    border-radius: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.05rem;
+}
+
+.lookups-item .title {
+    font-size: 0.9rem;
+    font-weight: 500;
+}
+
+.lookups-item--notify .title {
+    display: -webkit-box;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 3;
+    overflow: hidden;
+    color: #6e7174;
+    font-weight: 400;
+}
+.lookups-item--notify .title span {
+    color: #626569;
+    font-weight: 600;
+}
 .header {
     background: #fff;
     box-shadow: 0 0 15px 5px #00000020;
@@ -171,5 +493,12 @@ const activeTab = computed(() => route.name);
 }
 .no-badge .p-badge {
     display: none !important;
+}
+body .p-tabpanels {
+    padding: 0;
+}
+
+body .p-tablist-tab-list {
+    border: none;
 }
 </style>

@@ -111,3 +111,16 @@ body .swiper-wrapper {
 .p-tooltip {
   font-size: 0.8rem;
 }
+
+::-webkit-scrollbar {
+  width: 7px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #89898967;
+  border-radius: 100px;
+}
