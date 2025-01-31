@@ -14,7 +14,7 @@ export default [
             {
                 path: '/:username',
                 name: 'user-detail',
-                component: () => import('@/views/FriendsDetail.vue'),
+                component: () => import('@/views/UserDetail.vue'),
                 props: true
             },
             {

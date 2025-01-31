@@ -281,6 +281,7 @@ const cancelRequest = () => {
     padding: 1.5rem 2.5rem;
     --p-avatar-width: 2.25rem;
     --p-avatar-height: 2.25rem;
+    --p-tabs-tab-border-width: 0 0 3px 0;
 }
 .profile-image {
     display: flex;

@@ -133,7 +133,7 @@ const activeTab = computed(() => route.name);
     padding: 1rem 1.125rem;
 }
 .header-nav .p-tab-active {
-    border-bottom-width: 3px;
+    --p-tabs-tab-border-width: 0 0 3px 0;
 }
 .header-logo {
     width: 33%;
