@@ -10,6 +10,10 @@ const route = useRoute();
 const loading = ref(false);
 const busy = ref(false);
 const user = ref({});
+const currentUser = {
+    full_name: 'Arham Khan',
+    username: 'arhamkhan'
+};
 const unfriendConfirm = useConfirm();
 const toast = useToast();
 
@@ -127,7 +131,13 @@ const cancelRequest = () => {
                                         borderRadius="100px"
                                     ></Skeleton>
                                 </div>
-                                <div class="actions flex gap-2">
+                                <div
+                                    class="actions flex gap-2"
+                                    v-if="
+                                        currentUser.username !==
+                                        route.params.username
+                                    "
+                                >
                                     <Skeleton
                                         width="120px"
                                         height="40px"
@@ -153,6 +163,12 @@ const cancelRequest = () => {
                                 style="border-color: #e2e8f0"
                                 preview
                             />
+                            <button
+                                class="edit-image"
+                                v-if="currentUser.username === user.username"
+                            >
+                                <i class="fa-solid fa-camera"></i>
+                            </button>
                         </div>
                     </div>
                     <div class="col-9">
@@ -193,7 +209,12 @@ const cancelRequest = () => {
                                         />
                                     </AvatarGroup>
                                 </div>
-                                <div class="actions flex gap-2">
+                                <div
+                                    class="actions flex gap-2"
+                                    v-if="
+                                        currentUser.username !== user.username
+                                    "
+                                >
                                     <Button
                                         v-if="user.is_friend === 'yes'"
                                         label="Friends"
@@ -284,6 +305,7 @@ const cancelRequest = () => {
     --p-tabs-tab-border-width: 0 0 3px 0;
 }
 .profile-image {
+    position: relative;
     display: flex;
     justify-content: center;
 }
@@ -302,5 +324,25 @@ const cancelRequest = () => {
     color: #65687f;
     font-size: 0.85rem;
     font-weight: 500;
+}
+.edit-image {
+    outline: none;
+    width: 33px;
+    aspect-ratio: 1/1;
+    background: #e2e8f0;
+    border-radius: 100%;
+    position: absolute;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    right: 0.45rem;
+    bottom: 1.35rem;
+    font-size: 1.05rem;
+    border: 2px solid #d1d5dba8;
+    z-index: 10;
+}
+
+.edit-image:hover {
+    filter: brightness(0.95);
 }
 </style>

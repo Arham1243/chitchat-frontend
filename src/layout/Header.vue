@@ -1,6 +1,8 @@
 <script setup>
 import Logo from '@/assets/images/logo.png';
 import GlobalSearch from '@/components/GlobalSearch.vue';
+import Placeholder from '@/assets/images/placeholder-user.png';
+
 import { computed, ref } from 'vue';
 import { useRoute } from 'vue-router';
 const route = useRoute();
@@ -58,31 +60,36 @@ const activeTab = computed(() => route.name);
                     <OverlayBadge
                         severity="danger"
                         value="0"
-                        class="header-options__item"
+                        v-tooltip.bottom="'messenger'"
+                        class="header-options__item cursor-pointer"
                     >
                         <i class="fa-brands fa-facebook-messenger" />
                     </OverlayBadge>
                 </router-link>
             </li>
             <li>
-                <router-link :to="{ name: 'home' }">
-                    <OverlayBadge
-                        severity="danger"
-                        class="header-options__item no-badge"
-                    >
-                        <i class="fa-solid fa-bell" />
-                    </OverlayBadge>
-                </router-link>
+                <OverlayBadge
+                    severity="danger"
+                    v-tooltip.bottom="'notifications'"
+                    class="header-options__item no-badge cursor-pointer"
+                >
+                    <i class="fa-solid fa-bell" />
+                </OverlayBadge>
             </li>
             <li>
-                <router-link :to="{ name: 'home' }">
-                    <OverlayBadge
-                        severity="danger"
-                        class="header-options__item no-badge"
-                    >
-                        <i class="fa-solid fa-user" />
-                    </OverlayBadge>
-                </router-link>
+                <OverlayBadge
+                    v-tooltip.bottom="'account'"
+                    severity="danger"
+                    class="header-options__item no-badge cursor-pointer"
+                >
+                    <img
+                        :src="Placeholder"
+                        class="border-circle"
+                        alt="accout"
+                        width="43"
+                        height="43"
+                    />
+                </OverlayBadge>
             </li>
         </ul>
     </header>
@@ -152,7 +159,11 @@ const activeTab = computed(() => route.name);
     justify-content: center;
     font-size: 1.25rem;
     --p-badge-min-width: 1.1rem;
+    transition: all 100ms;
     --p-badge-height: 1.1rem;
+}
+.header-options__item:hover {
+    filter: brightness(0.95);
 }
 .header-options .p-badge {
     top: 0.5rem !important;

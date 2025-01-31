@@ -4,11 +4,18 @@ import { ref } from 'vue';
 import { useRoute } from 'vue-router';
 const route = useRoute();
 
+const user = {
+    full_name: 'Arham Khan',
+    username: 'arhamkhan'
+};
 const items = ref([
     {
         label: 'Arham Khan',
         image: Placeholder,
-        to: { name: 'home' }
+        to: {
+            name: 'user-detail',
+            params: { username: user.username }
+        }
     },
     {
         label: 'Find friends',
@@ -22,7 +29,10 @@ const items = ref([
     }
 ]);
 const isActive = (to) => {
-    return route.name === to.name;
+    return (
+        route.name === to.name &&
+        JSON.stringify(route.params) === JSON.stringify(to.params)
+    );
 };
 </script>
 <template>
