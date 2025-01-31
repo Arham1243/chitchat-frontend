@@ -39,9 +39,7 @@ const isSubmitEnabled = computed(() => {
 
 <template>
     <div>
-        <h4 class="font-medium text-2xl text-center mb-4">
-            Let's reset your password
-        </h4>
+        <h4 class="text-2xl text-center mb-4">Let's reset your password</h4>
 
         <form @submit.prevent="resetPassword">
             <div class="p-fluid formgrid grid">

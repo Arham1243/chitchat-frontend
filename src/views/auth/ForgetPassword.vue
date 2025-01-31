@@ -34,7 +34,7 @@ const isSubmitEnabled = computed(() => {
 
 <template>
     <div>
-        <h4 class="font-medium text-2xl text-center mb-2">Forgot Password</h4>
+        <h4 class="text-2xl text-center mb-2">Forgot Password</h4>
         <p class="text-xs text-center mb-4 text-100">
             Enter the email address where you'd like us to send your password
             reset link.

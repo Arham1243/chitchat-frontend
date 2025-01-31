@@ -10,8 +10,8 @@ const router = createRouter({
 router.beforeEach(async (to, from, next) => {
     // const sessionStore = useSessionStore();
     // const { access_token: accessToken } = sessionStore.getCookie() || {};
-    const accessToken = 'test';
-    // const accessToken = undefined;
+    // const accessToken = 'test';
+    const accessToken = undefined;
 
     const isAuth = to.path.startsWith('/auth');
 

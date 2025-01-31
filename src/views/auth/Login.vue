@@ -43,7 +43,7 @@ const isSubmitEnabled = computed(() => {
 
 <template>
     <div>
-        <h4 class="font-medium text-2xl text-center mb-4">Log in</h4>
+        <h4 class="text-2xl text-center mb-4">Log in</h4>
         <form @submit.prevent="login">
             <div class="p-fluid formgrid grid">
                 <div class="field col-12 mb-3 pb-1">
