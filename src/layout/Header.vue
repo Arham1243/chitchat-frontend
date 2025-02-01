@@ -20,16 +20,16 @@ const NAV_ITEMS = [
 
 const route = useRoute();
 const optionBoxWrapper = ref(null);
+const activeTab = computed(() => route.name);
 const showOptionBox = ref(false);
 const contentType = ref(null);
+const dark = ref(null);
 const triggerElements = ref(
     new Map([
         ['account', ref(null)],
         ['notifications', ref(null)]
     ])
 );
-
-const activeTab = computed(() => route.name);
 
 const handleClickOutside = (event) => {
     const isOutsideBox = !optionBoxWrapper.value?.contains(event.target);
@@ -110,7 +110,6 @@ watch(showOptionBox, (visible) => {
                     </OverlayBadge>
                 </router-link>
             </li>
-
             <li>
                 <OverlayBadge
                     :ref="
@@ -125,7 +124,6 @@ watch(showOptionBox, (visible) => {
                     <i class="fa-solid fa-bell" />
                 </OverlayBadge>
             </li>
-
             <li>
                 <OverlayBadge
                     :ref="(el) => (triggerElements.get('account').value = el)"
@@ -168,7 +166,11 @@ watch(showOptionBox, (visible) => {
                     <div class="name">{{ user.full_name }}</div>
                 </router-link>
                 <div class="lookups-list">
-                    <div class="lookups-item cursor-pointer" v-ripple>
+                    <div
+                        class="lookups-item cursor-pointer pr-4"
+                        v-ripple
+                        @click.stop="contentType = 'appearance'"
+                    >
                         <div class="wrapper">
                             <div class="icon">
                                 <i class="fa-solid fa-moon" />
@@ -187,7 +189,6 @@ watch(showOptionBox, (visible) => {
                     </div>
                 </div>
             </template>
-
             <template v-else-if="contentType === 'notifications'">
                 <div class="option-box__header">
                     <div class="title">Notifications</div>
@@ -198,8 +199,8 @@ watch(showOptionBox, (visible) => {
                         <Tab value="1">Unread</Tab>
                     </TabList>
                     <TabPanels>
-                        <TabPanel value="0"
-                            ><div
+                        <TabPanel value="0">
+                            <div
                                 :class="[
                                     'lookups-list border-none mt-0',
                                     { scroll: notifications.length > 4 }
@@ -247,8 +248,8 @@ watch(showOptionBox, (visible) => {
                                 </div>
                             </div>
                         </TabPanel>
-                        <TabPanel value="1"
-                            ><div
+                        <TabPanel value="1">
+                            <div
                                 :class="[
                                     'lookups-list border-none mt-0',
                                     { scroll: unreadNotifications.length > 4 }
@@ -299,15 +300,117 @@ watch(showOptionBox, (visible) => {
                     </TabPanels>
                 </Tabs>
             </template>
+            <template v-else-if="contentType === 'appearance'">
+                <div
+                    class="option-box__header flex align-items-center gap-2 pb-0 px-2"
+                >
+                    <Button
+                        @click.stop="contentType = 'account'"
+                        icon="icon pi pi-arrow-left"
+                        variant="text"
+                        rounded
+                        class="text-black-alpha-90 back-btn"
+                    />
+                    <div class="title pl-1">Appearance</div>
+                </div>
+                <div class="actions-list">
+                    <div class="actions-item">
+                        <div class="icon">
+                            <i class="fa-solid fa-moon" />
+                        </div>
+                        <div class="content">
+                            <div class="title">Dark mode</div>
+                            <p>
+                                Adjust the appearance of App to reduce glare and
+                                give your eyes a break.
+                            </p>
+                            <label for="off" class="action-option mt-3"
+                                >Off
+                                <RadioButton
+                                    v-model="dark"
+                                    inputId="off"
+                                    value="0"
+                                />
+                            </label>
+                            <label for="on" class="action-option"
+                                >On
+                                <RadioButton
+                                    v-model="dark"
+                                    inputId="on"
+                                    value="1"
+                                />
+                            </label>
+                        </div>
+                    </div>
+                </div>
+            </template>
         </div>
     </header>
 </template>
 
 <style>
+.actions-list {
+    margin: 1rem 0;
+}
+
+.actions-item {
+    display: flex;
+    gap: 0.9rem;
+
+    padding: 1rem 0.5rem 0;
+}
+
+.actions-item .title {
+    font-size: 1.05rem;
+    font-weight: 700;
+    margin-bottom: 0.25rem;
+}
+
+.actions-item p {
+    color: #838689;
+    font-size: 0.8rem;
+}
+
+.actions-item .icon {
+    align-self: flex-start;
+    background: #e0e6ee;
+    color: #1c1d21;
+    width: 36px;
+    aspect-ratio: 1/1;
+    border-radius: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.2rem;
+}
+
+.actions-item .content {
+    flex: 1;
+}
+
+.action-option {
+    width: 100%;
+    padding: 0.75rem;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    border-radius: 0.5rem;
+    color: #6b6b6c;
+    font-size: 0.85rem;
+    font-weight: 500;
+}
+
+.action-option:hover {
+    background: #f2f2f2;
+}
+
 .header-options li {
     position: relative;
 }
+
 .option-box {
+    color: #121213;
     width: 345px;
     position: absolute;
     top: 100%;
@@ -318,14 +421,16 @@ watch(showOptionBox, (visible) => {
     box-shadow: 0 0 15px 5px #00000020;
     padding: 0.5rem;
 }
+
 .option-box__header {
     padding: 0.5rem 0.75rem;
 }
 
 .option-box__header .title {
-    font-size: 1.25rem;
+    font-size: 1.4rem;
     font-weight: 700;
 }
+
 .user-profile {
     width: 100%;
     display: flex;
@@ -334,22 +439,27 @@ watch(showOptionBox, (visible) => {
     padding: 0.65rem 0.5rem;
     border-radius: 0.5rem;
 }
+
 .user-profile:hover {
     background: #f2f2f2;
 }
+
 .lookups-list.scroll {
     height: 70vh;
     overflow-y: auto;
 }
+
 .user-profile .name {
     font-size: 1rem;
     font-weight: 700;
 }
+
 .lookups-list {
     border-top: 1px solid #cccccc7a;
     margin-top: 0.5rem;
     padding-top: 0.5rem;
 }
+
 .lookups-item {
     border-radius: 0.5rem;
     display: flex;
@@ -357,16 +467,19 @@ watch(showOptionBox, (visible) => {
     justify-content: space-between;
     padding: 0.75rem 0.5rem;
 }
+
 .lookups-item--notify {
     padding-inline: 1.25rem;
 }
+
 .lookups-item--notify .read-dot {
     width: 15px;
     aspect-ratio: 1 / 1;
     border-radius: 100%;
     background: var(--primary-color);
-    flex: 0.044;
+    flex: 0.043;
 }
+
 .lookups-item .time {
     width: fit-content;
     font-size: 0.7rem;
@@ -374,6 +487,7 @@ watch(showOptionBox, (visible) => {
     margin-top: 0.2rem;
     color: var(--primary-color);
 }
+
 .lookups-item .wrapper {
     display: flex;
     align-items: center;
@@ -384,6 +498,7 @@ watch(showOptionBox, (visible) => {
     gap: 1.5rem;
     flex: 1;
 }
+
 .lookups-item:hover {
     background: #f2f2f2;
 }
@@ -397,7 +512,7 @@ watch(showOptionBox, (visible) => {
     display: flex;
     align-items: center;
     justify-content: center;
-    font-size: 1.05rem;
+    font-size: 1.2rem;
 }
 
 .lookups-item .title {
@@ -413,10 +528,12 @@ watch(showOptionBox, (visible) => {
     color: #6e7174;
     font-weight: 400;
 }
+
 .lookups-item--notify .title span {
     color: #626569;
     font-weight: 600;
 }
+
 .header {
     background: #fff;
     box-shadow: 0 0 15px 5px #00000020;
@@ -425,51 +542,63 @@ watch(showOptionBox, (visible) => {
     width: 100%;
     z-index: 100;
 }
+
 .header-nav {
     width: 33%;
 }
+
 .header-tab {
     width: 28%;
 }
+
 .header-nav .p-tablist-tab-list {
     justify-content: center;
     gap: 1rem;
 }
+
 .header-options {
     width: 33%;
     padding-top: 2px;
     gap: 0.85rem;
 }
+
 .header-tab i {
     font-size: 1.35rem;
     color: #606366;
     top: 1px;
     position: relative;
 }
+
 .header-nav .p-tab-active i {
     color: var(--primary-color);
 }
+
 .header-nav .p-tab {
     display: flex;
     justify-content: center;
 }
+
 .header-nav button.p-tab {
     padding: 0;
 }
+
 .header-nav button.p-tab > a {
     width: 100%;
     justify-content: center;
     padding: 1rem 1.125rem;
 }
+
 .header-nav .p-tab-active {
     --p-tabs-tab-border-width: 0 0 3px 0;
 }
+
 .header-logo {
-    width: 35.5%;
+    width: 34%;
     display: flex;
     align-items: center;
     gap: 1rem;
 }
+
 .header-options__item {
     width: 2.75rem;
     background: #e2e8f0;
@@ -484,16 +613,20 @@ watch(showOptionBox, (visible) => {
     transition: all 100ms;
     --p-badge-height: 1.1rem;
 }
+
 .header-options__item:hover {
     filter: brightness(0.95);
 }
+
 .header-options .p-badge {
     top: 0.5rem !important;
     right: 0.2rem !important;
 }
+
 .no-badge .p-badge {
     display: none !important;
 }
+
 body .p-tabpanels {
     padding: 0;
 }

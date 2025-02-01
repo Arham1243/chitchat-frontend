@@ -71,7 +71,7 @@ watch(search, async (newSearch) => {
                 icon="icon pi pi-arrow-left"
                 variant="text"
                 rounded
-                class="text-black-alpha-90"
+                class="text-black-alpha-90 back-btn"
             />
             <div
                 :class="{
@@ -191,12 +191,6 @@ body .search-field-wrapper .p-button {
     position: absolute !important;
     left: 0.85rem;
     top: 0.25rem;
-}
-body .search-field-wrapper .p-button .icon {
-    font-size: 0.85rem;
-}
-body .search-field-wrapper .p-button:hover {
-    background: #f0f2f5;
 }
 body .header-logo .p-inputicon {
     margin-left: 0.15rem;
