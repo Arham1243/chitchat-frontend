@@ -1,7 +1,7 @@
 <script setup>
 import { ref, computed, onUnmounted, watch } from 'vue';
 import { useRoute } from 'vue-router';
-import Logo from '@/assets/images/logo.png';
+import Logo from '@/assets/images/c.png';
 import GlobalSearch from '@/components/GlobalSearch.vue';
 import Placeholder from '@/assets/images/placeholder-user.png';
 import notifications from '@/mocks/notifications.json';
@@ -64,7 +64,7 @@ watch(showOptionBox, (visible) => {
     <header class="header flex align-items-center justify-content-between px-3">
         <div class="header-logo">
             <router-link :to="{ name: 'home' }">
-                <img :src="Logo" width="120" class="mt-1" alt="logo" />
+                <img :src="Logo" width="30" class="mt-1" alt="logo" />
             </router-link>
             <GlobalSearch />
         </div>
@@ -465,7 +465,7 @@ watch(showOptionBox, (visible) => {
     --p-tabs-tab-border-width: 0 0 3px 0;
 }
 .header-logo {
-    width: 33%;
+    width: 35.5%;
     display: flex;
     align-items: center;
     gap: 1rem;

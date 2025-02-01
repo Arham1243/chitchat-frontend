@@ -27,21 +27,21 @@ const getItems = () => {
 </script>
 
 <template>
-    <div class="col-5 col-offset-1">
+    <div class="col-4 col-offset-1">
         <div class="box pr-0">
             <div class="box-header">
                 <div class="title">People you may know</div>
             </div>
             <div class="box-body">
-                <div v-if="loading" class="grid grid-nogutter">
+                <div class="grid grid-nogutter" v-if="loading">
                     <Skeleton
                         v-for="index in 2"
                         :key="index"
-                        style="margin-right: 0.75rem"
+                        style="margin-right: 0.6rem"
                         height="310px"
-                        width="200px"
+                        width="181px"
                     ></Skeleton>
-                    <Skeleton height="310px" width="132px"></Skeleton>
+                    <Skeleton height="310px" width="61px"></Skeleton>
                 </div>
                 <Swiper
                     v-else

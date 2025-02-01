@@ -206,7 +206,7 @@ body .header-logo .p-inputicon {
 }
 .search-options {
     position: absolute;
-    width: 135%;
+    width: 130%;
     top: -0.25rem;
     left: 40%;
     transform: translateX(-50%);
