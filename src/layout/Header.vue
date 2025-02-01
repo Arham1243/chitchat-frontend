@@ -356,8 +356,7 @@ watch(showOptionBox, (visible) => {
 .actions-item {
     display: flex;
     gap: 0.9rem;
-
-    padding: 1rem 0.5rem 0;
+    padding: 0.25rem 0.6rem 0;
 }
 
 .actions-item .title {
