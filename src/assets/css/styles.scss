@@ -180,3 +180,6 @@ body .back-btn:hover {
 .p-button-outlined{
   transition: none !important ;
 }
+.dark  .status{
+  border-color: var(--option-bg) !important;
+}
