@@ -180,6 +180,7 @@ const fetchChat = () => {
     margin-left: auto;
     border-top-right-radius: 0;
     background: var(--my-reply-bg);
+    border-color: transparent;
 }
 
 .reply .text {
