@@ -186,3 +186,10 @@ body .back-btn:hover {
 .dark  .status{
   border-color: var(--option-bg) !important;
 }
+.dark .p-tooltip-text{
+  color: #2F2F30;
+  background: #fffefe;
+}
+.dark .logo{
+  filter:invert(1) brightness(100);
+}

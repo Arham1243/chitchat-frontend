@@ -1,8 +1,9 @@
 <script setup>
 import chats from '@/mocks/chats.json';
 import helpers from '@/utils/helpers';
+import { ref } from 'vue';
 import { useRouter } from 'vue-router';
-
+const search = ref('');
 const router = useRouter();
 </script>
 <template>
@@ -16,11 +17,11 @@ const router = useRouter();
         />
         <div class="page-title page-title--lg mb-1">Chats</div>
     </div>
-    <div class="px-3 pb-3">
+    <div class="px-3 pb-2">
         <IconField>
             <InputIcon class="pi pi-search" />
             <InputText
-                v-model="value1"
+                v-model="search"
                 placeholder="Search"
                 class="global-search"
             />
@@ -47,7 +48,7 @@ const router = useRouter();
                             </div>
                         </div>
                         <div class="message">
-                            <i class="bx bx-check-double"></i>
+                            <i class="bx bx-check-double seen"></i>
                             <div class="text">
                                 {{ item.last_message }}
                             </div>
@@ -60,7 +61,7 @@ const router = useRouter();
 </template>
 <style>
 .chats-wrapper {
-    height: 78vh;
+    height: 80vh;
     overflow-y: auto;
 }
 .chats-wrapper::-webkit-scrollbar {
@@ -74,9 +75,11 @@ const router = useRouter();
     display: flex;
     align-items: center;
     gap: 0.95rem;
-    padding: 0.75rem 1.25rem;
+    padding: 0.71rem 1.25rem;
 }
-
+.chat:hover {
+    background: var(--items-hover-bg);
+}
 .chat-avatar {
     width: 60px;
     border-radius: 100%;
@@ -103,12 +106,13 @@ const router = useRouter();
     color: var(--text-color);
     font-size: 0.95rem;
     font-weight: 500;
+    margin-bottom: 1px;
 }
 
 .chat-content .message {
     display: flex;
     align-items: center;
-    gap: 0.15rem;
+    gap: 0.2rem;
 }
 .chat-content .message .text {
     font-size: 0.9rem;
@@ -119,10 +123,14 @@ const router = useRouter();
 .chat-content .message i {
     font-size: 1.3rem;
     color: var(--text-gray-color);
+    transition: all 300ms;
+}
+.chat-content .message i.seen {
+    color: #007bfc;
 }
 .chat-content .date {
     color: var(--text-gray-color);
-    font-size: 0.85rem;
-    font-weight: 500;
+    font-size: 0.8rem;
+    font-weight: 400;
 }
 </style>

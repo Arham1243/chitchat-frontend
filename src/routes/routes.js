@@ -35,7 +35,7 @@ export default [
         component: ChatLayout,
         children: [
             {
-                path: '',
+                path: ':username',
                 name: 'chats',
                 component: () => import('@/views/chats/Index.vue')
             }

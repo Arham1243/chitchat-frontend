@@ -1,25 +1,35 @@
 <script setup>
-import { onBeforeMount, ref } from 'vue';
-import UserCard from '@/components/common/UserCard.vue';
-import usersMock from '@/mocks/users.json';
+import { useRoute } from 'vue-router';
+import Logo from '@/assets/images/logo.png';
 
-const loading = ref(true);
-const users = ref([]);
-
-onBeforeMount(() => {
-    getItems();
-});
-
-const getItems = () => {
-    loading.value = true;
-    new Promise((resolve) => {
-        setTimeout(() => {
-            loading.value = false;
-            users.value = usersMock;
-            resolve();
-        }, 1500);
-    });
-};
+const route = useRoute();
 </script>
 
-<template>chats</template>
+<template>
+    <div v-if="route.params.username === '-1'">
+        <div
+            class="w-full h-screen flex justify-content-center align-items-center"
+        >
+            <div class="grid w-full justify-content-center">
+                <div class="text-center mb-4">
+                    <img :src="Logo" width="145" class="logo mb-2" alt="logo" />
+                    <div class="text-2xl font-semibold heading mb-1">
+                        Stay Connected Effortlessly
+                    </div>
+                    <div class="text-sm font-medium para">
+                        Send and receive messages anytime, without
+                        interruptions.
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</template>
+<style>
+.heading {
+    color: var(--text-color);
+}
+.para {
+    color: var(--text-gray-color);
+}
+</style>

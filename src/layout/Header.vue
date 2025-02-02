@@ -110,7 +110,9 @@ watch(showOptionBox, (visible) => {
 
         <ul class="header-options flex align-items-center justify-content-end">
             <li>
-                <router-link :to="{ name: 'chats' }">
+                <router-link
+                    :to="{ name: 'chats', params: { username: '-1' } }"
+                >
                     <OverlayBadge
                         severity="danger"
                         value="0"

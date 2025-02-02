@@ -54,5 +54,29 @@
         "is_last_message_seen": true,
         "last_message_date": "2025-02-02",
         "profile_picture": "/src/assets/images/placeholder-user.png"
+    },
+    {
+        "full_name": "Arham Khan",
+        "username": "arhamkhan",
+        "last_message": "Okay",
+        "is_last_message_seen": true,
+        "last_message_date": "2025-02-02",
+        "profile_picture": "/src/assets/images/placeholder-user.png"
+    },
+    {
+        "full_name": "Arham Khan",
+        "username": "arhamkhan",
+        "last_message": "Okay",
+        "is_last_message_seen": true,
+        "last_message_date": "2025-02-02",
+        "profile_picture": "/src/assets/images/placeholder-user.png"
+    },
+    {
+        "full_name": "Arham Khan",
+        "username": "arhamkhan",
+        "last_message": "Okay",
+        "is_last_message_seen": true,
+        "last_message_date": "2025-02-02",
+        "profile_picture": "/src/assets/images/placeholder-user.png"
     }
 ]
