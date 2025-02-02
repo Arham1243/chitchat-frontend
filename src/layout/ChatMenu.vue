@@ -57,7 +57,6 @@ watch(search, async (newSearch) => {
         </IconField>
     </div>
     <div
-        class=""
         :class="{
             'chats-wrapper': true,
             scroll: filteredResults.length > 7
