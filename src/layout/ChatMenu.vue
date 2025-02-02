@@ -56,74 +56,79 @@ watch(search, async (newSearch) => {
             />
         </IconField>
     </div>
+    <div v-if="loading">
+        <div class="chat" v-for="index in 7" :key="'skeleton-' + index">
+            <div class="chat-avatar">
+                <Skeleton shape="circle" size="48px"></Skeleton>
+            </div>
+            <div class="chat-content">
+                <Skeleton
+                    width="7rem"
+                    height="10px"
+                    borderRadius="100px"
+                ></Skeleton>
+                <Skeleton
+                    class="mt-1"
+                    width="4rem"
+                    height="10px"
+                    borderRadius="100px"
+                ></Skeleton>
+            </div>
+        </div>
+    </div>
     <div
+        v-else
         :class="{
             'chats-wrapper': true,
             scroll: filteredResults.length > 7
         }"
-        v-if="filteredResults.length > 0"
     >
-        <div v-if="loading">
-            <div class="chat" v-for="index in 4" :key="'skeleton-' + index">
-                <div class="chat-avatar">
-                    <Skeleton shape="circle" size="48px"></Skeleton>
-                </div>
-                <div class="chat-content">
-                    <Skeleton
-                        width="7rem"
-                        height="10px"
-                        borderRadius="100px"
-                    ></Skeleton>
-                    <Skeleton
-                        class="mt-1"
-                        width="4rem"
-                        height="10px"
-                        borderRadius="100px"
-                    ></Skeleton>
-                </div>
-            </div>
+        <div v-if="filteredResults.length > 0 && !loading">
+            <Menu :model="filteredResults" class="bg-transparent border-none">
+                <template #item="{ item }">
+                    <router-link
+                        :to="item.username"
+                        v-ripple
+                        class="w-full chat"
+                    >
+                        <div class="chat-avatar">
+                            <img
+                                :src="item.profile_picture"
+                                :alt="item.full_name"
+                                width="30"
+                                height="30"
+                                class="border-circle"
+                            />
+                        </div>
+                        <div class="chat-content">
+                            <div class="wrapper">
+                                <div class="name">{{ item.full_name }}</div>
+                                <div class="date">
+                                    {{
+                                        helpers.formatDate(
+                                            item.last_message_date
+                                        )
+                                    }}
+                                </div>
+                            </div>
+                            <div class="message">
+                                <i class="bx bx-check-double seen"></i>
+                                <div class="text">
+                                    {{ item.last_message }}
+                                </div>
+                            </div>
+                        </div>
+                    </router-link>
+                </template>
+            </Menu>
         </div>
-        <Menu
-            :model="filteredResults"
-            class="bg-transparent border-none"
+        <div
+            class="text-sm w-full mt-8 pt-8 text-center"
             v-else
+            style="color: var(--text-gray-color)"
         >
-            <template #item="{ item }">
-                <router-link :to="item.username" v-ripple class="w-full chat">
-                    <div class="chat-avatar">
-                        <img
-                            :src="item.profile_picture"
-                            :alt="item.full_name"
-                            width="30"
-                            height="30"
-                            class="border-circle"
-                        />
-                    </div>
-                    <div class="chat-content">
-                        <div class="wrapper">
-                            <div class="name">{{ item.full_name }}</div>
-                            <div class="date">
-                                {{ helpers.formatDate(item.last_message_date) }}
-                            </div>
-                        </div>
-                        <div class="message">
-                            <i class="bx bx-check-double seen"></i>
-                            <div class="text">
-                                {{ item.last_message }}
-                            </div>
-                        </div>
-                    </div>
-                </router-link>
-            </template>
-        </Menu>
-    </div>
-
-    <div
-        class="text-sm w-full mt-8 pt-8 text-center"
-        v-else
-        style="color: var(--text-gray-color)"
-    >
-        No results
+            No results
+        </div>
     </div>
 </template>
 <style>
