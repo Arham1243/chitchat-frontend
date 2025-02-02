@@ -65,15 +65,15 @@ const isActive = (to) => {
 .menu-item {
     --icon-width: 26px;
 }
-.p-menu-item-content{
+.p-menu-item-content {
     background: transparent !important;
 }
-.p-menu-item{
+.p-menu-item {
     border-radius: 0.5rem;
     overflow: hidden;
 }
-.p-menu-item *{
-  color: var(--text-color); 
+.p-menu-item * {
+    color: var(--text-color);
 }
 .p-menu-item-link .icon {
     width: var(--icon-width);

@@ -182,9 +182,9 @@ body .global-search {
     padding: 0.77rem 1rem;
     padding-left: 2.5rem !important;
     border: none;
-    transition:none;
+    transition: none;
 }
-body .global-search::placeholder{
+body .global-search::placeholder {
     color: var(--text-placeholder-color);
 }
 .icon-field-wrapper {

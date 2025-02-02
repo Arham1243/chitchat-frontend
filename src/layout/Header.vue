@@ -24,7 +24,7 @@ const optionBoxWrapper = ref(null);
 const activeTab = computed(() => route.name);
 const showOptionBox = ref(false);
 const contentType = ref(null);
-const dark = ref(localStorage.getItem('darkMode')||'0')
+const dark = ref(localStorage.getItem('darkMode') || '0');
 const triggerElements = ref(
     new Map([
         ['account', ref(null)],
@@ -33,11 +33,11 @@ const triggerElements = ref(
 );
 const toggleTheme = () => {
     if (dark.value === '1') {
-        document.documentElement.classList.add('dark'); 
+        document.documentElement.classList.add('dark');
     } else {
-        document.documentElement.classList.remove('dark'); 
+        document.documentElement.classList.remove('dark');
     }
-    localStorage.setItem('darkMode', dark.value); 
+    localStorage.setItem('darkMode', dark.value);
 };
 watch(dark, () => {
     toggleTheme();
@@ -540,7 +540,7 @@ watch(showOptionBox, (visible) => {
     -webkit-box-orient: vertical;
     -webkit-line-clamp: 3;
     overflow: hidden;
-    color:var(--text-gray-color);
+    color: var(--text-gray-color);
     font-weight: 400;
 }
 
