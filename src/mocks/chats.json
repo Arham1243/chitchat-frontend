@@ -1,80 +1,80 @@
 [
     {
-        "full_name": "Arham Khan",
-        "username": "arhamkhan",
-        "last_message": "Okay",
+        "full_name": "John Doe",
+        "username": "john_doe",
+        "last_message": "Hey, how's it going?",
+        "is_last_message_seen": false,
+        "last_message_date": "2025-02-03",
+        "profile_picture": "/src/assets/images/placeholder-user.png"
+    },
+    {
+        "full_name": "Jane Smith",
+        "username": "jane_smith",
+        "last_message": "Can you send me the file?",
+        "is_last_message_seen": true,
+        "last_message_date": "2025-02-01",
+        "profile_picture": "/src/assets/images/placeholder-user.png"
+    },
+    {
+        "full_name": "Alice Cooper",
+        "username": "alice_cooper",
+        "last_message": "Let's meet tomorrow!",
+        "is_last_message_seen": false,
+        "last_message_date": "2025-02-02",
+        "profile_picture": "/src/assets/images/placeholder-user.png"
+    },
+    {
+        "full_name": "Bob Martin",
+        "username": "bob_martin",
+        "last_message": "Got it, thanks!",
+        "is_last_message_seen": true,
+        "last_message_date": "2025-01-30",
+        "profile_picture": "/src/assets/images/placeholder-user.png"
+    },
+    {
+        "full_name": "Charlie Brown",
+        "username": "charlie_brown",
+        "last_message": "I need your help with the code.",
         "is_last_message_seen": true,
         "last_message_date": "2025-02-02",
         "profile_picture": "/src/assets/images/placeholder-user.png"
     },
     {
-        "full_name": "Arham Khan",
-        "username": "arhamkhan",
-        "last_message": "Okay",
+        "full_name": "David Lee",
+        "username": "david_lee",
+        "last_message": "Thanks for the update!",
+        "is_last_message_seen": false,
+        "last_message_date": "2025-02-03",
+        "profile_picture": "/src/assets/images/placeholder-user.png"
+    },
+    {
+        "full_name": "Emma White",
+        "username": "emma_white",
+        "last_message": "Can you check this document?",
         "is_last_message_seen": true,
+        "last_message_date": "2025-02-01",
+        "profile_picture": "/src/assets/images/placeholder-user.png"
+    },
+    {
+        "full_name": "Frank Harris",
+        "username": "frank_harris",
+        "last_message": "Looking forward to our meeting.",
+        "is_last_message_seen": false,
         "last_message_date": "2025-02-02",
         "profile_picture": "/src/assets/images/placeholder-user.png"
     },
     {
-        "full_name": "Arham Khan",
-        "username": "arhamkhan",
-        "last_message": "Okay",
+        "full_name": "Grace Adams",
+        "username": "grace_adams",
+        "last_message": "Let me know if you need anything.",
         "is_last_message_seen": true,
-        "last_message_date": "2025-02-02",
+        "last_message_date": "2025-01-31",
         "profile_picture": "/src/assets/images/placeholder-user.png"
     },
     {
-        "full_name": "Arham Khan",
-        "username": "arhamkhan",
-        "last_message": "Okay",
-        "is_last_message_seen": true,
-        "last_message_date": "2025-02-02",
-        "profile_picture": "/src/assets/images/placeholder-user.png"
-    },
-    {
-        "full_name": "Arham Khan",
-        "username": "arhamkhan",
-        "last_message": "Okay",
-        "is_last_message_seen": true,
-        "last_message_date": "2025-02-02",
-        "profile_picture": "/src/assets/images/placeholder-user.png"
-    },
-    {
-        "full_name": "Arham Khan",
-        "username": "arhamkhan",
-        "last_message": "Okay",
-        "is_last_message_seen": true,
-        "last_message_date": "2025-02-02",
-        "profile_picture": "/src/assets/images/placeholder-user.png"
-    },
-    {
-        "full_name": "Arham Khan",
-        "username": "arhamkhan",
-        "last_message": "Okay",
-        "is_last_message_seen": true,
-        "last_message_date": "2025-02-02",
-        "profile_picture": "/src/assets/images/placeholder-user.png"
-    },
-    {
-        "full_name": "Arham Khan",
-        "username": "arhamkhan",
-        "last_message": "Okay",
-        "is_last_message_seen": true,
-        "last_message_date": "2025-02-02",
-        "profile_picture": "/src/assets/images/placeholder-user.png"
-    },
-    {
-        "full_name": "Arham Khan",
-        "username": "arhamkhan",
-        "last_message": "Okay",
-        "is_last_message_seen": true,
-        "last_message_date": "2025-02-02",
-        "profile_picture": "/src/assets/images/placeholder-user.png"
-    },
-    {
-        "full_name": "Arham Khan",
-        "username": "arhamkhan",
-        "last_message": "Okay",
+        "full_name": "Harry Wilson",
+        "username": "harry_wilson",
+        "last_message": "Please send the updated version.",
         "is_last_message_seen": true,
         "last_message_date": "2025-02-02",
         "profile_picture": "/src/assets/images/placeholder-user.png"

@@ -18,6 +18,7 @@
   --icon-color: #1D1F23;
   --icon-gray-color: #65686c;
   --arrow-bg: #fff;
+  --chat-bg: #FAF6F4;
 }
 
 .dark:root {
@@ -44,6 +45,7 @@
   --arrow-bg: #444445;
   --p-tabs-tab-color: --text-color;
   --p-tabs-tab-hover-color: --icon-gray-color;
+  --chat-bg: #262626;
 }
 
 * {
