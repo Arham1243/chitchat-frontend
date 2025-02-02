@@ -1,11 +1,11 @@
 <script setup>
 import { useRoute } from 'vue-router';
+import { onBeforeMount, ref, watch } from 'vue';
 import Logo from '@/assets/images/logo.png';
 import helpers from '@/utils/helpers';
 import chats from '@/mocks/chats.json';
 
-import { onBeforeMount, onMounted, ref, watch } from 'vue';
-
+const message = ref('');
 const route = useRoute();
 const userChat = ref({});
 
@@ -96,7 +96,7 @@ const fetchChat = () => {
                 />
             </div>
             <InputText
-                name="message"
+                v-model="message"
                 type="text"
                 placeholder="Type a message"
                 class="text-sm message-input"
