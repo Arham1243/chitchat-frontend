@@ -14,18 +14,18 @@ export default [
             {
                 path: '/:username',
                 name: 'user-detail',
-                component: () => import('@/views/UserDetail.vue'),
+                component: () => import('@/views/friends/Detail.vue'),
                 props: true
             },
             {
                 path: 'friends',
                 name: 'friends',
-                component: () => import('@/views/Friends.vue')
+                component: () => import('@/views/friends/Index.vue')
             },
             {
                 path: 'friends/my',
                 name: 'my-friends',
-                component: () => import('@/views/MyFriends.vue')
+                component: () => import('@/views/friends/My.vue')
             }
         ]
     },

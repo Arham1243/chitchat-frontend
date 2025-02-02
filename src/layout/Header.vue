@@ -540,12 +540,10 @@ watch(showOptionBox, (visible) => {
     -webkit-box-orient: vertical;
     -webkit-line-clamp: 3;
     overflow: hidden;
-    color: var(--text-gray-color);
     font-weight: 400;
 }
 
 .lookups-item--notify .title span {
-    color: var(--text-gray-color);
     font-weight: 700;
 }
 

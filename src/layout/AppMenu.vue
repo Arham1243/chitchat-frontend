@@ -76,6 +76,7 @@ const isActive = (to) => {
     color: var(--text-color);
 }
 .p-menu-item-link .icon {
+    color: var(--text-gray-color);
     width: var(--icon-width);
     aspect-ratio: 1/1;
     font-size: 1.2rem;

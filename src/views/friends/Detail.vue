@@ -347,4 +347,10 @@ const cancelRequest = () => {
 .edit-image:hover {
     filter: brightness(0.95);
 }
+.p-tabs {
+    background: var(--box-bg);
+}
+.page-content .p-tabpanels {
+    padding: 1.25rem 2rem;
+}
 </style>

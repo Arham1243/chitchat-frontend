@@ -10,11 +10,7 @@ import AppMenu from '@/layout/AppMenu.vue';
                 <div class="col-3">
                     <AppMenu />
                 </div>
-                <router-view v-slot="{ Component }">
-                    <transition name="fade" mode="out-in">
-                        <component :is="Component" />
-                    </transition>
-                </router-view>
+                <router-view />
             </div>
         </div>
         <ConfirmDialog />
