@@ -7,6 +7,7 @@ import '@/assets/css/styles.scss';
 import 'primeicons/primeicons.css';
 import 'primeflex/primeflex.scss';
 import '@fortawesome/fontawesome-free/css/all.css';
+import 'boxicons/css/boxicons.min.css';
 
 import InputField from '@/components/common/InputField.vue';
 import Button from 'primevue/button';

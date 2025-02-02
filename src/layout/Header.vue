@@ -42,9 +42,6 @@ const toggleTheme = () => {
 watch(dark, () => {
     toggleTheme();
 });
-onMounted(() => {
-    toggleTheme();
-});
 const handleClickOutside = (event) => {
     const isOutsideBox = !optionBoxWrapper.value?.contains(event.target);
     const isOutsideTriggers = Array.from(triggerElements.value.values()).every(
@@ -113,7 +110,7 @@ watch(showOptionBox, (visible) => {
 
         <ul class="header-options flex align-items-center justify-content-end">
             <li>
-                <router-link :to="{ name: 'home' }">
+                <router-link :to="{ name: 'chats' }">
                     <OverlayBadge
                         severity="danger"
                         value="0"

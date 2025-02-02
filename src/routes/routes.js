@@ -1,5 +1,6 @@
 import AppLayout from '@/layout/AppLayout.vue';
 import AuthLayout from '@/layout/AuthLayout.vue';
+import ChatLayout from '@/layout/ChatLayout.vue';
 
 export default [
     {
@@ -14,7 +15,7 @@ export default [
             {
                 path: '/:username',
                 name: 'user-detail',
-                component: () => import('@/views/friends/Detail.vue'),
+                component: () => import('@/views/friends/Details.vue'),
                 props: true
             },
             {
@@ -26,6 +27,17 @@ export default [
                 path: 'friends/my',
                 name: 'my-friends',
                 component: () => import('@/views/friends/My.vue')
+            }
+        ]
+    },
+    {
+        path: '/chats',
+        component: ChatLayout,
+        children: [
+            {
+                path: '',
+                name: 'chats',
+                component: () => import('@/views/chats/Index.vue')
             }
         ]
     },

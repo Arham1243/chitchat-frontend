@@ -1,6 +1,18 @@
 <script setup>
 import Header from '@/layout/Header.vue';
 import AppMenu from '@/layout/AppMenu.vue';
+import { onMounted } from 'vue';
+const toggleTheme = () => {
+    const dark = localStorage.getItem('darkMode');
+    if (dark === '1') {
+        document.documentElement.classList.add('dark');
+    } else {
+        document.documentElement.classList.remove('dark');
+    }
+};
+onMounted(() => {
+    toggleTheme();
+});
 </script>
 <template>
     <div class="main">
