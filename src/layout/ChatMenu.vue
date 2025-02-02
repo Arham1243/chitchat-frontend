@@ -1,10 +1,39 @@
 <script setup>
-import chats from '@/mocks/chats.json';
+import chatsData from '@/mocks/chats.json';
 import helpers from '@/utils/helpers';
-import { ref } from 'vue';
+import { onBeforeMount, ref, watch } from 'vue';
 import { useRouter } from 'vue-router';
-const search = ref('');
+
 const router = useRouter();
+const search = ref('');
+const loading = ref(false);
+const filteredResults = ref([...chatsData]);
+
+onBeforeMount(() => {
+    searchResults();
+});
+
+const searchResults = (query) => {
+    loading.value = true;
+    return new Promise((resolve) => {
+        setTimeout(() => {
+            resolve(
+                !query
+                    ? [...chatsData]
+                    : chatsData.filter((item) =>
+                          item.full_name
+                              .toLowerCase()
+                              .includes(query.toLowerCase())
+                      )
+            );
+            loading.value = false;
+        }, 1500);
+    });
+};
+
+watch(search, async (newSearch) => {
+    filteredResults.value = await searchResults(newSearch);
+});
 </script>
 <template>
     <div class="flex align-items-center gap-3 px-3 py-3">
@@ -27,8 +56,39 @@ const router = useRouter();
             />
         </IconField>
     </div>
-    <div class="chats-wrapper">
-        <Menu :model="chats" class="bg-transparent border-none">
+    <div
+        class=""
+        :class="{
+            'chats-wrapper': true,
+            scroll: filteredResults.length > 7
+        }"
+        v-if="filteredResults.length > 0"
+    >
+        <div v-if="loading">
+            <div class="chat" v-for="index in 4" :key="'skeleton-' + index">
+                <div class="chat-avatar">
+                    <Skeleton shape="circle" size="48px"></Skeleton>
+                </div>
+                <div class="chat-content">
+                    <Skeleton
+                        width="7rem"
+                        height="10px"
+                        borderRadius="100px"
+                    ></Skeleton>
+                    <Skeleton
+                        class="mt-1"
+                        width="4rem"
+                        height="10px"
+                        borderRadius="100px"
+                    ></Skeleton>
+                </div>
+            </div>
+        </div>
+        <Menu
+            :model="filteredResults"
+            class="bg-transparent border-none"
+            v-else
+        >
             <template #item="{ item }">
                 <router-link :to="item.username" v-ripple class="w-full chat">
                     <div class="chat-avatar">
@@ -58,10 +118,20 @@ const router = useRouter();
             </template>
         </Menu>
     </div>
+
+    <div
+        class="text-sm w-full mt-8 pt-8 text-center"
+        v-else
+        style="color: var(--text-gray-color)"
+    >
+        No results
+    </div>
 </template>
 <style>
 .chats-wrapper {
     height: 80vh;
+}
+.chats-wrapper.scroll {
     overflow-y: auto;
 }
 .chats-wrapper::-webkit-scrollbar {
