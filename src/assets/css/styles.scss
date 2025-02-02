@@ -19,6 +19,9 @@
   --icon-gray-color: #65686c;
   --arrow-bg: #fff;
   --chat-bg: #FAF6F4;
+  --reply-bg: #FFFFFF;
+  --my-reply-bg: #D9FDD3;
+  --chat-active-bg: #E0E0E0;
 }
 
 .dark:root {
@@ -46,6 +49,9 @@
   --p-tabs-tab-color: --text-color;
   --p-tabs-tab-hover-color: --icon-gray-color;
   --chat-bg: #262626;
+  --reply-bg: #363636;
+  --my-reply-bg: #005E4D;
+  --chat-active-bg: #454545;
 }
 
 * {

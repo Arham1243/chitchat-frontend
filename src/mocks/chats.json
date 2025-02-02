@@ -1,82 +1,101 @@
 [
     {
-        "full_name": "John Doe",
-        "username": "john_doe",
-        "last_message": "Hey, how's it going?",
+        "full_name": "Emily Rivera",
+        "username": "emily_photography",
+        "last_message": "📷 Sent 2 photos",
         "is_last_message_seen": false,
-        "last_message_date": "2025-02-03",
-        "profile_picture": "/src/assets/images/placeholder-user.png"
+        "last_message_date": "2025-01-16",
+        "unread_count": "2",
+        "user_status": "Online",
+        "profile_picture": "/src/assets/images/placeholder-user.png",
+        "conversations": [
+            {
+                "type": "text",
+                "message": "Here are the edited shots from our session 📸",
+                "date": "2025-01-15",
+                "is_seen": true,
+                "is_current_user": false
+            },
+            {
+                "type": "text",
+                "message": "These look amazing! Love the lighting in the second one",
+                "date": "2025-01-15",
+                "is_seen": true,
+                "is_current_user": true
+            },
+            {
+                "type": "text",
+                "message": "Can we try a warmer tone on the first image?",
+                "date": "2025-01-15",
+                "is_seen": false,
+                "is_current_user": true
+            }
+        ]
     },
     {
-        "full_name": "Jane Smith",
-        "username": "jane_smith",
-        "last_message": "Can you send me the file?",
+        "full_name": "Daniel Kim",
+        "username": "daniel_realestate",
+        "last_message": "📎 Sent floor plan",
         "is_last_message_seen": true,
-        "last_message_date": "2025-02-01",
-        "profile_picture": "/src/assets/images/placeholder-user.png"
+        "last_message_date": "2025-01-15",
+        "unread_count": "0",
+        "user_status": "Offline",
+        "profile_picture": "/src/assets/images/placeholder-user.png",
+        "conversations": [
+            {
+                "type": "text",
+                "message": "Just listed this modern downtown condo 🏙️",
+                "date": "2025-01-14",
+                "is_seen": true,
+                "is_current_user": false
+            },
+            {
+                "type": "text",
+                "message": "Looks great! What's the square footage?",
+                "date": "2025-01-14",
+                "is_seen": true,
+                "is_current_user": true
+            },
+            {
+                "type": "text",
+                "message": "1800 sqft with smart home features",
+                "date": "2025-01-15",
+                "is_seen": true,
+                "is_current_user": false
+            }
+        ]
     },
     {
-        "full_name": "Alice Cooper",
-        "username": "alice_cooper",
-        "last_message": "Let's meet tomorrow!",
+        "full_name": "Sophia Patel",
+        "username": "sophia_travels",
+        "last_message": "🌄 Sent 3 photos",
         "is_last_message_seen": false,
-        "last_message_date": "2025-02-02",
-        "profile_picture": "/src/assets/images/placeholder-user.png"
-    },
-    {
-        "full_name": "Bob Martin",
-        "username": "bob_martin",
-        "last_message": "Got it, thanks!",
-        "is_last_message_seen": true,
-        "last_message_date": "2025-01-30",
-        "profile_picture": "/src/assets/images/placeholder-user.png"
-    },
-    {
-        "full_name": "Charlie Brown",
-        "username": "charlie_brown",
-        "last_message": "I need your help with the code.",
-        "is_last_message_seen": true,
-        "last_message_date": "2025-02-02",
-        "profile_picture": "/src/assets/images/placeholder-user.png"
-    },
-    {
-        "full_name": "David Lee",
-        "username": "david_lee",
-        "last_message": "Thanks for the update!",
-        "is_last_message_seen": false,
-        "last_message_date": "2025-02-03",
-        "profile_picture": "/src/assets/images/placeholder-user.png"
-    },
-    {
-        "full_name": "Emma White",
-        "username": "emma_white",
-        "last_message": "Can you check this document?",
-        "is_last_message_seen": true,
-        "last_message_date": "2025-02-01",
-        "profile_picture": "/src/assets/images/placeholder-user.png"
-    },
-    {
-        "full_name": "Frank Harris",
-        "username": "frank_harris",
-        "last_message": "Looking forward to our meeting.",
-        "is_last_message_seen": false,
-        "last_message_date": "2025-02-02",
-        "profile_picture": "/src/assets/images/placeholder-user.png"
-    },
-    {
-        "full_name": "Grace Adams",
-        "username": "grace_adams",
-        "last_message": "Let me know if you need anything.",
-        "is_last_message_seen": true,
-        "last_message_date": "2025-01-31",
-        "profile_picture": "/src/assets/images/placeholder-user.png"
-    },
-    {
-        "full_name": "Harry Wilson",
-        "username": "harry_wilson",
-        "last_message": "Please send the updated version.",
-        "is_last_message_seen": true,
-        "last_message_date": "2025-02-02",
-        "profile_picture": "/src/assets/images/placeholder-user.png"
+        "last_message_date": "2025-01-17",
+        "unread_count": "0",
+        "user_status": "typing...",
+        "profile_picture": "/src/assets/images/placeholder-user.png",
+        "conversations": [
+            {
+                "type": "text",
+                "message": "Check out these Himalayan views!",
+                "time": "2025-01-16T19:56:00",
+                "is_seen": false,
+                "is_current_user": false
+            },
+            {
+                "type": "text",
+                "message": "Incredible! What's the altitude?",
+                "date": "2025-01-16",
+                "is_seen": true,
+                "is_current_user": true
+            },
+            {
+                "type": "text",
+                "message": "5500 meters above sea level 🏔️",
+                "time": "2025-01-16T19:56:00",
+                "is_seen": false,
+                "is_current_user": false
+            }
+        ]
     }
 ]

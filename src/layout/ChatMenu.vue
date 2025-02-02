@@ -3,11 +3,17 @@ import chatsData from '@/mocks/chats.json';
 import helpers from '@/utils/helpers';
 import { onBeforeMount, ref, watch } from 'vue';
 import { useRouter } from 'vue-router';
+import { useRoute } from 'vue-router';
 
+const route = useRoute();
 const router = useRouter();
 const search = ref('');
 const loading = ref(false);
 const filteredResults = ref([...chatsData]);
+
+watch(search, async (newSearch) => {
+    filteredResults.value = await searchResults(newSearch);
+});
 
 onBeforeMount(() => {
     searchResults();
@@ -31,9 +37,9 @@ const searchResults = (query) => {
     });
 };
 
-watch(search, async (newSearch) => {
-    filteredResults.value = await searchResults(newSearch);
-});
+const isActive = (username) => {
+    return route.params.username === username;
+};
 </script>
 <template>
     <div class="chat-menu">
@@ -93,7 +99,10 @@ watch(search, async (newSearch) => {
                         <router-link
                             :to="item.username"
                             v-ripple
-                            class="w-full chat"
+                            :class="[
+                                'w-full chat',
+                                { open: isActive(item.username) }
+                            ]"
                         >
                             <div class="chat-avatar">
                                 <img
@@ -107,24 +116,39 @@ watch(search, async (newSearch) => {
                             <div class="chat-content">
                                 <div class="wrapper">
                                     <div class="name">{{ item.full_name }}</div>
-                                    <div class="date">
+                                    <div
+                                        :class="[
+                                            'date',
+                                            { green: item.unread_count > 0 }
+                                        ]"
+                                    >
                                         {{
-                                            helpers.formatDate(
+                                            helpers.formatDateAgo(
                                                 item.last_message_date
                                             )
                                         }}
                                     </div>
                                 </div>
-                                <div class="message">
-                                    <i
-                                        :class="[
-                                            'bx',
-                                            'bx-check-double',
-                                            { seen: item.is_last_message_seen }
-                                        ]"
-                                    ></i>
-                                    <div class="text">
-                                        {{ item.last_message }}
+                                <div class="wrapper">
+                                    <div class="message">
+                                        <i
+                                            :class="[
+                                                'bx',
+                                                'bx-check-double',
+                                                {
+                                                    seen: item.is_last_message_seen
+                                                }
+                                            ]"
+                                        ></i>
+                                        <div class="text">
+                                            {{ item.last_message }}
+                                        </div>
+                                    </div>
+                                    <div
+                                        class="unread"
+                                        v-if="item.unread_count > 0"
+                                    >
+                                        {{ item.unread_count }}
                                     </div>
                                 </div>
                             </div>
@@ -170,6 +194,9 @@ watch(search, async (newSearch) => {
 .chat:hover {
     background: var(--items-hover-bg);
 }
+.chat.open {
+    background: var(--chat-active-bg);
+}
 .chat-avatar {
     width: 60px;
     border-radius: 100%;
@@ -204,6 +231,17 @@ watch(search, async (newSearch) => {
     align-items: center;
     gap: 0.2rem;
 }
+.chat-content .unread {
+    width: 16px;
+    aspect-ratio: 1/1;
+    border-radius: 100%;
+    font-size: 0.7rem;
+    background: #1daa61;
+    color: #fff;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
 .chat-content .message .text {
     font-size: 0.8rem;
     font-weight: 500;
@@ -226,5 +264,8 @@ watch(search, async (newSearch) => {
     color: var(--text-gray-color);
     font-size: 0.8rem;
     font-weight: 400;
+}
+.chat-content .green {
+    color: #1daa61;
 }
 </style>

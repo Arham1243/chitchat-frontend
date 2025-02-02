@@ -4,5 +4,17 @@ export default {
     formatDate(date, filterFormat = 'DD-MMM-YYYY') {
         if (date === 'Invalid date' || !date) return '-';
         return moment.utc(date).format(filterFormat);
+    },
+    formatDateAgo(date) {
+        if (!date || date === 'Invalid date') {
+            return 'Invalid date format';
+        }
+        return moment.utc(date).fromNow();
+    },
+    formatTime(date) {
+        if (!date || date === 'Invalid date') {
+            return '-';
+        }
+        return moment(date).format('h:mm A');
     }
 };

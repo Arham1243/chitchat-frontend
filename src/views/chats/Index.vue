@@ -1,17 +1,26 @@
 <script setup>
 import { useRoute } from 'vue-router';
 import Logo from '@/assets/images/logo.png';
+import helpers from '@/utils/helpers';
 import chats from '@/mocks/chats.json';
-import { computed } from 'vue';
-const route = useRoute();
 
-const userChat = {
-    full_name: 'John Doe',
-    username: 'john_doe',
-    last_message: "Hey, how's it going?",
-    is_last_message_seen: false,
-    last_message_date: '2025-02-03',
-    profile_picture: '/src/assets/images/placeholder-user.png'
+import { onBeforeMount, onMounted, ref, watch } from 'vue';
+
+const route = useRoute();
+const userChat = ref({});
+
+onBeforeMount(() => {
+    fetchChat();
+});
+watch(
+    () => route.params.username,
+    () => {
+        fetchChat();
+    }
+);
+
+const fetchChat = () => {
+    userChat.value = chats.find((u) => u.username === route.params.username);
 };
 </script>
 
@@ -46,19 +55,42 @@ const userChat = {
                         class="border-circle"
                     />
                 </div>
-                <div class="name">{{ userChat.full_name }}</div>
+                <div class="content">
+                    <div class="name">{{ userChat.full_name }}</div>
+                    <div class="status">{{ userChat.user_status }}</div>
+                </div>
             </div>
         </div>
-        <div class="chat-screen"></div>
+        <div class="chat-screen">
+            <div class="replies">
+                <div
+                    class=""
+                    :class="['reply', { my: !conversation.is_current_user }]"
+                    v-for="(conversation, index) in userChat.conversations"
+                    :key="index"
+                >
+                    <template v-if="conversation.type === 'text'">
+                        <div class="text">{{ conversation.message }}</div>
+                        <div class="flex align-items-end gap-2">
+                            <div class="time">
+                                {{ helpers.formatTime(conversation.date) }}
+                            </div>
+                            <i
+                                :class="[
+                                    'bx',
+                                    'bx-check-double',
+                                    { seen: conversation.is_seen }
+                                ]"
+                            ></i>
+                        </div>
+                    </template>
+                </div>
+            </div>
+        </div>
         <div class="message-box flex align-items-center">
             <div class="actions">
                 <Button
                     icon="fa-regular fa-face-smile"
-                    variant="text"
-                    class="text-black-alpha-90 back-btn"
-                />
-                <Button
-                    icon="fa-solid fa-paperclip"
                     variant="text"
                     class="text-black-alpha-90 back-btn"
                 />
@@ -79,6 +111,10 @@ const userChat = {
     position: relative;
     background: var(--chat-bg);
     isolation: isolate;
+    padding: 1rem 2rem 2rem;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-end;
 }
 .message-box {
     background: var(--header-bg);
@@ -114,11 +150,51 @@ const userChat = {
 .chat-profile .name {
     font-size: 0.9rem;
     font-weight: 500;
+    margin-bottom: 2px;
+}
+.chat-profile .status {
+    color: var(--text-gray-color);
+    font-size: 0.75rem;
+    font-weight: 500;
 }
 .heading {
     color: var(--text-color);
 }
 .para {
     color: var(--text-gray-color);
+}
+.reply {
+    border: 1px solid var(--header-shadow);
+    background: var(--reply-bg);
+    width: fit-content;
+    padding: 0.45rem 0.5rem;
+    border-radius: 0.65rem;
+    margin-bottom: 0.5rem;
+    display: flex;
+    align-items: flex-end;
+    border-top-left-radius: 0;
+    gap: 1rem;
+}
+
+.reply.my {
+    margin-left: auto;
+    border-top-right-radius: 0;
+    background: var(--my-reply-bg);
+}
+
+.reply .text {
+    font-size: 0.83rem;
+    margin-bottom: 2px;
+}
+
+.reply .time {
+    font-size: 0.65rem;
+    font-weight: 300;
+}
+.reply i {
+    font-size: 1.01rem;
+}
+.reply i.seen {
+    color: #007bfc;
 }
 </style>
