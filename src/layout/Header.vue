@@ -1,8 +1,9 @@
 <script setup>
-import { ref, computed, onUnmounted, watch } from 'vue';
+import { ref, computed, onUnmounted, watch, onMounted } from 'vue';
 import { useRoute } from 'vue-router';
 import Logo from '@/assets/images/c.png';
 import GlobalSearch from '@/components/GlobalSearch.vue';
+
 import Placeholder from '@/assets/images/placeholder-user.png';
 import notifications from '@/mocks/notifications.json';
 import unreadNotifications from '@/mocks/unreadNotifications.json';
@@ -23,14 +24,27 @@ const optionBoxWrapper = ref(null);
 const activeTab = computed(() => route.name);
 const showOptionBox = ref(false);
 const contentType = ref(null);
-const dark = ref(null);
+const dark = ref(localStorage.getItem('darkMode')||'0')
 const triggerElements = ref(
     new Map([
         ['account', ref(null)],
         ['notifications', ref(null)]
     ])
 );
-
+const toggleTheme = () => {
+    if (dark.value === '1') {
+        document.documentElement.classList.add('dark'); 
+    } else {
+        document.documentElement.classList.remove('dark'); 
+    }
+    localStorage.setItem('darkMode', dark.value); 
+};
+watch(dark, () => {
+    toggleTheme();
+});
+onMounted(() => {
+    toggleTheme();
+});
 const handleClickOutside = (event) => {
     const isOutsideBox = !optionBoxWrapper.value?.contains(event.target);
     const isOutsideTriggers = Array.from(triggerElements.value.values()).every(
@@ -366,14 +380,14 @@ watch(showOptionBox, (visible) => {
 }
 
 .actions-item p {
-    color: #838689;
+    color: var(--text-gray-color);
     font-size: 0.8rem;
 }
 
 .actions-item .icon {
     align-self: flex-start;
-    background: #e0e6ee;
-    color: #1c1d21;
+    background: var(--option-btn-bg);
+    color: var(--icon-color);
     width: 36px;
     aspect-ratio: 1/1;
     border-radius: 100%;
@@ -395,13 +409,13 @@ watch(showOptionBox, (visible) => {
     align-items: center;
     justify-content: space-between;
     border-radius: 0.5rem;
-    color: #6b6b6c;
+    color: var(--text-color);
     font-size: 0.85rem;
     font-weight: 500;
 }
 
 .action-option:hover {
-    background: #f2f2f2;
+    background: var(--menu-hover-bg);
 }
 
 .header-options li {
@@ -409,14 +423,14 @@ watch(showOptionBox, (visible) => {
 }
 
 .option-box {
-    color: #121213;
+    color: var(--text-color);
     width: 345px;
     position: absolute;
     top: 100%;
     right: 1rem;
     border-radius: 0.5rem;
     z-index: 100;
-    background: #fff;
+    background: var(--option-bg);
     box-shadow: 0 0 15px 5px #00000020;
     padding: 0.5rem;
 }
@@ -431,6 +445,7 @@ watch(showOptionBox, (visible) => {
 }
 
 .user-profile {
+    color: var(--text-color);
     width: 100%;
     display: flex;
     align-items: center;
@@ -440,7 +455,7 @@ watch(showOptionBox, (visible) => {
 }
 
 .user-profile:hover {
-    background: #f2f2f2;
+    background: var(--items-hover-bg);
 }
 
 .lookups-list.scroll {
@@ -460,6 +475,7 @@ watch(showOptionBox, (visible) => {
 }
 
 .lookups-item {
+    color: var(--text-color);
     border-radius: 0.5rem;
     display: flex;
     align-items: center;
@@ -499,12 +515,12 @@ watch(showOptionBox, (visible) => {
 }
 
 .lookups-item:hover {
-    background: #f2f2f2;
+    background: var(--menu-hover-bg);
 }
 
 .lookups-item .icon {
-    background: #e0e6ee;
-    color: #1c1d21;
+    background: var(--option-btn-bg);
+    color: var(--icon-color);
     width: 36px;
     aspect-ratio: 1/1;
     border-radius: 100%;
@@ -524,18 +540,18 @@ watch(showOptionBox, (visible) => {
     -webkit-box-orient: vertical;
     -webkit-line-clamp: 3;
     overflow: hidden;
-    color: #6e7174;
+    color:var(--text-gray-color);
     font-weight: 400;
 }
 
 .lookups-item--notify .title span {
-    color: #626569;
-    font-weight: 600;
+    color: var(--text-gray-color);
+    font-weight: 700;
 }
 
 .header {
-    background: #fff;
-    box-shadow: 0 0 15px 5px #00000020;
+    background: var(--header-bg);
+    box-shadow: 0 0 2px 2px var(--header-shadow);
     position: fixed;
     top: 0;
     width: 100%;
@@ -553,6 +569,7 @@ watch(showOptionBox, (visible) => {
 .header-nav .p-tablist-tab-list {
     justify-content: center;
     gap: 1rem;
+    background: transparent;
 }
 
 .header-options {
@@ -600,8 +617,8 @@ watch(showOptionBox, (visible) => {
 
 .header-options__item {
     width: 2.75rem;
-    background: #e2e8f0;
-    color: #000;
+    background: var(--option-btn-bg);
+    color: var(--icon-color);
     aspect-ratio: 1/1;
     border-radius: 100%;
     display: flex;
@@ -609,7 +626,7 @@ watch(showOptionBox, (visible) => {
     justify-content: center;
     font-size: 1.25rem;
     --p-badge-min-width: 1.1rem;
-    transition: all 100ms;
+    transition: none;
     --p-badge-height: 1.1rem;
 }
 
@@ -627,10 +644,22 @@ watch(showOptionBox, (visible) => {
 }
 
 body .p-tabpanels {
+    background: transparent;
     padding: 0;
 }
 
 body .p-tablist-tab-list {
     border: none;
+    background: transparent;
+}
+.p-badge {
+    outline: none !important;
+}
+
+.dark .p-tab {
+    border-color: transparent !important;
+}
+.p-tab i {
+    color: var(--text-gray-color);
 }
 </style>

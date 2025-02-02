@@ -97,7 +97,7 @@ const cancelRequest = () => {
 <template>
     <div class="col-8 col-offset-1">
         <div class="page-content mb-5">
-            <div class="profile bg-white">
+            <div class="profile">
                 <div class="grid align-items-center" v-if="loading">
                     <div class="col-3">
                         <div class="profile-image">
@@ -299,6 +299,8 @@ const cancelRequest = () => {
 </template>
 <style>
 .profile {
+    background: var(--box-bg);
+    border-radius: 0.75rem;
     padding: 1.5rem 2.5rem;
     --p-avatar-width: 2.25rem;
     --p-avatar-height: 2.25rem;
@@ -321,7 +323,7 @@ const cancelRequest = () => {
     margin-bottom: 0.25rem;
 }
 .profile-info .friends {
-    color: #65687f;
+    color: var(--text-gray-color);
     font-size: 0.85rem;
     font-weight: 500;
 }
@@ -329,7 +331,7 @@ const cancelRequest = () => {
     outline: none;
     width: 33px;
     aspect-ratio: 1/1;
-    background: #e2e8f0;
+    background: var(--card-bg);
     border-radius: 100%;
     position: absolute;
     display: flex;

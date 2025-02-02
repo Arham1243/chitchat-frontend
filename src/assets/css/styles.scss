@@ -1,6 +1,49 @@
 :root {
   --primary-color: var(--p-primary-color);
   --primary-light-color: #ECFDF5;
+  --main-bg: #f2f4f7;
+  --header-bg: #fff;
+  --box-bg: #fff;
+  --card-bg: #fff;
+  --header-shadow: #00000020;
+  --card-shadow: #00000020;
+  --option-bg: #fff;
+  --option-btn-bg: #e2e8f0;
+  --field-bg: #f0f2f5;
+  --items-hover-bg: #f2f2f2;
+  --menu-hover-bg: #f0f2f5;
+  --text-color: #080809;
+  --text-gray-color:  #6e7174;
+  --text-placeholder-color: #6C7074;
+  --icon-color: #1D1F23;
+  --icon-gray-color: #65686c;
+  --arrow-bg: #fff;
+}
+
+.dark:root {
+  color-scheme: dark;
+  --primary-light-color: #3B3D3E;
+  --main-bg: #1C1C1D;
+  --header-bg: #242728;
+  --box-bg: #242728;
+  --card-bg: #242728;
+  --header-shadow: #393C3D;
+  --card-shadow: #64686C;
+  --option-bg: #242728;
+  --option-btn-bg: #4e5051e9;
+  --field-bg: #333334;
+  --items-hover-bg: #333334;
+  --p-skeleton-background: #464749;
+  --menu-hover-bg: #3A3D3E;
+  --p-ripple-background: #ffffff21;
+  --text-color: #fff;
+  --text-gray-color: #A4A8AC;
+  --text-placeholder-color: #AFB3B8;
+  --icon-color: #E4E6EA;
+  --icon-gray-color: #E4E6EA;
+  --arrow-bg: #444445;
+  --p-tabs-tab-color: --text-color;
+  --p-tabs-tab-hover-color: --icon-gray-color;
 }
 
 * {
@@ -10,11 +53,6 @@
   text-decoration: none !important;
   list-style-type: none;
   font-family: 'Inter', sans-serif;
-}
-
-::selection {
-  background-color: var(--p-primary-color);
-  color: #fff;
 }
 
 html,
@@ -41,7 +79,7 @@ button {
 }
 
 .box {
-  background: #fff;
+  background: var(--box-bg);
   border-radius: 0.5rem;
   box-shadow: 0 0 1px 1px #00000020;
   padding: 1.25rem 0.8rem;
@@ -54,18 +92,18 @@ button {
 
 .box-header .title {
   font-size: 0.99rem;
-  color: #65686C;
+  color: var(--text-color);
   font-weight: 600;
 }
 
 
 body .swiper-button-prev,
 body .swiper-button-next {
-  background: #fff;
+  background: var(--arrow-bg);
   width: 45px;
   height: 45px;
   border-radius: 100%;
-  color: #737578;
+  color: var(--text-color);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -124,9 +162,21 @@ body .swiper-wrapper {
   background: #89898967;
   border-radius: 100px;
 }
+
 body .back-btn .icon {
+  color: var(--icon-color);
   font-size: 0.85rem !important;
 }
+
 body .back-btn:hover {
-  background: #f0f2f5 !important;
+  background: var(--menu-hover-bg) !important;
+}
+
+.dark .p-button-outlined {
+  background: var(--option-btn-bg);
+  border-color: var(--option-btn-bg);
+  color: #E7E9EC;
+}
+.p-button-outlined{
+  transition: none !important ;
 }

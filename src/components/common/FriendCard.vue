@@ -40,10 +40,10 @@ const friend = props.friend;
 
 <style scoped>
 .friend-card {
-    background: #fff;
+    background: var(--box-bg);
     border-radius: 0.65rem;
     overflow: hidden;
-    box-shadow: 0 0 1px 1px #0000000d;
+    box-shadow: 0 0 1px 1px var(--card-shadow);
     display: flex;
     align-items: center;
     gap: 1rem;
@@ -61,13 +61,13 @@ const friend = props.friend;
     object-fit: cover;
 }
 .friend-card__content .name {
-    color: #000;
+    color: var(--text-color);
     font-size: 1.05rem;
     font-weight: 500;
     margin-bottom: 0.25rem;
 }
 .friend-card__content .friend {
-    color: #8d9093;
+    color: var(--text-gray-color);
     font-size: 0.85rem;
     font-weight: 500;
 }

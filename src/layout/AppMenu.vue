@@ -65,6 +65,16 @@ const isActive = (to) => {
 .menu-item {
     --icon-width: 26px;
 }
+.p-menu-item-content{
+    background: transparent !important;
+}
+.p-menu-item{
+    border-radius: 0.5rem;
+    overflow: hidden;
+}
+.p-menu-item *{
+  color: var(--text-color); 
+}
 .p-menu-item-link .icon {
     width: var(--icon-width);
     aspect-ratio: 1/1;
@@ -85,5 +95,8 @@ const isActive = (to) => {
 .menu-item.active {
     color: var(--primary-color);
     background: var(--primary-light-color);
+}
+.p-menu-item-link:hover {
+    background: var(--menu-hover-bg) !important;
 }
 </style>

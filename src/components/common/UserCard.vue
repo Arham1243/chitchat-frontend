@@ -124,10 +124,10 @@ const unfriend = (user) => {
 <style scoped>
 .user-card {
     width: 200px;
-    background: #fff;
+    background: var(--card-bg);
     border-radius: 0.5rem;
     overflow: hidden;
-    box-shadow: 0 0 1px 1px #00000020;
+    border: 1px solid var(--card-shadow);
 }
 .user-card__image {
     width: 100%;
@@ -153,15 +153,16 @@ const unfriend = (user) => {
 .user-card__content .friends {
     font-size: 0.85rem;
     font-weight: 500;
-    color: #8d9093;
+    color: var(--text-gray-color);
 }
 .user-card__content .name {
-    color: #000;
+    color: var(--text-color);
     font-size: 1rem;
     font-weight: 500;
 }
 .user-card__content .p-button {
     font-size: 0.9rem;
+    border-color: var(--primary-light-color);
 }
 .grid .user-card:not(.swiper-slide .user-card) {
     margin-right: 0.9rem;

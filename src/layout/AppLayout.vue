@@ -25,7 +25,7 @@ import AppMenu from '@/layout/AppMenu.vue';
 .main {
     min-width: 100vw;
     min-height: 100vh;
-    background: #f2f4f7;
+    background: var(--main-bg);
 }
 .fade-enter-active,
 .fade-leave-active {
