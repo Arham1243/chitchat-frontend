@@ -30,7 +30,7 @@ const items = ref([
 ]);
 const isActive = (to) => {
     return (
-        route.name === to.name &&
+        route.name === to.name ||
         JSON.stringify(route.params) === JSON.stringify(to.params)
     );
 };
@@ -93,10 +93,9 @@ const isActive = (to) => {
     object-fit: cover;
 }
 .menu-item.active {
-    color: var(--primary-color);
     background: var(--primary-light-color);
 }
-.p-menu-item-link:hover {
-    background: var(--menu-hover-bg) !important;
+.menu-item.active * {
+    color: var(--primary-color);
 }
 </style>
