@@ -88,13 +88,13 @@ const fetchChat = () => {
             </div>
         </div>
         <div class="message-box flex align-items-center">
-            <div class="actions">
+            <!-- <div class="actions">
                 <Button
                     icon="fa-regular fa-face-smile"
                     variant="text"
                     class="text-black-alpha-90 back-btn"
                 />
-            </div>
+            </div> -->
             <InputText
                 v-model="message"
                 type="text"
