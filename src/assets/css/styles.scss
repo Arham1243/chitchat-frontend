@@ -13,7 +13,7 @@
   --items-hover-bg: #f2f2f2;
   --menu-hover-bg: #f0f2f5;
   --text-color: #080809;
-  --text-gray-color:  #6e7174;
+  --text-gray-color: #6e7174;
   --text-placeholder-color: #6C7074;
   --icon-color: #1D1F23;
   --icon-gray-color: #65686c;
@@ -153,6 +153,7 @@ body .swiper-wrapper {
   font-weight: 700;
   margin-bottom: 1rem;
 }
+
 .page-title--lg {
   font-size: 1.5rem;
 }
@@ -188,16 +189,25 @@ body .back-btn:hover {
   border-color: var(--option-btn-bg);
   color: #E7E9EC;
 }
-.p-button-outlined{
-  transition: none !important ;
+
+.p-button-outlined {
+  transition: none !important;
 }
-.dark  .status{
+
+.dark .status {
   border-color: var(--option-bg) !important;
 }
-.dark .p-tooltip-text{
+
+.dark .p-tooltip-text {
   color: #2F2F30;
   background: #fffefe;
 }
-.dark .logo{
-  filter:invert(1) brightness(100);
+
+.dark .logo {
+  filter: invert(1) brightness(100);
+}
+
+.dark .swiper-button-prev:hover,
+.dark .swiper-button-next:hover {
+  color: #000;
 }
