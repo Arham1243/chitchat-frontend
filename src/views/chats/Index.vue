@@ -106,7 +106,7 @@ const fetchChat = () => {
 </template>
 <style>
 .chat-screen {
-    height: calc(100vh - 7.25rem);
+    height: calc(100vh - 6.95rem);
     overflow-y: auto;
     position: relative;
     background: var(--chat-bg);
