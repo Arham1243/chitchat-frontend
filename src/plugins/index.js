@@ -11,6 +11,7 @@ import 'boxicons/css/boxicons.min.css';
 
 import InputField from '@/components/common/InputField.vue';
 import Button from 'primevue/button';
+import Message from 'primevue/message';
 import Ripple from 'primevue/ripple';
 import OverlayBadge from 'primevue/overlaybadge';
 import Menu from 'primevue/menu';
@@ -62,6 +63,7 @@ export function registerPlugins(app) {
     app.component('TabList', TabList);
     app.component('Tab', Tab);
     app.component('Button', Button);
+    app.component('Message', Message);
     app.component('Divider', Divider);
     app.component('Tooltip', Tooltip);
     app.component('InputField', InputField);
@@ -122,7 +124,8 @@ const components = {
     ConfirmDialog,
     Toast,
     TabPanels,
-    TabPanel
+    TabPanel,
+    Message
 };
 const plugins = [utils, pinia, router];
 

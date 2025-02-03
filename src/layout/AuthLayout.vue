@@ -1,5 +1,9 @@
 <script setup>
 import Logo from '@/assets/images/logo.png';
+import { onMounted } from 'vue';
+onMounted(() => {
+    document.documentElement.classList.remove('dark');
+});
 </script>
 
 <template>
@@ -17,10 +21,11 @@ import Logo from '@/assets/images/logo.png';
             </div>
         </div>
     </div>
+    <Toast />
 </template>
 
 <style scoped>
 .auth-wrapper {
-    width: 300px;
+    width: 303px;
 }
 </style>

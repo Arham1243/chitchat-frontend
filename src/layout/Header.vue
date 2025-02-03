@@ -1,9 +1,10 @@
 <script setup>
-import { ref, computed, onUnmounted, watch, onMounted } from 'vue';
+import { ref, computed, onUnmounted, watch } from 'vue';
 import { useRoute } from 'vue-router';
+import { useAuthStore } from '@/stores';
+import { useRouter } from 'vue-router';
 import Logo from '@/assets/images/c.png';
 import GlobalSearch from '@/components/GlobalSearch.vue';
-
 import Placeholder from '@/assets/images/placeholder-user.png';
 import notifications from '@/mocks/notifications.json';
 import unreadNotifications from '@/mocks/unreadNotifications.json';
@@ -19,7 +20,9 @@ const NAV_ITEMS = [
     { to: 'my-friends', icon: 'fa-solid fa-user-group' }
 ];
 
+const authStore = useAuthStore();
 const route = useRoute();
+const router = useRouter();
 const optionBoxWrapper = ref(null);
 const activeTab = computed(() => route.name);
 const showOptionBox = ref(false);
@@ -31,33 +34,10 @@ const triggerElements = ref(
         ['notifications', ref(null)]
     ])
 );
-const toggleTheme = () => {
-    if (dark.value === '1') {
-        document.documentElement.classList.add('dark');
-    } else {
-        document.documentElement.classList.remove('dark');
-    }
-    localStorage.setItem('darkMode', dark.value);
-};
+
 watch(dark, () => {
     toggleTheme();
 });
-const handleClickOutside = (event) => {
-    const isOutsideBox = !optionBoxWrapper.value?.contains(event.target);
-    const isOutsideTriggers = Array.from(triggerElements.value.values()).every(
-        (ref) => !ref.value?.$el.contains(event.target)
-    );
-
-    if (showOptionBox.value && isOutsideBox && isOutsideTriggers) {
-        showOptionBox.value = false;
-    }
-};
-
-const toggleOptionBox = (type) => {
-    contentType.value =
-        showOptionBox.value && contentType.value === type ? null : type;
-    showOptionBox.value = contentType.value !== null;
-};
 
 onUnmounted(() => {
     document.removeEventListener('click', handleClickOutside);
@@ -69,6 +49,45 @@ watch(showOptionBox, (visible) => {
         handleClickOutside
     );
 });
+
+const toggleTheme = () => {
+    if (dark.value === '1') {
+        document.documentElement.classList.add('dark');
+    } else {
+        document.documentElement.classList.remove('dark');
+    }
+    localStorage.setItem('darkMode', dark.value);
+};
+
+const pushRoute = (name) => {
+    router.push({ name });
+};
+
+const handleClickOutside = (event) => {
+    const isOutsideBox = !optionBoxWrapper.value?.contains(event.target);
+    const isOutsideTriggers = Array.from(triggerElements.value.values()).every(
+        (ref) => !ref.value?.$el.contains(event.target)
+    );
+
+    if (showOptionBox.value && isOutsideBox && isOutsideTriggers) {
+        showOptionBox.value = false;
+    }
+};
+
+const logout = async () => {
+    try {
+        await authStore.logout();
+        pushRoute('login');
+    } catch (error) {
+        console.log(error);
+    }
+};
+
+const toggleOptionBox = (type) => {
+    contentType.value =
+        showOptionBox.value && contentType.value === type ? null : type;
+    showOptionBox.value = contentType.value !== null;
+};
 </script>
 
 <template>
@@ -192,7 +211,11 @@ watch(showOptionBox, (visible) => {
                         </div>
                         <i class="fa-solid fa-chevron-right" />
                     </div>
-                    <div class="lookups-item" v-ripple>
+                    <div
+                        class="lookups-item cursor-pointer"
+                        v-ripple
+                        @click="logout"
+                    >
                         <div class="wrapper">
                             <div class="icon">
                                 <i class="fa-solid fa-right-from-bracket" />

@@ -1,9 +1,7 @@
 <script setup>
 import { computed, ref } from 'vue';
-import { useRouter } from 'vue-router';
 import { useAuthStore } from '@/stores';
 
-const router = useRouter();
 const authStore = useAuthStore();
 
 const loading = ref(false);
@@ -11,14 +9,11 @@ const credentials = ref({
     email: ''
 });
 
-const pushRoute = (name, query = {}) => {
-    router.push({ name, query });
-};
-
 const forgetPassword = async () => {
     try {
         loading.value = true;
         await authStore.forgetPassword(credentials.value);
+        credentials.value.email = '';
     } catch (error) {
         console.log(error);
     } finally {
@@ -53,7 +48,7 @@ const isSubmitEnabled = computed(() => {
                 </div>
             </div>
             <Button
-                :disabled="!isSubmitEnabled"
+                :disabled="!isSubmitEnabled || loading"
                 class="w-full text-sm"
                 label="Continue"
                 :loading="loading"

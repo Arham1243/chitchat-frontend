@@ -2,25 +2,33 @@
 import { computed, ref } from 'vue';
 import { useRouter } from 'vue-router';
 import { useAuthStore } from '@/stores';
+import { useRoute } from 'vue-router';
 
+const route = useRoute();
 const router = useRouter();
 const authStore = useAuthStore();
 
 const loading = ref(false);
 const credentials = ref({
+    token: '',
+    email: '',
     password: '',
-    confirm_password: ''
+    password_confirmation: ''
 });
-
-const pushRoute = (name, query = {}) => {
-    router.push({ name, query });
+const pushRoute = (name) => {
+    router.push({ name });
 };
 
 const resetPassword = async () => {
     try {
         loading.value = true;
+        credentials.value = {
+            ...credentials.value,
+            email: route.query.email,
+            token: route.query.token
+        };
         await authStore.resetPassword(credentials.value);
-        pushRoute('Login');
+        pushRoute('login');
     } catch (error) {
         console.log(error);
     } finally {
@@ -31,8 +39,8 @@ const isSubmitEnabled = computed(() => {
     return (
         credentials.value.password &&
         credentials.value.password.length > 7 &&
-        credentials.value.confirm_password &&
-        credentials.value.confirm_password.length > 7
+        credentials.value.password_confirmation &&
+        credentials.value.password_confirmation.length > 7
     );
 });
 </script>
@@ -57,9 +65,9 @@ const isSubmitEnabled = computed(() => {
                 <div class="field col-12">
                     <InputField
                         placeholder="Confirm password"
-                        id="confirm_password"
+                        id="password_confirmation"
                         variant="password"
-                        v-model="credentials.confirm_password"
+                        v-model="credentials.password_confirmation"
                         toggleMask
                         :feedback="false"
                         inputClass="text-sm w-full"
@@ -67,7 +75,7 @@ const isSubmitEnabled = computed(() => {
                 </div>
             </div>
             <Button
-                :disabled="!isSubmitEnabled"
+                :disabled="!isSubmitEnabled || loading"
                 class="w-full text-sm"
                 label="Continue"
                 :loading="loading"
