@@ -1,7 +1,13 @@
 <script setup>
 import Header from '@/layout/Header.vue';
 import AppMenu from '@/layout/AppMenu.vue';
-import { onMounted } from 'vue';
+import Loader from '@/components/common/Loader.vue';
+import { onBeforeMount, ref } from 'vue';
+import { useAuthStore } from '@/stores';
+
+const authStore = useAuthStore();
+const loading = ref(true);
+
 const toggleTheme = () => {
     const dark = localStorage.getItem('darkMode');
     if (dark === '1') {
@@ -10,12 +16,20 @@ const toggleTheme = () => {
         document.documentElement.classList.remove('dark');
     }
 };
-onMounted(() => {
+onBeforeMount(async () => {
     toggleTheme();
+    await authStore.me();
+    loading.value = false;
 });
 </script>
 <template>
-    <div class="main">
+    <div
+        class="w-screen h-screen flex justify-content-center align-items-center"
+        v-if="loading"
+    >
+        <Loader />
+    </div>
+    <div class="main" v-else>
         <Header />
         <div class="pt-8">
             <div class="grid grid-nogutter">

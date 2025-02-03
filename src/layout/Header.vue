@@ -9,11 +9,6 @@ import Placeholder from '@/assets/images/placeholder-user.png';
 import notifications from '@/mocks/notifications.json';
 import unreadNotifications from '@/mocks/unreadNotifications.json';
 
-const user = {
-    full_name: 'Arham Khan',
-    username: 'arhamkhan'
-};
-
 const NAV_ITEMS = [
     { to: 'home', icon: 'fa-solid fa-house' },
     { to: 'friends', icon: 'fa-solid fa-users' },
@@ -28,6 +23,7 @@ const activeTab = computed(() => route.name);
 const showOptionBox = ref(false);
 const contentType = ref(null);
 const dark = ref(localStorage.getItem('darkMode') || '0');
+const user = computed(() => authStore.currentUser);
 const triggerElements = ref(
     new Map([
         ['account', ref(null)],
@@ -165,7 +161,7 @@ const toggleOptionBox = (type) => {
                     class="header-options__item no-badge cursor-pointer"
                 >
                     <img
-                        :src="Placeholder"
+                        :src="user.profile_picture || Placeholder"
                         class="border-circle"
                         alt="account"
                         width="43"
@@ -188,14 +184,14 @@ const toggleOptionBox = (type) => {
                 >
                     <div class="profile-picture">
                         <img
-                            :src="Placeholder"
+                            :src="user.profile_picture || Placeholder"
                             class="border-circle"
                             alt="account"
                             width="36"
                             height="36"
                         />
                     </div>
-                    <div class="name">{{ user.full_name }}</div>
+                    <div class="name">{{ user.name }}</div>
                 </router-link>
                 <div class="lookups-list">
                     <div

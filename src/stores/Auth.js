@@ -1,9 +1,11 @@
 import { defineStore } from 'pinia';
 import { AuthService } from '@/services';
 import { useGlobalStore, useSessionStore } from '@/stores';
+import { ref } from 'vue';
 
 export const useAuthStore = defineStore('AuthStore', () => {
     const globalStore = useGlobalStore();
+    const currentUser = ref({});
     const sessionStore = useSessionStore();
 
     const login = (payload) => {
@@ -64,13 +66,23 @@ export const useAuthStore = defineStore('AuthStore', () => {
         });
     };
 
+    const me = () => {
+        return globalStore.actionWrapper(async () => {
+            const res = await AuthService.me();
+            currentUser.value = res.data;
+            return res.data;
+        });
+    };
+
     return {
+        currentUser,
         login,
         loginUser,
         register,
         logout,
         forgetPassword,
         resetPassword,
-        loginWithGoogle
+        loginWithGoogle,
+        me
     };
 });

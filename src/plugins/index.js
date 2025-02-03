@@ -12,6 +12,7 @@ import 'boxicons/css/boxicons.min.css';
 import InputField from '@/components/common/InputField.vue';
 import Button from 'primevue/button';
 import Message from 'primevue/message';
+import ProgressSpinner from 'primevue/progressspinner';
 import Ripple from 'primevue/ripple';
 import OverlayBadge from 'primevue/overlaybadge';
 import Menu from 'primevue/menu';
@@ -59,6 +60,7 @@ export function registerPlugins(app) {
     });
 
     app.component('Tabs', Tabs);
+    app.component('ProgressSpinner', ProgressSpinner);
     app.component('OverlayBadge', OverlayBadge);
     app.component('TabList', TabList);
     app.component('Tab', Tab);
@@ -125,7 +127,8 @@ const components = {
     Toast,
     TabPanels,
     TabPanel,
-    Message
+    Message,
+    ProgressSpinner
 };
 const plugins = [utils, pinia, router];
 

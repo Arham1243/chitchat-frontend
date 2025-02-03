@@ -19,3 +19,6 @@ export const resetPassword = (payload) => {
 export const loginWithGoogle = () => {
     return AxiosService.post(`${BASE_URL}/google/redirect`);
 };
+export const me = () => {
+    return AxiosService.get(`${BASE_URL}/me`);
+};

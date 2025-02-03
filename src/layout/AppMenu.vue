@@ -1,38 +1,53 @@
 <script setup>
 import Placeholder from '@/assets/images/placeholder-user.png';
-import { ref } from 'vue';
+import { computed } from 'vue';
 import { useRoute } from 'vue-router';
+import { useAuthStore } from '@/stores';
+const authStore = useAuthStore();
 const route = useRoute();
+const user = computed(() => authStore.currentUser);
 
-const user = {
-    full_name: 'Arham Khan',
-    username: 'arhamkhan'
-};
-const items = ref([
-    {
-        label: 'Arham Khan',
-        image: Placeholder,
-        to: {
-            name: 'user-detail',
-            params: { username: user.username }
+const items = computed(() => {
+    const userItem = user.value
+        ? {
+              label: user.value.name,
+              image: user.value.profile_picture
+                  ? user.value.profile_picture
+                  : Placeholder,
+              to: {
+                  name: 'user-detail',
+                  params: { username: user.value.username || 'username' }
+              }
+          }
+        : null;
+
+    return [
+        userItem,
+        {
+            label: 'Find friends',
+            icon: 'icon fa-solid fa-users',
+            to: { name: 'friends' }
+        },
+        {
+            label: 'Your friends',
+            icon: 'icon fa-solid fa-user-group',
+            to: { name: 'my-friends' }
         }
-    },
-    {
-        label: 'Find friends',
-        icon: 'icon fa-solid fa-users',
-        to: { name: 'friends' }
-    },
-    {
-        label: 'Your friends',
-        icon: 'icon fa-solid fa-user-group',
-        to: { name: 'my-friends' }
-    }
-]);
+    ].filter((item) => item);
+});
+
 const isActive = (to) => {
     return (
         route.name === to.name ||
         JSON.stringify(route.params) === JSON.stringify(to.params)
     );
+};
+const me = async () => {
+    try {
+        await authStore.me();
+    } catch (error) {
+        console.log(error);
+    }
 };
 </script>
 <template>
@@ -49,7 +64,7 @@ const isActive = (to) => {
                     <span v-if="item.icon" :class="item.icon" />
                     <img
                         v-else-if="item.image"
-                        :src="Placeholder"
+                        :src="item.image"
                         :alt="item.label"
                     />
                     <span class="ml-2 label">{{ item.label }}</span>
