@@ -18,8 +18,10 @@ const toggleTheme = () => {
 };
 onBeforeMount(async () => {
     toggleTheme();
-    await authStore.me();
-    loading.value = false;
+    if (!authStore.currentUser) {
+        await authStore.me();
+        loading.value = false;
+    }
 });
 </script>
 <template>

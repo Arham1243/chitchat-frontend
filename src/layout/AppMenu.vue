@@ -42,13 +42,6 @@ const isActive = (to) => {
         JSON.stringify(route.params) === JSON.stringify(to.params)
     );
 };
-const me = async () => {
-    try {
-        await authStore.me();
-    } catch (error) {
-        console.log(error);
-    }
-};
 </script>
 <template>
     <Menu :model="items" class="bg-transparent border-none">

@@ -5,7 +5,7 @@ import { ref } from 'vue';
 
 export const useAuthStore = defineStore('AuthStore', () => {
     const globalStore = useGlobalStore();
-    const currentUser = ref({});
+    const currentUser = ref();
     const sessionStore = useSessionStore();
 
     const login = (payload) => {
