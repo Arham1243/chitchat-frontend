@@ -37,9 +37,14 @@ const items = computed(() => {
 });
 
 const isActive = (to) => {
+    if (!route.params) {
+        return route.name === to.name;
+    }
     return (
-        route.name === to.name ||
-        JSON.stringify(route.params) === JSON.stringify(to.params)
+        route.name === to.name &&
+        Object.keys(route.params).every(
+            (key) => route.params[key] === to.params[key]
+        )
     );
 };
 </script>

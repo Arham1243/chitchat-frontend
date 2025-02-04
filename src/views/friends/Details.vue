@@ -1,19 +1,21 @@
 <script setup>
-import { onBeforeMount, ref, watch } from 'vue';
+import { computed, onBeforeMount, ref, watch } from 'vue';
 import { useConfirm } from 'primevue/useconfirm';
 import { useToast } from 'primevue/usetoast';
 import FriendCard from '@/components/common/FriendCard.vue';
+import Placeholder from '@/assets/images/placeholder-user.png';
 import { useRoute } from 'vue-router';
-import users from '@/mocks/users.json';
+import { useUserStore, useAuthStore } from '@/stores';
+import { useRouter } from 'vue-router';
 
+const router = useRouter();
+const userStore = useUserStore();
+const authStore = useAuthStore();
 const route = useRoute();
 const loading = ref(false);
 const busy = ref(false);
 const user = ref({});
-const currentUser = {
-    full_name: 'Arham Khan',
-    username: 'arhamkhan'
-};
+const currentUser = computed(() => authStore.currentUser);
 const unfriendConfirm = useConfirm();
 const toast = useToast();
 
@@ -22,24 +24,33 @@ onBeforeMount(() => {
 });
 watch(
     () => route.params.username,
-    () => {
-        fetchUser();
+    (newUsername) => {
+        if (newUsername) {
+            fetchUser();
+        }
     }
 );
-
-const fetchUser = () => {
-    loading.value = true;
-    setTimeout(() => {
-        user.value = users.find((u) => u.username === route.params.username);
+const fetchUser = async () => {
+    try {
+        loading.value = true;
+        const res = await userStore.getUser(route.params.username);
+        user.value = { ...res, is_friend: 'no' };
+    } catch (error) {
+        if (error.status === 500) {
+            router.go(-1);
+        } else {
+            console.log(error);
+        }
+    } finally {
         loading.value = false;
-    }, 1500);
+    }
 };
 
 const unfriendConfirmation = () => {
     unfriendConfirm.require({
-        message: `Are you sure you want to remove ${user.value.full_name} as your friend?
+        message: `Are you sure you want to remove ${user.value.name} as your friend?
 `,
-        header: `Unfriend ${user.value.full_name}`,
+        header: `Unfriend ${user.value.name}`,
         icon: 'fa-regular fa-circle-xmark',
         rejectLabel: 'Cancel',
         rejectProps: {
@@ -63,8 +74,8 @@ const unfriend = () => {
         setTimeout(() => {
             toast.add({
                 severity: 'success',
-                summary: `${user.value.full_name} removed`,
-                detail: `${user.value.full_name} was unfriended successfully`,
+                summary: `${user.value.name} removed`,
+                detail: `${user.value.name} was unfriended successfully`,
                 life: 3000
             });
             busy.value = false;
@@ -157,8 +168,8 @@ const cancelRequest = () => {
                     <div class="col-3">
                         <div class="profile-image">
                             <Image
-                                :src="user.profile_picture"
-                                :alt="user.full_name"
+                                :src="user.profile_picture || Placeholder"
+                                :alt="user.name"
                                 class="imgFluid border-3"
                                 style="border-color: #e2e8f0"
                                 preview
@@ -173,85 +184,97 @@ const cancelRequest = () => {
                     </div>
                     <div class="col-9">
                         <div class="profile-info">
-                            <div class="name">{{ user.full_name }}</div>
+                            <div class="name">{{ user.name }}</div>
                             <div class="friends">
-                                {{ user.friends.length }} friend{{
-                                    user.friends.length > 1 ? 's' : ''
-                                }}
-                                <span
-                                    v-if="
-                                        user.mutual_friends &&
-                                        user.mutual_friends.length > 0
-                                    "
-                                >
-                                    • {{ user.mutual_friends.length }} mutual
-                                </span>
+                                <template v-if="user.friends">
+                                    {{ user.friends.length }} friend{{
+                                        user.friends.length > 1 ? 's' : ''
+                                    }}
+                                    <span
+                                        v-if="
+                                            user.mutual_friends &&
+                                            user.mutual_friends.length > 0
+                                        "
+                                    >
+                                        •
+                                        {{ user.mutual_friends.length }} mutual
+                                    </span>
+                                </template>
                             </div>
                             <div class="flex justify-content-between mt-3">
-                                <div
-                                    class="mutual"
-                                    v-if="
-                                        user.mutual_friends &&
-                                        user.mutual_friends.length > 0
-                                    "
-                                >
-                                    <AvatarGroup>
-                                        <Avatar
-                                            v-for="(
-                                                friend, index
-                                            ) in user.mutual_friends.slice(
-                                                0,
-                                                8
-                                            )"
-                                            :key="index"
-                                            :image="friend.profile_picture"
-                                            shape="circle"
-                                        />
-                                    </AvatarGroup>
+                                <div class="mutual">
+                                    <template
+                                        v-if="
+                                            user.mutual_friends &&
+                                            user.mutual_friends.length > 0
+                                        "
+                                    >
+                                        <AvatarGroup>
+                                            <Avatar
+                                                v-for="(
+                                                    friend, index
+                                                ) in user.mutual_friends.slice(
+                                                    0,
+                                                    8
+                                                )"
+                                                :key="index"
+                                                :image="friend.profile_picture"
+                                                shape="circle"
+                                            />
+                                        </AvatarGroup>
+                                    </template>
                                 </div>
-                                <div
-                                    class="actions flex gap-2"
-                                    v-if="
-                                        currentUser.username !== user.username
-                                    "
-                                >
-                                    <Button
-                                        v-if="user.is_friend === 'yes'"
-                                        label="Friends"
-                                        icon="fa-solid fa-user-check"
-                                        variant="outlined"
-                                        @click="unfriendConfirmation"
-                                        :loading="busy"
-                                    />
-                                    <Button
-                                        v-else-if="user.is_friend === 'no'"
-                                        class="bg-primary-light"
-                                        label="Add friend"
-                                        icon="fa-solid fa-user-plus"
-                                        variant="outlined"
-                                        @click="sendRequest"
-                                        :loading="busy"
-                                    />
-                                    <Button
-                                        v-else-if="user.is_friend === 'pending'"
-                                        class="bg-primary-light"
-                                        label="Cancel request"
-                                        icon="fa-solid fa-user-minus"
-                                        variant="outlined"
-                                        @click="cancelRequest"
-                                        :loading="busy"
-                                    />
-                                    <Button
-                                        label="Message"
-                                        icon="fa-brands fa-facebook-messenger"
-                                    />
+
+                                <div class="actions flex gap-2">
+                                    <template
+                                        v-if="
+                                            currentUser.username !==
+                                            user.username
+                                        "
+                                    >
+                                        <Button
+                                            v-if="user.is_friend === 'yes'"
+                                            label="Friends"
+                                            icon="fa-solid fa-user-check"
+                                            variant="outlined"
+                                            @click="unfriendConfirmation"
+                                            :loading="busy"
+                                        />
+                                        <Button
+                                            v-else-if="user.is_friend === 'no'"
+                                            class="bg-primary-light"
+                                            label="Add friend"
+                                            icon="fa-solid fa-user-plus"
+                                            variant="outlined"
+                                            @click="sendRequest"
+                                            :loading="busy"
+                                        />
+                                        <Button
+                                            v-else-if="
+                                                user.is_friend === 'pending'
+                                            "
+                                            class="bg-primary-light"
+                                            label="Cancel request"
+                                            icon="fa-solid fa-user-minus"
+                                            variant="outlined"
+                                            @click="cancelRequest"
+                                            :loading="busy"
+                                        />
+                                        <Button
+                                            label="Message"
+                                            icon="fa-brands fa-facebook-messenger"
+                                        />
+                                    </template>
                                 </div>
                             </div>
                         </div>
                     </div>
                 </div>
             </div>
-            <Tabs value="0" v-if="!loading">
+            <Tabs
+                value="0"
+                v-if="!loading && (user.mutual_friends || user.friends)"
+            >
                 <TabList>
                     <Tab value="0">Friends</Tab>
                     <Tab

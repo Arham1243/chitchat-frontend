@@ -1,4 +1,5 @@
 <script setup>
+import Placeholder from '@/assets/images/placeholder-user.png';
 const props = defineProps({
     friend: {
         type: Object,
@@ -19,8 +20,8 @@ const friend = props.friend;
         >
             <img
                 class="imgFluid"
-                :src="friend.profile_picture"
-                :alt="friend.full_name"
+                :src="friend.profile_picture || Placeholder"
+                :alt="friend.name"
             />
         </router-link>
         <div class="friend-card__content">
@@ -31,7 +32,7 @@ const friend = props.friend;
                 }"
                 class="name hover:underline"
             >
-                {{ friend.full_name }}
+                {{ friend.name }}
             </router-link>
             <div class="friend" v-if="friend.is_friend">Friend</div>
         </div>

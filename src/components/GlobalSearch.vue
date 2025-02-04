@@ -1,21 +1,25 @@
 <script setup>
-import results from '@/mocks/users.json';
-import { ref, onMounted, onUnmounted, watch } from 'vue';
+import { ref, onMounted, onUnmounted } from 'vue';
+import { useUserStore } from '@/stores';
+import Placeholder from '@/assets/images/placeholder-user.png';
 
+const userStore = useUserStore();
 const showSearchResults = ref(false);
 const loading = ref(false);
-const search = ref('');
 const searchWrapper = ref(null);
-const filteredResults = ref([]);
+const searchQuery = ref('');
+const users = ref([]);
+let debounceTimeout = null;
 
 const handleClickOutside = (event) => {
     if (searchWrapper.value && !searchWrapper.value.contains(event.target)) {
         showSearchResults.value = false;
     }
 };
+
 const reset = () => {
     showSearchResults.value = false;
-    search.value = '';
+    searchQuery.value = '';
 };
 
 onMounted(() => {
@@ -26,30 +30,39 @@ onUnmounted(() => {
     document.removeEventListener('click', handleClickOutside);
 });
 
-const searchResults = (query) => {
-    return new Promise((resolve) => {
-        setTimeout(() => {
-            if (!query) {
-                resolve([...results]);
-            } else {
-                resolve(
-                    results.filter((item) =>
-                        item.full_name
-                            .toLowerCase()
-                            .includes(query.toLowerCase())
-                    )
-                );
-            }
-        }, 1500);
-    });
+const searchUsers = async (query) => {
+    const payload = { search: query };
+    try {
+        const res = await userStore.searchUsers(payload);
+        return res;
+    } catch (error) {
+        console.error('Error searching users:', error);
+        return [];
+    }
 };
 
-watch(search, async (newSearch) => {
-    loading.value = true;
-    const results = await searchResults(newSearch);
-    filteredResults.value = results;
-    loading.value = false;
-});
+const handleSearchInput = (event) => {
+    const query = event.target.value;
+    searchQuery.value = query;
+
+    if (debounceTimeout) {
+        clearTimeout(debounceTimeout);
+    }
+
+    debounceTimeout = setTimeout(async () => {
+        if (query.trim() !== '') {
+            loading.value = true;
+            const results = await searchUsers(query);
+            users.value = results.map((user) => ({
+                ...user,
+                is_friend: 'no'
+            }));
+            loading.value = false;
+        } else {
+            users.value = [];
+        }
+    }, 500);
+};
 </script>
 
 <template>
@@ -58,7 +71,9 @@ watch(search, async (newSearch) => {
             <IconField>
                 <InputIcon class="pi pi-search" />
                 <InputText
-                    v-model="search"
+                    v-model="searchQuery"
+                    @input="handleSearchInput"
+                    @search="searchUsers"
                     placeholder="Search friends"
                     class="global-search"
                     @click="showSearchResults = true"
@@ -76,7 +91,7 @@ watch(search, async (newSearch) => {
             <div
                 :class="{
                     'search-results': true,
-                    scroll: !loading && filteredResults.length > 7
+                    scroll: !loading && users.length > 7
                 }"
             >
                 <div v-if="loading">
@@ -103,7 +118,7 @@ watch(search, async (newSearch) => {
                         </div>
                     </div>
                 </div>
-                <template v-if="filteredResults.length">
+                <template v-if="users.length">
                     <router-link
                         @click="reset"
                         :to="{
@@ -112,14 +127,14 @@ watch(search, async (newSearch) => {
                         }"
                         v-show="!loading"
                         class="result"
-                        v-for="(result, index) in filteredResults"
+                        v-for="(result, index) in users"
                         :key="index"
                         v-ripple
                     >
                         <div class="avatar">
                             <img
-                                :src="result.profile_picture"
-                                :alt="result.full_name"
+                                :src="result.profile_picture || Placeholder"
+                                :alt="result.name"
                                 class="imgFluid"
                                 v-if="result.is_friend == 'yes'"
                             />
@@ -132,7 +147,7 @@ watch(search, async (newSearch) => {
                             ></i>
                         </div>
                         <div class="info">
-                            <div class="name">{{ result.full_name }}</div>
+                            <div class="name">{{ result.name }}</div>
                             <div class="type" v-if="result.is_friend === 'yes'">
                                 friend
                             </div>
@@ -154,8 +169,8 @@ watch(search, async (newSearch) => {
                             "
                         >
                             <img
-                                :src="result.profile_picture"
-                                :alt="result.full_name"
+                                :src="result.profile_picture || Placeholder"
+                                :alt="result.name"
                                 class="imgFluid"
                             />
                         </div>

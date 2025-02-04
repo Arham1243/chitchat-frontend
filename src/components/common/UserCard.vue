@@ -2,6 +2,7 @@
 import { useConfirm } from 'primevue/useconfirm';
 import { useToast } from 'primevue/usetoast';
 import { ref } from 'vue';
+import Placeholder from '@/assets/images/placeholder-user.png';
 const unfriendConfirm = useConfirm();
 const toast = useToast();
 const busy = ref(false);
@@ -20,9 +21,9 @@ const emit = defineEmits(['userUnfriended']);
 
 const unfriendConfirmation = (user) => {
     unfriendConfirm.require({
-        message: `Are you sure you want to remove ${user.full_name} as your friend?
+        message: `Are you sure you want to remove ${user.name} as your friend?
 `,
-        header: `Unfriend ${user.full_name}`,
+        header: `Unfriend ${user.name}`,
         icon: 'fa-regular fa-circle-xmark',
         rejectLabel: 'Cancel',
         rejectProps: {
@@ -47,8 +48,8 @@ const unfriend = (user) => {
         setTimeout(() => {
             toast.add({
                 severity: 'success',
-                summary: `${user.full_name} removed`,
-                detail: `${user.full_name} was unfriended successfully`,
+                summary: `${user.name} removed`,
+                detail: `${user.name} was unfriended successfully`,
                 life: 3000
             });
             busy.value = false;
@@ -68,8 +69,8 @@ const unfriend = (user) => {
         >
             <img
                 class="imgFluid"
-                :src="user.profile_picture"
-                :alt="user.full_name"
+                :src="user.profile_picture || Placeholder"
+                :alt="user.name"
             />
         </router-link>
         <div class="user-card__content">
@@ -80,7 +81,7 @@ const unfriend = (user) => {
                 }"
                 class="name hover:underline"
             >
-                {{ user.full_name }}
+                {{ user.name }}
             </router-link>
             <div class="mutual">
                 <AvatarGroup

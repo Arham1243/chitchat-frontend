@@ -1,28 +1,39 @@
 <script setup>
 import { onBeforeMount, ref } from 'vue';
+import { useUserStore } from '@/stores';
 import UserCard from '@/components/common/UserCard.vue';
+import Placeholder from '@/assets/images/placeholder-user.png';
 import 'swiper/swiper-bundle.css';
 import { Swiper, SwiperSlide } from 'swiper/vue';
 import { Navigation } from 'swiper/modules';
-import usersMock from '@/mocks/users.json';
 
+const userStore = useUserStore();
 const swiperModules = [Navigation];
 const loading = ref(true);
 const users = ref([]);
+const onlineUsers = ref([]);
 
-onBeforeMount(() => {
-    getItems();
+onBeforeMount(async () => {
+    await Promise.all([getUsers(), getOnlineUsers()]);
+    loading.value = false;
 });
 
-const getItems = () => {
-    loading.value = true;
-    new Promise((resolve) => {
-        setTimeout(() => {
-            loading.value = false;
-            users.value = usersMock;
-            resolve();
-        }, 1500);
-    });
+const getUsers = async () => {
+    try {
+        const res = await userStore.getUsers();
+        users.value = res;
+    } catch (error) {
+        console.log(error);
+    }
+};
+
+const getOnlineUsers = async () => {
+    try {
+        const res = await userStore.getOnlineUsers();
+        onlineUsers.value = res;
+    } catch (error) {
+        console.log(error);
+    }
 };
 </script>
 
@@ -33,28 +44,40 @@ const getItems = () => {
                 <div class="title">People you may know</div>
             </div>
             <div class="box-body">
-                <div class="grid grid-nogutter" v-if="loading">
-                    <Skeleton
-                        v-for="index in 2"
-                        :key="index"
-                        style="margin-right: 0.6rem"
-                        height="310px"
-                        width="181px"
-                    ></Skeleton>
-                    <Skeleton height="310px" width="61px"></Skeleton>
-                </div>
-                <Swiper
-                    v-else
-                    :slides-per-view="2.39"
-                    :space-between="12"
-                    :pagination="{ clickable: true }"
-                    :navigation="true"
-                    :modules="swiperModules"
-                >
-                    <SwiperSlide v-for="(user, index) in users" :key="index">
-                        <UserCard :user="user" />
-                    </SwiperSlide>
-                </Swiper>
+                <template v-if="loading">
+                    <div class="grid grid-nogutter">
+                        <Skeleton
+                            v-for="index in 2"
+                            :key="index"
+                            style="margin-right: 0.6rem"
+                            height="310px"
+                            width="181px"
+                        ></Skeleton>
+                        <Skeleton height="310px" width="61px"></Skeleton>
+                    </div>
+                </template>
+                <template v-else>
+                    <Swiper
+                        :slides-per-view="2.39"
+                        :space-between="12"
+                        :pagination="{ clickable: true }"
+                        :navigation="true"
+                        :modules="swiperModules"
+                        v-if="users.length > 0"
+                    >
+                        <SwiperSlide
+                            v-for="(user, index) in users"
+                            :key="index"
+                        >
+                            <UserCard :user="user" />
+                        </SwiperSlide>
+                    </Swiper>
+                    <template v-else>
+                        <div class="text-sm text-black-alpha-60">
+                            No users found.
+                        </div>
+                    </template>
+                </template>
             </div>
         </div>
     </div>
@@ -81,35 +104,40 @@ const getItems = () => {
                     </div>
                 </div>
             </div>
-            <div class="contact-list" v-else>
-                <router-link
-                    :to="{
-                        name: 'user-detail',
-                        params: { username: user.username }
-                    }"
-                    class="contact-item"
-                    v-for="(user, index) in users"
-                    :key="index"
-                    v-ripple
-                >
-                    <div class="avatar">
-                        <img
-                            :src="user.profile_picture"
-                            :alt="user.full_name"
-                            width="30"
-                            height="30"
-                            class="border-circle"
-                        />
-                        <div
-                            class="status"
-                            :class="index % 2 === 0 ? 'red' : 'green'"
-                        ></div>
-                    </div>
-                    <div class="info">
-                        <div class="name">{{ user.full_name }}</div>
-                    </div>
-                </router-link>
-            </div>
+            <template v-else>
+                <div class="contact-list" v-if="onlineUsers.length > 0">
+                    <router-link
+                        :to="{
+                            name: 'user-detail',
+                            params: { username: user.username }
+                        }"
+                        class="contact-item"
+                        v-for="(user, index) in onlineUsers"
+                        :key="index"
+                        v-ripple
+                    >
+                        <div class="avatar">
+                            <img
+                                :src="user.profile_picture || Placeholder"
+                                :alt="user.name"
+                                width="30"
+                                height="30"
+                                class="border-circle"
+                            />
+                            <div
+                                class="status"
+                                :class="index % 2 === 0 ? 'red' : 'green'"
+                            ></div>
+                        </div>
+                        <div class="info">
+                            <div class="name">{{ user.name }}</div>
+                        </div>
+                    </router-link>
+                </div>
+                <div class="text-sm text-black-alpha-60" v-else>
+                    No friends online.
+                </div>
+            </template>
         </div>
     </div>
 </template>
