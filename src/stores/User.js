@@ -39,12 +39,23 @@ export const useUserStore = defineStore('UserStore', () => {
             return res.data;
         });
     };
+    const updateProfilePicture = (payload) => {
+        return globalStore.actionWrapper(async () => {
+            const res = await UserService.updateProfilePicture(payload);
+            globalStore.showSuccess(
+                'Picture updated',
+                'Profiel Picture updated successfully'
+            );
+            return res.data;
+        });
+    };
 
     return {
         getUsers,
         searchUsers,
         getUser,
         onlineUsers,
+        updateProfilePicture,
         getOnlineUsers,
         users
     };

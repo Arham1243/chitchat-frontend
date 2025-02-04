@@ -1,7 +1,6 @@
 <script setup>
 import { ref, onMounted, onUnmounted } from 'vue';
 import { useUserStore } from '@/stores';
-import Placeholder from '@/assets/images/placeholder-user.png';
 
 const userStore = useUserStore();
 const showSearchResults = ref(false);
@@ -133,7 +132,7 @@ const handleSearchInput = (event) => {
                     >
                         <div class="avatar">
                             <img
-                                :src="result.profile_picture || Placeholder"
+                                :src="result.profile_picture"
                                 :alt="result.name"
                                 class="imgFluid"
                                 v-if="result.is_friend == 'yes'"
@@ -169,7 +168,7 @@ const handleSearchInput = (event) => {
                             "
                         >
                             <img
-                                :src="result.profile_picture || Placeholder"
+                                :src="result.profile_picture"
                                 :alt="result.name"
                                 class="imgFluid"
                             />

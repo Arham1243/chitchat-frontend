@@ -1,5 +1,4 @@
 <script setup>
-import Placeholder from '@/assets/images/placeholder-user.png';
 import { computed } from 'vue';
 import { useRoute } from 'vue-router';
 import { useAuthStore } from '@/stores';

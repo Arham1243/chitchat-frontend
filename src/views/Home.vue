@@ -2,7 +2,7 @@
 import { onBeforeMount, ref } from 'vue';
 import { useUserStore } from '@/stores';
 import UserCard from '@/components/common/UserCard.vue';
-import Placeholder from '@/assets/images/placeholder-user.png';
+
 import 'swiper/swiper-bundle.css';
 import { Swiper, SwiperSlide } from 'swiper/vue';
 import { Navigation } from 'swiper/modules';
@@ -118,7 +118,7 @@ const getOnlineUsers = async () => {
                     >
                         <div class="avatar">
                             <img
-                                :src="user.profile_picture || Placeholder"
+                                :src="user.profile_picture"
                                 :alt="user.name"
                                 width="30"
                                 height="30"

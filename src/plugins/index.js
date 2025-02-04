@@ -9,6 +9,8 @@ import 'primeflex/primeflex.scss';
 import '@fortawesome/fontawesome-free/css/all.css';
 import 'boxicons/css/boxicons.min.css';
 
+import Dialog from 'primevue/dialog';
+import FileUpload from 'primevue/fileupload';
 import InputField from '@/components/common/InputField.vue';
 import Button from 'primevue/button';
 import Message from 'primevue/message';
@@ -59,6 +61,8 @@ export function registerPlugins(app) {
         ripple: true
     });
 
+    app.component('FileUpload', FileUpload);
+    app.component('Dialog', Dialog);
     app.component('Tabs', Tabs);
     app.component('ProgressSpinner', ProgressSpinner);
     app.component('OverlayBadge', OverlayBadge);
@@ -128,7 +132,9 @@ const components = {
     TabPanels,
     TabPanel,
     Message,
-    ProgressSpinner
+    ProgressSpinner,
+    Dialog,
+    FileUpload
 };
 const plugins = [utils, pinia, router];
 

@@ -180,7 +180,8 @@ body .back-btn .icon {
   font-size: 0.85rem !important;
 }
 
-body .back-btn:hover {
+body .back-btn:hover,
+.p-dialog-close-button:hover {
   background: var(--menu-hover-bg) !important;
 }
 
@@ -210,4 +211,20 @@ body .back-btn:hover {
 .dark .swiper-button-prev:hover,
 .dark .swiper-button-next:hover {
   color: #000;
+}
+
+.dark .p-button-outlined:hover {
+  background: var(--option-btn-bg) !important;
+  border-color: var(--option-btn-bg) !important;
+  color: #E7E9EC !important;
+}
+
+body .dialog-bg {
+  color: var(--text-color);
+  background: var(--header-bg);
+  border: 1px solid var(--header-shadow);
+}
+
+.p-dialog-close-button {
+  color: var(--icon-color) !important;
 }

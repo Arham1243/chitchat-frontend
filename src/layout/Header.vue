@@ -5,7 +5,7 @@ import { useAuthStore } from '@/stores';
 import { useRouter } from 'vue-router';
 import Logo from '@/assets/images/c.png';
 import GlobalSearch from '@/components/GlobalSearch.vue';
-import Placeholder from '@/assets/images/placeholder-user.png';
+
 import notifications from '@/mocks/notifications.json';
 import unreadNotifications from '@/mocks/unreadNotifications.json';
 
@@ -161,7 +161,7 @@ const toggleOptionBox = (type) => {
                     class="header-options__item no-badge cursor-pointer"
                 >
                     <img
-                        :src="user.profile_picture || Placeholder"
+                        :src="user.profile_picture"
                         class="border-circle"
                         alt="account"
                         width="43"
@@ -184,7 +184,7 @@ const toggleOptionBox = (type) => {
                 >
                     <div class="profile-picture">
                         <img
-                            :src="user.profile_picture || Placeholder"
+                            :src="user.profile_picture"
                             class="border-circle"
                             alt="account"
                             width="36"

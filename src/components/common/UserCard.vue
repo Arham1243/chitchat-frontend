@@ -2,7 +2,7 @@
 import { useConfirm } from 'primevue/useconfirm';
 import { useToast } from 'primevue/usetoast';
 import { ref } from 'vue';
-import Placeholder from '@/assets/images/placeholder-user.png';
+
 const unfriendConfirm = useConfirm();
 const toast = useToast();
 const busy = ref(false);
@@ -69,7 +69,7 @@ const unfriend = (user) => {
         >
             <img
                 class="imgFluid"
-                :src="user.profile_picture || Placeholder"
+                :src="user.profile_picture"
                 :alt="user.name"
             />
         </router-link>

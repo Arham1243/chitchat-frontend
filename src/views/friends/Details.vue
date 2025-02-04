@@ -3,7 +3,7 @@ import { computed, onBeforeMount, ref, watch } from 'vue';
 import { useConfirm } from 'primevue/useconfirm';
 import { useToast } from 'primevue/usetoast';
 import FriendCard from '@/components/common/FriendCard.vue';
-import Placeholder from '@/assets/images/placeholder-user.png';
+
 import { useRoute } from 'vue-router';
 import { useUserStore, useAuthStore } from '@/stores';
 import { useRouter } from 'vue-router';
@@ -13,7 +13,9 @@ const userStore = useUserStore();
 const authStore = useAuthStore();
 const route = useRoute();
 const loading = ref(false);
+const showProfilePictureDialog = ref(false);
 const busy = ref(false);
+const updatingProfilePicture = ref(false);
 const user = ref({});
 const currentUser = computed(() => authStore.currentUser);
 const unfriendConfirm = useConfirm();
@@ -103,6 +105,45 @@ const cancelRequest = () => {
         }, 1500);
     });
 };
+const profile_picture = ref(null);
+
+function onFileSelect(event) {
+    const file = event.files[0];
+    const reader = new FileReader();
+
+    reader.onload = async (e) => {
+        profile_picture.value = e.target.result;
+    };
+
+    reader.readAsDataURL(file);
+}
+const openProfileDialog = () => {
+    showProfilePictureDialog.value = true;
+};
+const closeProfileDialog = () => {
+    showProfilePictureDialog.value = false;
+    profile_picture.value = null;
+};
+const removeProfile = () => {
+    profile_picture.value = null;
+};
+
+const updateProfilePicture = async () => {
+    try {
+        updatingProfilePicture.value = true;
+        const res = await userStore.updateProfilePicture({
+            profile_picture: profile_picture.value
+        });
+        closeProfileDialog();
+        profile_picture.value = null;
+        console.log(res.profile_picture);
+        fetchUser();
+    } catch (error) {
+        console.log(error);
+    } finally {
+        updatingProfilePicture.value = false;
+    }
+};
 </script>
 
 <template>
@@ -168,7 +209,7 @@ const cancelRequest = () => {
                     <div class="col-3">
                         <div class="profile-image">
                             <Image
-                                :src="user.profile_picture || Placeholder"
+                                :src="user.profile_picture"
                                 :alt="user.name"
                                 class="imgFluid border-3"
                                 style="border-color: #e2e8f0"
@@ -176,6 +217,7 @@ const cancelRequest = () => {
                             />
                             <button
                                 class="edit-image"
+                                @click="openProfileDialog"
                                 v-if="currentUser.username === user.username"
                             >
                                 <i class="fa-solid fa-camera"></i>
@@ -319,6 +361,59 @@ const cancelRequest = () => {
             </Tabs>
         </div>
     </div>
+
+    <Dialog
+        v-model:visible="showProfilePictureDialog"
+        modal
+        header="Choose profile picture"
+        :style="{ width: '35rem' }"
+        class="dialog-bg"
+    >
+        <div
+            class="flex justify-content-center relative mx-auto"
+            style="width: 250px"
+            v-if="profile_picture"
+        >
+            <button type="button" class="remove-profile" @click="removeProfile">
+                <i class="pi pi-times"></i>
+            </button>
+            <Image
+                :src="profile_picture"
+                alt="Profile"
+                width="250px"
+                height="250px"
+                class="imgFluid dialog-bg mb-4"
+                style="border-color: #e2e8f0"
+                preview
+            />
+        </div>
+        <FileUpload
+            v-if="!profile_picture"
+            mode="basic"
+            @select="onFileSelect"
+            customUpload
+            auto
+            accept="image/*"
+            severity="secondary"
+            class="p-button-outlined w-full"
+        />
+
+        <div class="flex justify-content-end gap-2 mt-4" v-if="profile_picture">
+            <Button
+                type="button"
+                label="Cancel"
+                class="p-button-outlined"
+                @click="closeProfileDialog"
+            ></Button>
+            <Button
+                icon="pi pi-check"
+                type="button"
+                label="Save"
+                @click="updateProfilePicture"
+                :loading="updatingProfilePicture"
+            ></Button>
+        </div>
+    </Dialog>
 </template>
 <style>
 .profile {
@@ -344,6 +439,9 @@ const cancelRequest = () => {
     font-size: 2rem;
     font-weight: 600;
     margin-bottom: 0.25rem;
+}
+.profile-image .p-image {
+    border-color: var(--header-shadow) !important;
 }
 .profile-info .friends {
     color: var(--text-gray-color);
@@ -375,5 +473,21 @@ const cancelRequest = () => {
 }
 .page-content .p-tabpanels {
     padding: 1.25rem 2rem;
+}
+.remove-profile {
+    border: none;
+    outline: none;
+    width: 35px;
+    aspect-ratio: 1/1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.25rem;
+    background: #dc3545;
+    color: #fff;
+    position: absolute !important;
+    right: 0;
+    top: 0;
+    z-index: 100;
 }
 </style>
