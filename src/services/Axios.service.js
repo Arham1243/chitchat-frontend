@@ -1,5 +1,6 @@
 import axios from 'axios';
 import { useSessionStore } from '@/stores';
+import { useRouter } from 'vue-router';
 
 const axiosApi = axios.create({
     headers: {
@@ -19,4 +20,18 @@ axiosApi.interceptors.request.use(
         return Promise.reject(error);
     }
 );
+
+axiosApi.interceptors.response.use(
+    (response) => response,
+    (error) => {
+        if (error.response && error.response.status === 401) {
+            const router = useRouter();
+            const sessionStore = useSessionStore();
+            sessionStore.clearSessionState();
+            router.push({ name: 'login' });
+        }
+        return Promise.reject(error);
+    }
+);
+
 export default axiosApi;
