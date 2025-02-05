@@ -52,8 +52,7 @@ const getUsers = async () => {
                             >
                                 <UserCard
                                     :user="user"
-                                    show-remove
-                                    @userUnfriended="handleUserUnfriended"
+                                    @reloadFriends="handlereloadFriends"
                                 />
                             </div>
                         </div>

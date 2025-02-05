@@ -24,9 +24,69 @@ export const useUserStore = defineStore('UserStore', () => {
         });
     };
 
+    const getFriends = () => {
+        return globalStore.actionWrapper(async () => {
+            const res = await UserService.getFriends();
+            users.value = res.data;
+            return res.data;
+        });
+    };
+
+    const removeFriend = (friendId) => {
+        return globalStore.actionWrapper(async () => {
+            const res = await UserService.removeFriend(friendId);
+            globalStore.showSuccess(
+                'Friend removed',
+                'Friend removed successfully'
+            );
+            return res.data;
+        });
+    };
+
+    const deleteFriendRequest = (friendId) => {
+        return globalStore.actionWrapper(async () => {
+            const res = await UserService.removeFriend(friendId);
+            globalStore.showSuccess(
+                'Friend Request deleted',
+                'Friend Request deleted successfully'
+            );
+            return res.data;
+        });
+    };
+
+    const acceptRequest = (friendRequestId) => {
+        return globalStore.actionWrapper(async () => {
+            const res = await UserService.acceptRequest(friendRequestId);
+            return res.data;
+        });
+    };
+
+    const cancelRequest = (friendId) => {
+        return globalStore.actionWrapper(async () => {
+            const res = await UserService.removeFriend(friendId);
+            return res.data;
+        });
+    };
+
+    const getOnlineFriends = () => {
+        return globalStore.actionWrapper(async () => {
+            const res = await UserService.getOnlineFriends();
+            users.value = res.data;
+            return res.data;
+        });
+    };
+
     const getUser = (username) => {
         return globalStore.actionWrapper(async () => {
             const res = await UserService.getUser(username);
+            users.value = res.data;
+            return res.data;
+        });
+    };
+
+    const getMyRequests = () => {
+        return globalStore.actionWrapper(async () => {
+            const res = await UserService.getMyRequests();
             users.value = res.data;
             return res.data;
         });
@@ -55,8 +115,15 @@ export const useUserStore = defineStore('UserStore', () => {
         searchUsers,
         getUser,
         onlineUsers,
+        getMyRequests,
+        cancelRequest,
+        acceptRequest,
         updateProfilePicture,
         getOnlineUsers,
-        users
+        users,
+        getFriends,
+        removeFriend,
+        getOnlineFriends,
+        deleteFriendRequest
     };
 });

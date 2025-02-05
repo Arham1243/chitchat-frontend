@@ -1,6 +1,7 @@
 <script setup>
 import { onBeforeMount, ref } from 'vue';
 import UserCard from '@/components/common/UserCard.vue';
+import MyRequests from '@/components/MyRequests.vue';
 import { useUserStore } from '@/stores';
 
 const userStore = useUserStore();
@@ -14,16 +15,22 @@ onBeforeMount(async () => {
 
 const getUsers = async () => {
     try {
-        const res = await userStore.getUsers();
+        const res = await userStore.getFriends();
         users.value = res;
     } catch (error) {
         console.log(error);
     }
 };
+const reloadFriends = async () => {
+    loading.value = true;
+    await Promise.all([getUsers()]);
+    loading.value = false;
+};
 </script>
 
 <template>
     <div class="col-8 col-offset-1">
+        <MyRequests @reloadFriends="reloadFriends" />
         <div class="page-content">
             <div class="page-title">My Friends</div>
             <div class="friends">
@@ -53,7 +60,7 @@ const getUsers = async () => {
                                 <UserCard
                                     :user="user"
                                     show-remove
-                                    @userUnfriended="handleUserUnfriended"
+                                    @reloadFriends="reloadFriends"
                                 />
                             </div>
                         </div>

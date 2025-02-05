@@ -39,7 +39,7 @@ onBeforeMount(async () => {
                 <router-view />
             </div>
         </div>
-        <ConfirmDialog />
+        <ConfirmDialog class="confirm-dialog" />
         <Toast />
     </div>
 </template>

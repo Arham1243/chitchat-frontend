@@ -29,7 +29,7 @@ const getUsers = async () => {
 
 const getOnlineUsers = async () => {
     try {
-        const res = await userStore.getOnlineUsers();
+        const res = await userStore.getOnlineFriends();
         onlineUsers.value = res;
     } catch (error) {
         console.log(error);

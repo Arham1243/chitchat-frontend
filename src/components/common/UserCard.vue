@@ -1,11 +1,7 @@
 <script setup>
 import { useConfirm } from 'primevue/useconfirm';
-import { useToast } from 'primevue/usetoast';
+import { useFriendRequestStore, useUserStore } from '@/stores';
 import { ref } from 'vue';
-
-const unfriendConfirm = useConfirm();
-const toast = useToast();
-const busy = ref(false);
 
 const props = defineProps({
     user: {
@@ -14,10 +10,26 @@ const props = defineProps({
     },
     showRemove: {
         type: Boolean
+    },
+    friendRequest: {
+        type: Boolean
+    },
+    friendRequestId: {
+        type: Number
     }
 });
+
+const friendRequestStore = useFriendRequestStore();
+const userStore = useUserStore();
+const unfriendConfirm = useConfirm();
+const busy = ref(false);
 const user = props.user;
-const emit = defineEmits(['userUnfriended']);
+const friendRequestId = props.friendRequestId;
+const requestSent = ref(user.friend_request_status === 'pending' || false);
+const sendingRequest = ref(false);
+const cancelingRequest = ref(false);
+const acceptingRequest = ref(false);
+const emit = defineEmits(['reloadFriends', 'requestAction']);
 
 const unfriendConfirmation = (user) => {
     unfriendConfirm.require({
@@ -36,26 +48,92 @@ const unfriendConfirmation = (user) => {
             severity: 'danger'
         },
         accept: () => {
-            unfriend(user);
+            removeFriend(user);
+        },
+        reject: () => {}
+    });
+};
+const deleteConfirmation = (user) => {
+    unfriendConfirm.require({
+        message: `Are you sure you want to delete ${user.name} friend request?
+`,
+        header: `Unfriend ${user.name}`,
+        icon: 'fa-regular fa-circle-xmark',
+        rejectLabel: 'Cancel',
+        rejectProps: {
+            label: 'Cancel',
+            severity: 'secondary',
+            variant: 'text'
+        },
+        acceptProps: {
+            label: 'Confirm',
+            severity: 'danger'
+        },
+        accept: () => {
+            deleteFriend(user);
         },
         reject: () => {}
     });
 };
 
-const unfriend = (user) => {
-    busy.value = true;
-    new Promise(() => {
-        setTimeout(() => {
-            toast.add({
-                severity: 'success',
-                summary: `${user.name} removed`,
-                detail: `${user.name} was unfriended successfully`,
-                life: 3000
-            });
-            busy.value = false;
-            emit('userUnfriended', user);
-        }, 1500);
-    });
+const sendRequest = async (user) => {
+    try {
+        sendingRequest.value = true;
+        await friendRequestStore.sendRequest({ recipient_id: user.id });
+        requestSent.value = true;
+    } catch (error) {
+        console.log(error);
+    } finally {
+        sendingRequest.value = false;
+    }
+};
+
+const removeFriend = async (user) => {
+    try {
+        busy.value = true;
+        await userStore.removeFriend(user.id);
+        emit('reloadFriends', user);
+    } catch (error) {
+        console.log(error);
+    } finally {
+        busy.value = false;
+    }
+};
+
+const cancelRequest = async (user) => {
+    try {
+        cancelingRequest.value = true;
+        await userStore.cancelRequest(user.id);
+        requestSent.value = false;
+    } catch (error) {
+        console.log(error);
+    } finally {
+        cancelingRequest.value = false;
+    }
+};
+
+const acceptRequest = async (friendRequestId) => {
+    try {
+        acceptingRequest.value = true;
+        await userStore.acceptRequest(friendRequestId);
+        emit('requestAction');
+    } catch (error) {
+        console.log(error);
+    } finally {
+        acceptingRequest.value = false;
+    }
+};
+
+const deleteFriend = async (user) => {
+    try {
+        busy.value = true;
+        await userStore.deleteFriendRequest(user.id);
+        emit('requestAction');
+    } catch (error) {
+        console.log(error);
+    } finally {
+        busy.value = false;
+    }
 };
 </script>
 <template>
@@ -63,7 +141,7 @@ const unfriend = (user) => {
         <router-link
             :to="{
                 name: 'user-detail',
-                params: { username: user.username }
+                params: { username: user.username || 'username' }
             }"
             class="user-card__image"
         >
@@ -77,7 +155,7 @@ const unfriend = (user) => {
             <router-link
                 :to="{
                     name: 'user-detail',
-                    params: { username: user.username }
+                    params: { username: user.username || 'username' }
                 }"
                 class="name hover:underline"
             >
@@ -103,20 +181,52 @@ const unfriend = (user) => {
                     }}</span
                 >
             </div>
-            <Button
-                class="w-full bg-primary-light"
-                label="Add friend"
-                icon="fa-solid fa-user-plus"
-                variant="outlined"
-            />
+            <template v-if="!props.friendRequest">
+                <Button
+                    v-if="!requestSent"
+                    class="w-full"
+                    label="Add friend"
+                    icon="fa-solid fa-user-plus"
+                    @click="sendRequest(user)"
+                    :loading="sendingRequest"
+                    :disabled="sendingRequest"
+                />
+                <Button
+                    v-if="requestSent"
+                    class="w-full"
+                    label="Cancel Request"
+                    icon="fa-solid fa-user-minus"
+                    @click="cancelRequest(user)"
+                    :loading="busy"
+                    :disabled="busy"
+                />
+            </template>
+            <template v-else>
+                <Button
+                    class="w-full"
+                    label="Confirm"
+                    @click="acceptRequest(friendRequestId)"
+                    :loading="acceptingRequest"
+                    :disabled="acceptingRequest"
+                />
+                <Button
+                    class="w-full bg-primary-light mt-2"
+                    label="Delete"
+                    variant="outlined"
+                    @click="deleteConfirmation(user)"
+                    :loading="busy"
+                    :disabled="busy"
+                />
+            </template>
             <Button
                 v-if="showRemove"
-                class="w-full mt-2"
+                class="w-full bg-primary-light mt-2"
                 label="Remove"
-                severity="secondary"
+                variant="outlined"
                 icon="fa-solid fa-user-minus"
                 @click="unfriendConfirmation(user)"
                 :loading="busy"
+                :disabled="busy"
             />
         </div>
     </div>
@@ -162,7 +272,7 @@ const unfriend = (user) => {
     font-weight: 500;
 }
 .user-card__content .p-button {
-    font-size: 0.9rem;
+    font-size: 0.84rem;
     border-color: var(--primary-light-color);
 }
 .grid .user-card:not(.swiper-slide .user-card) {
