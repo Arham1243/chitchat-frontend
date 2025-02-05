@@ -6,7 +6,7 @@ export default {
         return moment.utc(date).format(filterFormat);
     },
     formatDateAgo(date) {
-        if (!date || date === 'Invalid date') {
+        if (!date || moment(date).isValid() === false) {
             return 'Invalid date format';
         }
         return moment.utc(date).fromNow();

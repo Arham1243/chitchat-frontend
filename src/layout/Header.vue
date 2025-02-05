@@ -1,13 +1,11 @@
 <script setup>
-import { ref, computed, onUnmounted, watch } from 'vue';
+import { ref, computed, onUnmounted, watch, onBeforeMount } from 'vue';
 import { useRoute } from 'vue-router';
-import { useAuthStore } from '@/stores';
+import helpers from '@/utils/helpers';
+import { useAuthStore, useNotificationStore } from '@/stores';
 import { useRouter } from 'vue-router';
 import Logo from '@/assets/images/c.png';
 import GlobalSearch from '@/components/GlobalSearch.vue';
-
-import notifications from '@/mocks/notifications.json';
-import unreadNotifications from '@/mocks/unreadNotifications.json';
 
 const NAV_ITEMS = [
     { to: 'home', icon: 'fa-solid fa-house' },
@@ -15,13 +13,18 @@ const NAV_ITEMS = [
     { to: 'my-friends', icon: 'fa-solid fa-user-group' }
 ];
 
+const notificationStore = useNotificationStore();
 const authStore = useAuthStore();
 const route = useRoute();
 const router = useRouter();
 const optionBoxWrapper = ref(null);
 const activeTab = computed(() => route.name);
 const showOptionBox = ref(false);
+const loadingNotifications = ref(false);
+const loadingUnreadNotifications = ref(false);
 const contentType = ref(null);
+const notifications = ref([]);
+const unreadNotifications = ref([]);
 const dark = ref(localStorage.getItem('darkMode') || '0');
 const user = computed(() => authStore.currentUser);
 const triggerElements = ref(
@@ -31,6 +34,10 @@ const triggerElements = ref(
     ])
 );
 
+onBeforeMount(async () => {
+    await getNotifications();
+    await getUnreadNotifications();
+});
 watch(dark, () => {
     toggleTheme();
 });
@@ -74,6 +81,42 @@ const logout = async () => {
     try {
         await authStore.logout();
         pushRoute('login');
+    } catch (error) {
+        console.log(error);
+    }
+};
+
+const getNotifications = async () => {
+    try {
+        loadingNotifications.value = true;
+        const res = await notificationStore.getNotifications();
+        notifications.value = res;
+    } catch (error) {
+        console.log(error);
+    } finally {
+        loadingNotifications.value = false;
+    }
+};
+const getUnreadNotifications = async () => {
+    try {
+        loadingUnreadNotifications.value = true;
+        const res = await notificationStore.getUnreadNotifications();
+        unreadNotifications.value = res;
+    } catch (error) {
+        console.log(error);
+    } finally {
+        loadingUnreadNotifications.value = false;
+    }
+};
+
+const markAsRead = async (notification) => {
+    try {
+        showOptionBox.value = false;
+        if (!notification.read_at) {
+            await notificationStore.markAsRead(notification.id);
+            await getNotifications();
+            await getUnreadNotifications();
+        }
     } catch (error) {
         console.log(error);
     }
@@ -140,6 +183,7 @@ const toggleOptionBox = (type) => {
             </li>
             <li>
                 <OverlayBadge
+                    :value="unreadNotifications.length"
                     :ref="
                         (el) =>
                             (triggerElements.get('notifications').value = el)
@@ -147,9 +191,20 @@ const toggleOptionBox = (type) => {
                     @click="toggleOptionBox('notifications')"
                     severity="danger"
                     v-tooltip.bottom="'notifications'"
-                    class="header-options__item no-badge cursor-pointer"
+                    :class="[
+                        'header-options__item',
+                        'cursor-pointer',
+                        { 'no-badge': unreadNotifications.length === 0 }
+                    ]"
                 >
-                    <i class="fa-solid fa-bell" />
+                    <i
+                        :class="[
+                            'fa-solid',
+                            unreadNotifications.length > 0
+                                ? 'fa-bell fa-shake'
+                                : 'fa-bell'
+                        ]"
+                    />
                 </OverlayBadge>
             </li>
             <li>
@@ -232,102 +287,179 @@ const toggleOptionBox = (type) => {
                     </TabList>
                     <TabPanels>
                         <TabPanel value="0">
-                            <div
-                                :class="[
-                                    'lookups-list border-none mt-0',
-                                    { scroll: notifications.length > 4 }
-                                ]"
-                            >
-                                <div
-                                    v-for="(
-                                        notification, index
-                                    ) in notifications"
-                                    :key="index"
-                                    class="lookups-item lookups-item--notify"
-                                    v-ripple
-                                >
-                                    <div class="wrapper">
-                                        <div class="icon">
-                                            <img
-                                                :src="Placeholder"
-                                                class="border-circle"
-                                                alt="account"
-                                                width="56"
-                                                height="56"
-                                            />
-                                        </div>
-                                        <div>
-                                            <div class="title">
-                                                <span>{{
-                                                    notification.name
-                                                }}</span>
-                                                {{ notification.message }}
+                            <template v-if="!loadingNotifications">
+                                <template v-if="notifications.length > 0">
+                                    <div
+                                        :class="[
+                                            'lookups-list border-none mt-0',
+                                            { scroll: notifications.length > 4 }
+                                        ]"
+                                    >
+                                        <router-link
+                                            :to="{ name: 'my-friends' }"
+                                            v-for="(
+                                                notification, index
+                                            ) in notifications"
+                                            :key="index"
+                                            class="lookups-item lookups-item--notify"
+                                            v-ripple
+                                            @click="markAsRead(notification)"
+                                        >
+                                            <div class="wrapper">
+                                                <div class="icon">
+                                                    <img
+                                                        :src="
+                                                            notification.sender
+                                                                ?.profile_picture
+                                                        "
+                                                        class="border-circle"
+                                                        :alt="
+                                                            notification.sender
+                                                                ?.name
+                                                        "
+                                                        width="56"
+                                                        height="56"
+                                                    />
+                                                </div>
+                                                <div>
+                                                    <div class="title">
+                                                        <span>{{
+                                                            notification.sender
+                                                                ?.name
+                                                        }}</span>
+                                                        {{
+                                                            notification.data
+                                                                .message
+                                                        }}
+                                                    </div>
+                                                    <div class="time">
+                                                        {{
+                                                            helpers.formatDateAgo(
+                                                                notification.created_at
+                                                            )
+                                                        }}
+                                                    </div>
+                                                </div>
                                             </div>
                                             <div
-                                                class="time"
-                                                v-tooltip.top="
-                                                    `${notification.name} ${notification.message}`
-                                                "
-                                            >
-                                                {{ notification.time }}
-                                            </div>
+                                                v-if="!notification.read_at"
+                                                class="read-dot"
+                                            ></div>
+                                        </router-link>
+                                    </div>
+                                </template>
+
+                                <template v-else>
+                                    <div
+                                        class="flex flex-column text-center justify-content-center py-4 gap-3"
+                                        style="color: var(--text-gray-color)"
+                                    >
+                                        <i
+                                            class="text-7xl fa-solid fa-bell"
+                                        ></i>
+                                        <div class="text-base font-bold">
+                                            You have no notifications
                                         </div>
                                     </div>
-                                    <div
-                                        v-if="!notification.is_read"
-                                        class="read-dot"
-                                    ></div>
-                                </div>
-                            </div>
+                                </template>
+                            </template>
+                            <template v-else>
+                                <ProgressSpinner
+                                    style="width: 30px; height: 30px"
+                                    class="my-3 mx-auto block"
+                                    strokeWidth="3"
+                                    fill="transparent"
+                                />
+                            </template>
                         </TabPanel>
                         <TabPanel value="1">
-                            <div
-                                :class="[
-                                    'lookups-list border-none mt-0',
-                                    { scroll: unreadNotifications.length > 4 }
-                                ]"
-                            >
-                                <div
-                                    v-for="(
-                                        notification, index
-                                    ) in unreadNotifications"
-                                    :key="index"
-                                    class="lookups-item lookups-item--notify"
-                                    v-ripple
-                                >
-                                    <div class="wrapper">
-                                        <div class="icon">
-                                            <img
-                                                :src="Placeholder"
-                                                class="border-circle"
-                                                alt="account"
-                                                width="56"
-                                                height="56"
-                                            />
-                                        </div>
-                                        <div>
-                                            <div class="title">
-                                                <span>{{
-                                                    notification.name
-                                                }}</span>
-                                                {{ notification.message }}
+                            <template v-if="!loadingUnreadNotifications">
+                                <template v-if="unreadNotifications.length > 0">
+                                    <div
+                                        :class="[
+                                            'lookups-list border-none mt-0',
+                                            {
+                                                scroll:
+                                                    unreadNotifications.length >
+                                                    4
+                                            }
+                                        ]"
+                                    >
+                                        <router-link
+                                            :to="{ name: 'my-friends' }"
+                                            v-for="(
+                                                notification, index
+                                            ) in unreadNotifications"
+                                            :key="index"
+                                            class="lookups-item lookups-item--notify"
+                                            v-ripple
+                                            @click="markAsRead(notification)"
+                                        >
+                                            <div class="wrapper">
+                                                <div class="icon">
+                                                    <img
+                                                        :src="
+                                                            notification.sender
+                                                                ?.profile_picture
+                                                        "
+                                                        class="border-circle"
+                                                        :alt="
+                                                            notification.sender
+                                                                ?.name
+                                                        "
+                                                        width="56"
+                                                        height="56"
+                                                    />
+                                                </div>
+                                                <div>
+                                                    <div class="title">
+                                                        <span>{{
+                                                            notification.sender
+                                                                ?.name
+                                                        }}</span>
+                                                        {{
+                                                            notification.data
+                                                                .message
+                                                        }}
+                                                    </div>
+                                                    <div class="time">
+                                                        {{
+                                                            helpers.formatDateAgo(
+                                                                notification.created_at
+                                                            )
+                                                        }}
+                                                    </div>
+                                                </div>
                                             </div>
                                             <div
-                                                class="time"
-                                                v-tooltip.top="
-                                                    `${notification.name} ${notification.message}`
-                                                "
-                                            >
-                                                {{ notification.time }}
-                                            </div>
+                                                v-if="!notification.read_at"
+                                                class="read-dot"
+                                            ></div>
+                                        </router-link>
+                                    </div>
+                                </template>
+                                <template v-else>
+                                    <div
+                                        class="flex flex-column text-center justify-content-center py-4 gap-3"
+                                        style="color: var(--text-gray-color)"
+                                    >
+                                        <i
+                                            class="text-7xl fa-solid fa-bell"
+                                        ></i>
+                                        <div class="text-base font-bold">
+                                            You have no notifications
                                         </div>
                                     </div>
-                                    <div
-                                        v-if="!notification.is_read"
-                                        class="read-dot"
-                                    ></div>
-                                </div>
-                            </div>
+                                </template>
+                            </template>
+                            <template v-else>
+                                <ProgressSpinner
+                                    style="width: 30px; height: 30px"
+                                    class="my-3 mx-auto block"
+                                    strokeWidth="3"
+                                    fill="transparent"
+                                />
+                            </template>
                         </TabPanel>
                     </TabPanels>
                 </Tabs>
@@ -528,7 +660,7 @@ const toggleOptionBox = (type) => {
 }
 
 .lookups-item--notify .wrapper {
-    gap: 1.5rem;
+    gap: 0.85rem;
     flex: 1;
 }
 
@@ -547,7 +679,6 @@ const toggleOptionBox = (type) => {
     justify-content: center;
     font-size: 1.2rem;
 }
-
 .lookups-item .title {
     font-size: 0.9rem;
     font-weight: 500;
@@ -677,5 +808,8 @@ body .p-tablist-tab-list {
 }
 .p-tab i {
     color: var(--text-gray-color);
+}
+.lookups-item--notify .icon {
+    width: 56px;
 }
 </style>
