@@ -52,10 +52,7 @@ const handleSearchInput = (event) => {
         if (query.trim() !== '') {
             loading.value = true;
             const results = await searchUsers(query);
-            users.value = results.map((user) => ({
-                ...user,
-                is_friend: 'no'
-            }));
+            users.value = results;
             loading.value = false;
         } else {
             users.value = [];
@@ -135,26 +132,33 @@ const handleSearchInput = (event) => {
                                 :src="result.profile_picture"
                                 :alt="result.name"
                                 class="imgFluid"
-                                v-if="result.is_friend == 'yes'"
+                                v-if="
+                                    result.friend_request_status == 'accepted'
+                                "
                             />
                             <i
                                 v-else-if="
-                                    result.is_friend === 'no' ||
-                                    result.is_friend === 'pending'
+                                    result.friend_request_status == null ||
+                                    result.friend_request_status == 'pending'
                                 "
                                 class="fa fa-search"
                             ></i>
                         </div>
                         <div class="info">
                             <div class="name">{{ result.name }}</div>
-                            <div class="type" v-if="result.is_friend === 'yes'">
+                            <div
+                                class="type"
+                                v-if="
+                                    result.friend_request_status == 'accepted'
+                                "
+                            >
                                 friend
                             </div>
                             <div
                                 class="type"
                                 v-if="
-                                    result.is_friend === 'no' ||
-                                    result.is_friend === 'pending'
+                                    result.friend_request_status == null ||
+                                    result.friend_request_status == 'pending'
                                 "
                             >
                                 people
@@ -163,8 +167,8 @@ const handleSearchInput = (event) => {
                         <div
                             class="picture"
                             v-if="
-                                result.is_friend === 'no' ||
-                                result.is_friend === 'pending'
+                                result.friend_request_status == null ||
+                                result.friend_request_status == 'pending'
                             "
                         >
                             <img
