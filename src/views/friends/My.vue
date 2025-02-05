@@ -60,6 +60,7 @@ const reloadFriends = async () => {
                                 <UserCard
                                     :user="user"
                                     show-remove
+                                    my-friends
                                     @reloadFriends="reloadFriends"
                                 />
                             </div>

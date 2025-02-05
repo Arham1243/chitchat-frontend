@@ -1,25 +1,28 @@
 <script setup>
 import { computed, onBeforeMount, ref, watch } from 'vue';
 import { useConfirm } from 'primevue/useconfirm';
-import { useToast } from 'primevue/usetoast';
 import FriendCard from '@/components/common/FriendCard.vue';
-
+import { useFriendRequestStore } from '@/stores';
 import { useRoute } from 'vue-router';
 import { useUserStore, useAuthStore } from '@/stores';
 import { useRouter } from 'vue-router';
 
 const router = useRouter();
+const friendRequestStore = useFriendRequestStore();
 const userStore = useUserStore();
 const authStore = useAuthStore();
 const route = useRoute();
 const loading = ref(false);
 const showProfilePictureDialog = ref(false);
 const busy = ref(false);
+const cancelingRequest = ref(false);
+const sendingRequest = ref(false);
 const updatingProfilePicture = ref(false);
 const user = ref({});
 const currentUser = computed(() => authStore.currentUser);
 const unfriendConfirm = useConfirm();
-const toast = useToast();
+const requestSent = ref(false);
+const isFriend = ref(false);
 
 onBeforeMount(() => {
     fetchUser();
@@ -36,7 +39,11 @@ const fetchUser = async () => {
     try {
         loading.value = true;
         const res = await userStore.getUser(route.params.username);
-        user.value = { ...res, is_friend: 'no' };
+        user.value = res;
+        requestSent.value =
+            user.value.friend_request_status === 'pending' || false;
+        isFriend.value =
+            user.value.friend_request_status === 'accepted' || false;
     } catch (error) {
         if (error.status === 500) {
             router.go(-1);
@@ -48,7 +55,7 @@ const fetchUser = async () => {
     }
 };
 
-const unfriendConfirmation = () => {
+const unfriendConfirmation = (friend) => {
     unfriendConfirm.require({
         message: `Are you sure you want to remove ${user.value.name} as your friend?
 `,
@@ -65,45 +72,46 @@ const unfriendConfirmation = () => {
             severity: 'danger'
         },
         accept: () => {
-            unfriend();
+            removeFriend(friend);
         },
         reject: () => {}
     });
 };
-const unfriend = () => {
-    busy.value = true;
-    new Promise(() => {
-        setTimeout(() => {
-            toast.add({
-                severity: 'success',
-                summary: `${user.value.name} removed`,
-                detail: `${user.value.name} was unfriended successfully`,
-                life: 3000
-            });
-            busy.value = false;
-            user.value.is_friend = 'no';
-        }, 1500);
-    });
+
+const sendRequest = async (user) => {
+    try {
+        sendingRequest.value = true;
+        await friendRequestStore.sendRequest({ recipient_id: user.id });
+        requestSent.value = true;
+    } catch (error) {
+        console.log(error);
+    } finally {
+        sendingRequest.value = false;
+    }
 };
 
-const sendRequest = () => {
-    busy.value = true;
-    new Promise(() => {
-        setTimeout(() => {
-            busy.value = false;
-            user.value.is_friend = 'pending';
-        }, 1500);
-    });
+const removeFriend = async (user) => {
+    try {
+        busy.value = true;
+        await friendRequestStore.removeFriend(user.id);
+        isFriend.value = false;
+    } catch (error) {
+        console.log(error);
+    } finally {
+        busy.value = false;
+    }
 };
 
-const cancelRequest = () => {
-    busy.value = true;
-    new Promise(() => {
-        setTimeout(() => {
-            busy.value = false;
-            user.value.is_friend = 'no';
-        }, 1500);
-    });
+const cancelRequest = async (user) => {
+    try {
+        cancelingRequest.value = true;
+        await friendRequestStore.cancelRequest(user.id);
+        requestSent.value = false;
+    } catch (error) {
+        console.log(error);
+    } finally {
+        cancelingRequest.value = false;
+    }
 };
 const profile_picture = ref(null);
 
@@ -274,38 +282,41 @@ const updateProfilePicture = async () => {
                                             user.username
                                         "
                                     >
-                                        <Button
-                                            v-if="user.is_friend === 'yes'"
-                                            label="Friends"
-                                            icon="fa-solid fa-user-check"
-                                            variant="outlined"
-                                            @click="unfriendConfirmation"
-                                            :loading="busy"
-                                        />
-                                        <Button
-                                            v-else-if="user.is_friend === 'no'"
-                                            class="bg-primary-light"
-                                            label="Add friend"
-                                            icon="fa-solid fa-user-plus"
-                                            variant="outlined"
-                                            @click="sendRequest"
-                                            :loading="busy"
-                                        />
-                                        <Button
-                                            v-else-if="
-                                                user.is_friend === 'pending'
-                                            "
-                                            class="bg-primary-light"
-                                            label="Cancel request"
-                                            icon="fa-solid fa-user-minus"
-                                            variant="outlined"
-                                            @click="cancelRequest"
-                                            :loading="busy"
-                                        />
-                                        <Button
-                                            label="Message"
-                                            icon="fa-brands fa-facebook-messenger"
-                                        />
+                                        <template v-if="!isFriend">
+                                            <Button
+                                                v-if="!requestSent"
+                                                label="Add friend"
+                                                icon="fa-solid fa-user-plus"
+                                                @click="sendRequest(user)"
+                                                :loading="sendingRequest"
+                                                :disabled="sendingRequest"
+                                            />
+                                            <Button
+                                                v-if="requestSent"
+                                                label="Cancel Request"
+                                                icon="fa-solid fa-user-minus"
+                                                @click="cancelRequest(user)"
+                                                :loading="cancelingRequest"
+                                                :disabled="cancelingRequest"
+                                            />
+                                        </template>
+                                        <template v-else>
+                                            <Button
+                                                label="Friends"
+                                                icon="fa-solid fa-user-minus"
+                                                @click="
+                                                    unfriendConfirmation(user)
+                                                "
+                                                :loading="busy"
+                                                :disabled="busy"
+                                            />
+                                            <Button
+                                                class="bg-primary-light"
+                                                variant="outlined"
+                                                label="Message"
+                                                icon="fa-brands fa-facebook-messenger"
+                                            />
+                                        </template>
                                     </template>
                                 </div>
                             </div>

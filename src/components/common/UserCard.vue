@@ -1,6 +1,6 @@
 <script setup>
 import { useConfirm } from 'primevue/useconfirm';
-import { useFriendRequestStore, useUserStore } from '@/stores';
+import { useFriendRequestStore } from '@/stores';
 import { ref } from 'vue';
 
 const props = defineProps({
@@ -9,6 +9,9 @@ const props = defineProps({
         required: true
     },
     showRemove: {
+        type: Boolean
+    },
+    myFriends: {
         type: Boolean
     },
     friendRequest: {
@@ -20,7 +23,6 @@ const props = defineProps({
 });
 
 const friendRequestStore = useFriendRequestStore();
-const userStore = useUserStore();
 const unfriendConfirm = useConfirm();
 const busy = ref(false);
 const user = props.user;
@@ -181,41 +183,50 @@ const deleteFriend = async (user) => {
                     }}</span
                 >
             </div>
-            <template v-if="!props.friendRequest">
-                <Button
-                    v-if="!requestSent"
-                    class="w-full"
-                    label="Add friend"
-                    icon="fa-solid fa-user-plus"
-                    @click="sendRequest(user)"
-                    :loading="sendingRequest"
-                    :disabled="sendingRequest"
-                />
-                <Button
-                    v-if="requestSent"
-                    class="w-full"
-                    label="Cancel Request"
-                    icon="fa-solid fa-user-minus"
-                    @click="cancelRequest(user)"
-                    :loading="cancelingRequest"
-                    :disabled="cancelingRequest"
-                />
+            <template v-if="!props.myFriends">
+                <template v-if="!props.friendRequest">
+                    <Button
+                        v-if="!requestSent"
+                        class="w-full"
+                        label="Add friend"
+                        icon="fa-solid fa-user-plus"
+                        @click="sendRequest(user)"
+                        :loading="sendingRequest"
+                        :disabled="sendingRequest"
+                    />
+                    <Button
+                        v-if="requestSent"
+                        class="w-full"
+                        label="Cancel Request"
+                        icon="fa-solid fa-user-minus"
+                        @click="cancelRequest(user)"
+                        :loading="cancelingRequest"
+                        :disabled="cancelingRequest"
+                    />
+                </template>
+                <template v-else>
+                    <Button
+                        class="w-full"
+                        label="Confirm"
+                        @click="acceptRequest(friendRequestId)"
+                        :loading="acceptingRequest"
+                        :disabled="acceptingRequest"
+                    />
+                    <Button
+                        class="w-full bg-primary-light mt-2"
+                        label="Delete"
+                        variant="outlined"
+                        @click="deleteConfirmation(user)"
+                        :loading="busy"
+                        :disabled="busy"
+                    />
+                </template>
             </template>
             <template v-else>
                 <Button
+                    label="Message"
                     class="w-full"
-                    label="Confirm"
-                    @click="acceptRequest(friendRequestId)"
-                    :loading="acceptingRequest"
-                    :disabled="acceptingRequest"
-                />
-                <Button
-                    class="w-full bg-primary-light mt-2"
-                    label="Delete"
-                    variant="outlined"
-                    @click="deleteConfirmation(user)"
-                    :loading="busy"
-                    :disabled="busy"
+                    icon="fa-brands fa-facebook-messenger"
                 />
             </template>
             <Button

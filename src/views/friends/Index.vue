@@ -59,7 +59,7 @@ const reloadFriends = async () => {
                             >
                                 <UserCard
                                     :user="user"
-                                    @reloadFriends="handlereloadFriends"
+                                    @reloadFriends="reloadFriends"
                                 />
                             </div>
                         </div>
