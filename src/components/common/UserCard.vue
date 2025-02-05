@@ -91,7 +91,7 @@ const sendRequest = async (user) => {
 const removeFriend = async (user) => {
     try {
         busy.value = true;
-        await userStore.removeFriend(user.id);
+        await friendRequestStore.removeFriend(user.id);
         emit('reloadFriends', user);
     } catch (error) {
         console.log(error);
@@ -103,7 +103,7 @@ const removeFriend = async (user) => {
 const cancelRequest = async (user) => {
     try {
         cancelingRequest.value = true;
-        await userStore.cancelRequest(user.id);
+        await friendRequestStore.cancelRequest(user.id);
         requestSent.value = false;
     } catch (error) {
         console.log(error);
@@ -115,7 +115,7 @@ const cancelRequest = async (user) => {
 const acceptRequest = async (friendRequestId) => {
     try {
         acceptingRequest.value = true;
-        await userStore.acceptRequest(friendRequestId);
+        await friendRequestStore.acceptRequest(friendRequestId);
         emit('requestAction');
     } catch (error) {
         console.log(error);
@@ -127,7 +127,7 @@ const acceptRequest = async (friendRequestId) => {
 const deleteFriend = async (user) => {
     try {
         busy.value = true;
-        await userStore.deleteFriendRequest(user.id);
+        await friendRequestStore.deleteFriendRequest(user.id);
         emit('requestAction');
     } catch (error) {
         console.log(error);
@@ -197,8 +197,8 @@ const deleteFriend = async (user) => {
                     label="Cancel Request"
                     icon="fa-solid fa-user-minus"
                     @click="cancelRequest(user)"
-                    :loading="busy"
-                    :disabled="busy"
+                    :loading="cancelingRequest"
+                    :disabled="cancelingRequest"
                 />
             </template>
             <template v-else>

@@ -12,7 +12,57 @@ export const useFriendRequestStore = defineStore('FriendRequestStore', () => {
             return res.data;
         });
     };
+
+    const acceptRequest = (friendRequestId) => {
+        return globalStore.actionWrapper(async () => {
+            const res =
+                await FriendRequestService.acceptRequest(friendRequestId);
+            return res.data;
+        });
+    };
+
+    const cancelRequest = (friendId) => {
+        return globalStore.actionWrapper(async () => {
+            const res = await FriendRequestService.removeFriend(friendId);
+            return res.data;
+        });
+    };
+
+    const getMyRequests = () => {
+        return globalStore.actionWrapper(async () => {
+            const res = await FriendRequestService.getMyRequests();
+            return res.data;
+        });
+    };
+
+    const removeFriend = (friendId) => {
+        return globalStore.actionWrapper(async () => {
+            const res = await FriendRequestService.removeFriend(friendId);
+            globalStore.showSuccess(
+                'Friend removed',
+                'Friend removed successfully'
+            );
+            return res.data;
+        });
+    };
+
+    const deleteFriendRequest = (friendId) => {
+        return globalStore.actionWrapper(async () => {
+            const res = await FriendRequestService.removeFriend(friendId);
+            globalStore.showSuccess(
+                'Friend Request deleted',
+                'Friend Request deleted successfully'
+            );
+            return res.data;
+        });
+    };
+
     return {
-        sendRequest
+        sendRequest,
+        acceptRequest,
+        cancelRequest,
+        getMyRequests,
+        removeFriend,
+        deleteFriendRequest
     };
 });

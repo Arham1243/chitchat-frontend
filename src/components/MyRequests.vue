@@ -1,11 +1,11 @@
 <script setup>
 import { onBeforeMount, ref } from 'vue';
 import UserCard from '@/components/common/UserCard.vue';
-import { useUserStore } from '@/stores';
+import { useFriendRequestStore } from '@/stores';
 
 const emit = defineEmits(['reloadFriends']);
 
-const userStore = useUserStore();
+const friendRequestStore = useFriendRequestStore();
 const requests = ref([]);
 
 onBeforeMount(async () => {
@@ -14,7 +14,7 @@ onBeforeMount(async () => {
 
 const getMyRequests = async () => {
     try {
-        const res = await userStore.getMyRequests();
+        const res = await friendRequestStore.getMyRequests();
         requests.value = res;
     } catch (error) {
         console.log(error);

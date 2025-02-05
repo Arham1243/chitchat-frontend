@@ -1,6 +1,7 @@
 <script setup>
 import { onBeforeMount, ref } from 'vue';
 import UserCard from '@/components/common/UserCard.vue';
+import MyRequests from '@/components/MyRequests.vue';
 import { useUserStore } from '@/stores';
 
 const userStore = useUserStore();
@@ -20,10 +21,16 @@ const getUsers = async () => {
         console.log(error);
     }
 };
+const reloadFriends = async () => {
+    loading.value = true;
+    await Promise.all([getUsers()]);
+    loading.value = false;
+};
 </script>
 
 <template>
     <div class="col-8 col-offset-1">
+        <MyRequests @reloadFriends="reloadFriends" />
         <div class="page-content">
             <div class="page-title">People you may know</div>
             <div class="friends">
