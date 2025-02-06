@@ -1,45 +1,59 @@
 <script setup>
-import chatsData from '@/mocks/chats.json';
 import helpers from '@/utils/helpers';
-import { onBeforeMount, ref, watch } from 'vue';
-import { useRouter } from 'vue-router';
-import { useRoute } from 'vue-router';
+import { onBeforeMount, onMounted, ref, watch } from 'vue';
+import { useUserStore, useChatStore } from '@/stores';
+import { useRouter, useRoute } from 'vue-router';
+import { echo } from '@/plugins/echo';
 
+const userStore = useUserStore();
+const chatStore = useChatStore();
 const route = useRoute();
 const router = useRouter();
 const search = ref('');
 const loading = ref(false);
-const filteredResults = ref([...chatsData]);
+const conversations = ref([]);
+const onlineUsers = ref([]);
 
-watch(search, async (newSearch) => {
-    filteredResults.value = await searchResults(newSearch);
+onBeforeMount(async () => {
+    await getConversations();
+    await getOnlineUsers();
 });
 
-onBeforeMount(() => {
-    searchResults();
+watch(search, (newSearch) => {
+    if (!newSearch) {
+        conversations.value = onlineUsers.value;
+    } else {
+        conversations.value = onlineUsers.value.filter((user) =>
+            user.name.toLowerCase().includes(newSearch.toLowerCase())
+        );
+    }
 });
 
-const searchResults = (query) => {
-    loading.value = true;
-    return new Promise((resolve) => {
-        setTimeout(() => {
-            resolve(
-                !query
-                    ? [...chatsData]
-                    : chatsData.filter((item) =>
-                          item.full_name
-                              .toLowerCase()
-                              .includes(query.toLowerCase())
-                      )
-            );
-            loading.value = false;
-        }, 1500);
-    });
+const getConversations = async () => {
+    try {
+        loading.value = true;
+        const res = await chatStore.getConversations();
+        conversations.value = res;
+    } catch (error) {
+        console.log(error);
+    } finally {
+        loading.value = false;
+    }
 };
 
-const isActive = (username) => {
-    return route.params.username === username;
+const getOnlineUsers = async () => {
+    try {
+        const res = await userStore.getOnlineFriends();
+        onlineUsers.value = res;
+    } catch (error) {
+        console.log(error);
+    }
 };
+const setCurrentChatUser = (user) => {
+    chatStore.setCurrentChatUser(user);
+};
+
+const isActive = (username) => route.params.username === username;
 </script>
 <template>
     <div class="chat-menu">
@@ -87,27 +101,24 @@ const isActive = (username) => {
             v-else
             :class="{
                 'chats-wrapper': true,
-                scroll: filteredResults.length > 7
+                scroll: conversations.length > 7
             }"
         >
-            <div v-if="filteredResults.length > 0 && !loading">
-                <Menu
-                    :model="filteredResults"
-                    class="bg-transparent border-none"
-                >
+            <div v-if="conversations.length > 0 && !loading">
+                <Menu :model="conversations" class="bg-transparent border-none">
                     <template #item="{ item }">
                         <router-link
-                            :to="item.username"
+                            :to="item.recipient.username"
                             v-ripple
                             :class="[
                                 'w-full chat',
-                                { open: isActive(item.username) }
+                                { open: isActive(item.recipient.username) }
                             ]"
                         >
                             <div class="chat-avatar">
                                 <img
-                                    :src="item.profile_picture"
-                                    :alt="item.full_name"
+                                    :src="item.recipient.profile_picture"
+                                    :alt="item.recipient.name"
                                     width="30"
                                     height="30"
                                     class="border-circle"
@@ -115,16 +126,22 @@ const isActive = (username) => {
                             </div>
                             <div class="chat-content">
                                 <div class="wrapper">
-                                    <div class="name">{{ item.full_name }}</div>
+                                    <div class="name">
+                                        {{ item.recipient.name }}
+                                    </div>
                                     <div
                                         :class="[
                                             'date',
-                                            { green: item.unread_count > 0 }
+                                            {
+                                                green:
+                                                    item.recipient
+                                                        .unread_count > 0
+                                            }
                                         ]"
                                     >
                                         {{
                                             helpers.formatDateAgo(
-                                                item.last_message_date
+                                                item.last_message.created_at
                                             )
                                         }}
                                     </div>
@@ -136,12 +153,13 @@ const isActive = (username) => {
                                                 'bx',
                                                 'bx-check-double',
                                                 {
-                                                    seen: item.is_last_message_seen
+                                                    seen: item.last_message
+                                                        .read_at
                                                 }
                                             ]"
                                         ></i>
                                         <div class="text">
-                                            {{ item.last_message }}
+                                            {{ item.last_message.message }}
                                         </div>
                                     </div>
                                     <div
@@ -199,6 +217,7 @@ const isActive = (username) => {
 }
 .chat-avatar {
     width: 60px;
+    aspect-ratio: 1/1;
     border-radius: 100%;
     overflow: hidden;
 }

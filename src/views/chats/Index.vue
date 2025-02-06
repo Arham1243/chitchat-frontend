@@ -1,26 +1,83 @@
 <script setup>
 import { useRoute } from 'vue-router';
-import { onBeforeMount, ref, watch } from 'vue';
+import { computed, onBeforeMount, onMounted, ref, toRaw, watch } from 'vue';
 import Logo from '@/assets/images/logo.png';
+import Placeholder from '@/assets/images/placeholder-user.png';
 import helpers from '@/utils/helpers';
-import chats from '@/mocks/chats.json';
+import { useAuthStore, useChatStore, useUserStore } from '@/stores';
+import { echo } from '@/plugins/echo';
 
-const message = ref('');
+const userStore = useUserStore();
+const chatStore = useChatStore();
+const authStore = useAuthStore();
 const route = useRoute();
-const userChat = ref({});
+const user = ref({});
+const currentUser = computed(() => authStore.currentUser);
+const message = ref('');
+const messages = ref([]);
+
+onMounted(async () => {
+    echo.channel('users')
+        .listen('.user.logged.in', async () => {
+            await fetchUser();
+        })
+        .listen('.user.logged.out', async () => {
+            await fetchUser();
+        });
+});
 
 onBeforeMount(() => {
-    fetchChat();
+    setCurrentChat();
 });
+
 watch(
     () => route.params.username,
-    () => {
-        fetchChat();
+    (newUsername) => {
+        if (newUsername) {
+            setCurrentChat();
+        }
     }
 );
 
-const fetchChat = () => {
-    userChat.value = chats.find((u) => u.username === route.params.username);
+const getMessages = async (user) => {
+    try {
+        const res = await chatStore.getMessages(user.id);
+        messages.value = res.messages;
+    } catch (error) {
+        console.log(error);
+    }
+};
+
+const fetchUser = async () => {
+    try {
+        const res = await userStore.getUser(route.params.username);
+        user.value = res;
+    } catch (error) {
+        console.log(error);
+    }
+};
+
+const sendMessage = async () => {
+    try {
+        const payload = toRaw({
+            message: message.value
+        });
+
+        await chatStore.sendMessage(user.value.id, payload);
+        message.value = '';
+        await getMessages();
+    } catch (error) {
+        console.log(error);
+    }
+};
+
+const setCurrentChat = async () => {
+    const foundUser = chatStore.currentUserChat;
+    if (foundUser && route.params.username !== '-1') {
+        user.value = foundUser;
+        fetchUser();
+        getMessages(user.value);
+    }
 };
 </script>
 
@@ -48,16 +105,19 @@ const fetchChat = () => {
             <div class="chat-profile">
                 <div class="avatar">
                     <img
-                        .src="userChat.profile_picture"
-                        :alt="userChat.full_name"
+                        v-if="user.profile_picture"
+                        .src="user.profile_picture || Placeholder"
+                        :alt="user.name || ''"
                         width="45"
                         height="45"
                         class="border-circle"
                     />
                 </div>
                 <div class="content">
-                    <div class="name">{{ userChat.full_name }}</div>
-                    <div class="status">{{ userChat.user_status }}</div>
+                    <div class="name" v-if="user.name">{{ user.name }}</div>
+                    <div class="status" v-if="user.is_online">
+                        {{ user.is_online ? 'Online' : 'Offline' }}
+                    </div>
                 </div>
             </div>
         </div>
@@ -65,42 +125,39 @@ const fetchChat = () => {
             <div class="replies">
                 <div
                     class=""
-                    :class="['reply', { my: !conversation.is_current_user }]"
-                    v-for="(conversation, index) in userChat.conversations"
+                    :class="[
+                        'reply',
+                        { my: conversation.sender_id === currentUser.id }
+                    ]"
+                    v-for="(conversation, index) in messages"
                     :key="index"
                 >
-                    <template v-if="conversation.type === 'text'">
-                        <div class="text">{{ conversation.message }}</div>
-                        <div class="flex align-items-end gap-2">
-                            <div class="time">
-                                {{ helpers.formatTime(conversation.date) }}
-                            </div>
-                            <i
-                                :class="[
-                                    'bx',
-                                    'bx-check-double',
-                                    { seen: conversation.is_seen }
-                                ]"
-                            ></i>
+                    <div class="text">{{ conversation.message }}</div>
+                    <div class="flex align-items-end gap-2">
+                        <div class="time">
+                            {{ helpers.formatTime(conversation.created_at) }}
                         </div>
-                    </template>
+                        <i
+                            v-if="conversation.sender_id === currentUser.id"
+                            :class="[
+                                'bx',
+                                'bx-check-double',
+                                { seen: conversation.read_at }
+                            ]"
+                        ></i>
+                    </div>
                 </div>
             </div>
         </div>
         <div class="message-box flex align-items-center">
-            <!-- <div class="actions">
-                <Button
-                    icon="fa-regular fa-face-smile"
-                    variant="text"
-                    class="text-black-alpha-90 back-btn"
+            <form @submit.prevent="sendMessage">
+                <InputText
+                    v-model="message"
+                    type="text"
+                    placeholder="Type a message"
+                    class="text-sm message-input"
                 />
-            </div> -->
-            <InputText
-                v-model="message"
-                type="text"
-                placeholder="Type a message"
-                class="text-sm message-input"
-            />
+            </form>
         </div>
     </div>
 </template>

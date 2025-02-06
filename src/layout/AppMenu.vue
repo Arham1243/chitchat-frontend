@@ -10,9 +10,7 @@ const items = computed(() => {
     const userItem = user.value
         ? {
               label: user.value.name,
-              image: user.value.profile_picture
-                  ? user.value.profile_picture
-                  : Placeholder,
+              image: user.value.profile_picture,
               to: {
                   name: 'user-detail',
                   params: { username: user.value.username || 'username' }

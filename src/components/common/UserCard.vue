@@ -2,6 +2,7 @@
 import { useConfirm } from 'primevue/useconfirm';
 import { useFriendRequestStore } from '@/stores';
 import { ref } from 'vue';
+import { useRouter } from 'vue-router';
 
 const props = defineProps({
     user: {
@@ -22,6 +23,7 @@ const props = defineProps({
     }
 });
 
+const router = useRouter();
 const friendRequestStore = useFriendRequestStore();
 const unfriendConfirm = useConfirm();
 const busy = ref(false);
@@ -227,6 +229,12 @@ const deleteFriend = async (user) => {
                     label="Message"
                     class="w-full"
                     icon="fa-brands fa-facebook-messenger"
+                    @click="
+                        router.push({
+                            name: 'chats',
+                            params: { username: user.username }
+                        })
+                    "
                 />
             </template>
             <Button

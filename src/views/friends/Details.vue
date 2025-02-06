@@ -311,6 +311,15 @@ const updateProfilePicture = async () => {
                                                 :disabled="busy"
                                             />
                                             <Button
+                                                @click="
+                                                    router.push({
+                                                        name: 'chats',
+                                                        params: {
+                                                            username:
+                                                                user.username
+                                                        }
+                                                    })
+                                                "
                                                 class="bg-primary-light"
                                                 variant="outlined"
                                                 label="Message"
