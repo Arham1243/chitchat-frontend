@@ -10,13 +10,7 @@ const echo = new Echo({
     wsPort: import.meta.env.VITE_REVERB_PORT ?? 80,
     wssPort: import.meta.env.VITE_REVERB_PORT ?? 443,
     forceTLS: (import.meta.env.VITE_REVERB_SCHEME ?? 'http') === 'https',
-    enabledTransports: ['ws', 'wss'],
-    authEndpoint: `${import.meta.env.VITE_API_BASE_URL}/broadcasting/auth`,
-    auth: {
-        headers: {
-            Authorization: `Bearer 55|7bxfXgsdwrzS8n4D86aYcmvQNVKBFJBZSzCWOcdEa6c1236e`
-        }
-    }
+    enabledTransports: ['ws', 'wss']
 });
 
 export { echo };
