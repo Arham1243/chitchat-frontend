@@ -1,11 +1,19 @@
 <script setup>
-import { ref, computed, onUnmounted, watch, onBeforeMount } from 'vue';
+import {
+    ref,
+    computed,
+    onUnmounted,
+    watch,
+    onBeforeMount,
+    onMounted
+} from 'vue';
 import { useRoute } from 'vue-router';
 import helpers from '@/utils/helpers';
 import { useAuthStore, useNotificationStore } from '@/stores';
 import { useRouter } from 'vue-router';
 import Logo from '@/assets/images/c.png';
 import GlobalSearch from '@/components/GlobalSearch.vue';
+import { echo } from '@/plugins/echo';
 
 const NAV_ITEMS = [
     { to: 'home', icon: 'fa-solid fa-house' },
@@ -41,6 +49,30 @@ onBeforeMount(async () => {
 watch(dark, () => {
     toggleTheme();
 });
+onMounted(async () => {
+    echo.channel(`users`).listen('.new', async (data) => {
+        setTimeout(async () => {
+            await getNotifications();
+            await getUnreadNotifications();
+            showNotification(data.name, data.message);
+        }, 1500);
+    });
+});
+
+const showNotification = (sender, message) => {
+    if (Notification.permission === 'granted') {
+        new Notification(sender?.name || 'New Message', {
+            body: `${sender} ${message}`,
+            icon: Logo
+        });
+    } else if (Notification.permission !== 'denied') {
+        Notification.requestPermission().then((permission) => {
+            if (permission === 'granted') {
+                showNotification(sender, message, Logo);
+            }
+        });
+    }
+};
 
 onUnmounted(() => {
     document.removeEventListener('click', handleClickOutside);

@@ -139,7 +139,7 @@ const deleteFriend = async (user) => {
 };
 </script>
 <template>
-    <div class="user-card">
+    <div class="user-card" v-if="user">
         <router-link
             :to="{
                 name: 'user-detail',
