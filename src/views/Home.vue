@@ -6,6 +6,8 @@ import UserCard from '@/components/common/UserCard.vue';
 import 'swiper/swiper-bundle.css';
 import { Swiper, SwiperSlide } from 'swiper/vue';
 import { Navigation } from 'swiper/modules';
+import { onMounted } from 'vue';
+import { echo } from '@/plugins/echo';
 
 const userStore = useUserStore();
 const swiperModules = [Navigation];
@@ -35,6 +37,15 @@ const getOnlineUsers = async () => {
         console.log(error);
     }
 };
+onMounted(async () => {
+    echo.channel('users')
+        .listen('.user.logged.in', async () => {
+            await getOnlineUsers();
+        })
+        .listen('.user.logged.out', async () => {
+            await getOnlineUsers();
+        });
+});
 </script>
 
 <template>
@@ -126,7 +137,7 @@ const getOnlineUsers = async () => {
                             />
                             <div
                                 class="status"
-                                :class="index % 2 === 0 ? 'red' : 'green'"
+                                :class="user.is_online ? 'green' : 'red'"
                             ></div>
                         </div>
                         <div class="info">
