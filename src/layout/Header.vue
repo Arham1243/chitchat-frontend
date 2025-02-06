@@ -54,7 +54,9 @@ onMounted(async () => {
         setTimeout(async () => {
             await getNotifications();
             await getUnreadNotifications();
-            showNotification(data.name, data.message);
+            if (data.id !== user.value.id) {
+                showNotification(data.name, data.message);
+            }
         }, 1500);
     });
 });
