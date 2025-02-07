@@ -1,6 +1,7 @@
 <script setup>
 import { useRoute } from 'vue-router';
-import { computed, onBeforeMount, ref, watch } from 'vue';
+import { computed, nextTick, onBeforeMount, ref, watch } from 'vue';
+import axios from 'axios';
 import Logo from '@/assets/images/logo.png';
 import useEventsBus from '@/utils/event-bus';
 import helpers from '@/utils/helpers';
@@ -15,9 +16,16 @@ const currentUser = computed(() => authStore.currentUser);
 const message = ref('');
 const messages = ref([]);
 const conversationId = ref('');
+const repliesContainer = ref(null);
 
 onBeforeMount(() => {
     setCurrentChat();
+    scrollToBottom();
+});
+
+onBeforeMount(() => {
+    setCurrentChat();
+    markMessageAsRead();
 });
 
 watch(
@@ -25,14 +33,35 @@ watch(
     (newUsername) => {
         if (newUsername) {
             setCurrentChat();
+            markMessageAsRead();
+            scrollToBottom();
         }
     }
 );
 
+const markMessageAsRead = async () => {
+    try {
+        const otherUserMessages = messages.value.filter(
+            (message) => message.sender_id !== currentUser.value.id
+        );
+        const unreadMessageIds = otherUserMessages
+            .filter((message) => message.read_at === null)
+            .map((message) => message.id);
+        if (unreadMessageIds.length > 0) {
+            await chatStore.markMessagesAsRead(conversationId.value, {
+                messagesIds: unreadMessageIds
+            });
+            emit('reloadMessages');
+        }
+    } catch (error) {
+        console.error('Error marking message as read', error);
+    }
+};
+
 const getMessages = async (username) => {
     try {
         const res = await chatStore.getMessages(username);
-        conversationId.value = res.id || {};
+        conversationId.value = res.conversation.id || {};
         user.value = res.recipient || {};
         messages.value = res.messages || [];
     } catch (error) {
@@ -50,6 +79,7 @@ const sendMessage = async () => {
             message: message.value,
             created_at: new Date().toISOString()
         });
+        scrollToBottomSmoothly();
         message.value = '';
         emit('reloadMessages');
         await getMessages(route.params.username);
@@ -61,10 +91,31 @@ const sendMessage = async () => {
 const setCurrentChat = async () => {
     try {
         const foundUser = chatStore.currentUserChat;
+        conversationId.value = foundUser.conversation
+            ? foundUser.conversation.id
+            : foundUser.id;
         user.value = foundUser?.recipient || {};
         messages.value = foundUser?.messages || [];
     } catch (error) {
         console.error(error);
+    }
+};
+
+const scrollToBottom = async () => {
+    await nextTick();
+    if (repliesContainer.value) {
+        repliesContainer.value.scrollTo({
+            top: repliesContainer.value.scrollHeight
+        });
+    }
+};
+const scrollToBottomSmoothly = async () => {
+    await nextTick();
+    if (repliesContainer.value) {
+        repliesContainer.value.scrollTo({
+            top: repliesContainer.value.scrollHeight,
+            behavior: 'smooth'
+        });
     }
 };
 </script>
@@ -115,7 +166,7 @@ const setCurrentChat = async () => {
             </div>
         </div>
         <div class="chat-screen">
-            <div class="replies" v-if="messages.length">
+            <div class="replies" v-if="messages.length" ref="repliesContainer">
                 <div
                     class="reply"
                     :class="{ my: conversation.sender_id === currentUser.id }"
@@ -168,15 +219,18 @@ const setCurrentChat = async () => {
 
 <style>
 .chat-screen {
-    height: calc(100vh - 7.25rem);
-    overflow-y: auto;
+    height: calc(100vh - 7.5rem);
+    overflow: hidden;
     position: relative;
     background: var(--chat-bg);
     isolation: isolate;
-    padding: 1rem 2rem 2rem;
+    padding: 1rem 0 0.75rem;
     display: flex;
     flex-direction: column;
     justify-content: flex-end;
+}
+.replies {
+    overflow-y: auto;
 }
 .message-box {
     background: var(--header-bg);
@@ -236,6 +290,7 @@ const setCurrentChat = async () => {
     align-items: flex-end;
     border-top-left-radius: 0;
     gap: 1rem;
+    margin-left: 2rem;
 }
 
 .reply.my {
@@ -243,6 +298,7 @@ const setCurrentChat = async () => {
     border-top-right-radius: 0;
     background: var(--my-reply-bg);
     border-color: transparent;
+    margin-right: 2rem;
 }
 
 .reply .text {

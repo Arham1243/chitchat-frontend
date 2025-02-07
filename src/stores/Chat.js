@@ -28,11 +28,22 @@ export const useChatStore = defineStore('ChatStore', () => {
         });
     };
 
+    const markMessagesAsRead = (conversationId, payload) => {
+        return globalStore.actionWrapper(async () => {
+            const res = await ChatService.markMessagesAsRead(
+                conversationId,
+                payload
+            );
+            return res.data;
+        });
+    };
+
     const setCurrentChatUser = (user) => {
         currentUserChat.value = user;
     };
     return {
         getConversations,
+        markMessagesAsRead,
         sendMessage,
         currentUserChat,
         setCurrentChatUser,

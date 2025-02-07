@@ -186,9 +186,7 @@ const isActive = (username) => route.params.username === username;
                                         :class="[
                                             'date',
                                             {
-                                                green:
-                                                    item.recipient
-                                                        .unread_count > 0
+                                                green: item.unread_count > 0
                                             }
                                         ]"
                                     >
