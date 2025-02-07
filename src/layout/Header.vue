@@ -47,7 +47,6 @@ const triggerElements = ref(
 onBeforeMount(async () => {
     await getNotifications();
     await getUnreadNotifications();
-    await getUnreadMessages();
 });
 watch(dark, () => {
     toggleTheme();

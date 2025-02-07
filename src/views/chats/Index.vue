@@ -32,9 +32,6 @@ onMounted(async () => {
     echo.channel('messages').listen('.new', async (data) => {
         emit('reloadMessages');
         await getMessages(route.params.username);
-        if (data.sender_id !== currentUser.value.id) {
-            newMessageReceived();
-        }
         await markMessageAsRead(data.conversation_id);
         scrollToBottom();
     });

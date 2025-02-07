@@ -179,7 +179,9 @@ const deleteFriend = async (user) => {
                         shape="circle"
                     />
                 </AvatarGroup>
-                <span class="friends" v-if="user.mutual_friends"
+                <span
+                    class="friends"
+                    v-if="user.mutual_friends && user.mutual_friends.length > 0"
                     >{{ user.mutual_friends.length }} mutual friend{{
                         user.mutual_friends.length > 1 ? 's' : ''
                     }}</span
