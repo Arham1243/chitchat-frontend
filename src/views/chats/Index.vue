@@ -249,7 +249,7 @@ const scrollToBottomSmoothly = async () => {
 
 <style>
 .chat-screen {
-    height: calc(100vh - 7.5rem);
+    height: calc(100vh - 117px);
     overflow: hidden;
     position: relative;
     background: var(--chat-bg);
