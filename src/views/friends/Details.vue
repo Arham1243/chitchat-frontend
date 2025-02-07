@@ -48,7 +48,7 @@ const fetchUser = async () => {
         if (error.status === 500) {
             router.go(-1);
         } else {
-            console.log(error);
+            console.error(error);
         }
     } finally {
         loading.value = false;
@@ -84,7 +84,7 @@ const sendRequest = async (user) => {
         await friendRequestStore.sendRequest({ recipient_id: user.id });
         requestSent.value = true;
     } catch (error) {
-        console.log(error);
+        console.error(error);
     } finally {
         sendingRequest.value = false;
     }
@@ -96,7 +96,7 @@ const removeFriend = async (user) => {
         await friendRequestStore.removeFriend(user.id);
         isFriend.value = false;
     } catch (error) {
-        console.log(error);
+        console.error(error);
     } finally {
         busy.value = false;
     }
@@ -108,7 +108,7 @@ const cancelRequest = async (user) => {
         await friendRequestStore.cancelRequest(user.id);
         requestSent.value = false;
     } catch (error) {
-        console.log(error);
+        console.error(error);
     } finally {
         cancelingRequest.value = false;
     }
@@ -144,10 +144,9 @@ const updateProfilePicture = async () => {
         });
         closeProfileDialog();
         profile_picture.value = null;
-        console.log(res.profile_picture);
         fetchUser();
     } catch (error) {
-        console.log(error);
+        console.error(error);
     } finally {
         updatingProfilePicture.value = false;
     }

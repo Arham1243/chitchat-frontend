@@ -30,7 +30,7 @@ const resetPassword = async () => {
         await authStore.resetPassword(credentials.value);
         pushRoute('login');
     } catch (error) {
-        console.log(error);
+        console.error(error);
     } finally {
         loading.value = false;
     }

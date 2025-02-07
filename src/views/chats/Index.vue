@@ -1,30 +1,20 @@
 <script setup>
 import { useRoute } from 'vue-router';
-import { computed, onBeforeMount, onMounted, ref, toRaw, watch } from 'vue';
+import { computed, onBeforeMount, ref, watch } from 'vue';
 import Logo from '@/assets/images/logo.png';
-import Placeholder from '@/assets/images/placeholder-user.png';
+import useEventsBus from '@/utils/event-bus';
 import helpers from '@/utils/helpers';
-import { useAuthStore, useChatStore, useUserStore } from '@/stores';
-import { echo } from '@/plugins/echo';
+import { useAuthStore, useChatStore } from '@/stores';
 
-const userStore = useUserStore();
 const chatStore = useChatStore();
+const { emit } = useEventsBus();
 const authStore = useAuthStore();
 const route = useRoute();
 const user = ref({});
 const currentUser = computed(() => authStore.currentUser);
 const message = ref('');
 const messages = ref([]);
-
-onMounted(async () => {
-    echo.channel('users')
-        .listen('.user.logged.in', async () => {
-            await fetchUser();
-        })
-        .listen('.user.logged.out', async () => {
-            await fetchUser();
-        });
-});
+const conversationId = ref('');
 
 onBeforeMount(() => {
     setCurrentChat();
@@ -39,44 +29,42 @@ watch(
     }
 );
 
-const getMessages = async (user) => {
+const getMessages = async (username) => {
     try {
-        const res = await chatStore.getMessages(user.id);
-        messages.value = res.messages;
+        const res = await chatStore.getMessages(username);
+        conversationId.value = res.id || {};
+        user.value = res.recipient || {};
+        messages.value = res.messages || [];
     } catch (error) {
-        console.log(error);
-    }
-};
-
-const fetchUser = async () => {
-    try {
-        const res = await userStore.getUser(route.params.username);
-        user.value = res;
-    } catch (error) {
-        console.log(error);
+        console.error('Error fetching messages:', error);
     }
 };
 
 const sendMessage = async () => {
+    if (!message.value.trim()) return;
     try {
-        const payload = toRaw({
-            message: message.value
-        });
-
+        const payload = { message: message.value.trim() };
         await chatStore.sendMessage(user.value.id, payload);
+        messages.value.push({
+            sender_id: currentUser.value.id,
+            message: message.value,
+            created_at: new Date().toISOString()
+        });
         message.value = '';
-        await getMessages();
+        emit('reloadMessages');
+        await getMessages(route.params.username);
     } catch (error) {
-        console.log(error);
+        console.error(error);
     }
 };
 
 const setCurrentChat = async () => {
-    const foundUser = chatStore.currentUserChat;
-    if (foundUser && route.params.username !== '-1') {
-        user.value = foundUser;
-        fetchUser();
-        getMessages(user.value);
+    try {
+        const foundUser = chatStore.currentUserChat;
+        user.value = foundUser?.recipient || {};
+        messages.value = foundUser?.messages || [];
+    } catch (error) {
+        console.error(error);
     }
 };
 </script>
@@ -102,33 +90,35 @@ const setCurrentChat = async () => {
     </div>
     <div v-else>
         <div class="chat-header">
-            <div class="chat-profile">
-                <div class="avatar">
+            <div class="chat-profile flex items-center" v-if="user">
+                <router-link
+                    :to="{
+                        name: 'user-detail',
+                        params: { username: user.username }
+                    }"
+                    class="avatar"
+                >
                     <img
-                        v-if="user.profile_picture"
-                        .src="user.profile_picture || Placeholder"
-                        :alt="user.name || ''"
+                        :src="user.profile_picture"
+                        :alt="user.name"
                         width="45"
                         height="45"
                         class="border-circle"
                     />
-                </div>
+                </router-link>
                 <div class="content">
-                    <div class="name" v-if="user.name">{{ user.name }}</div>
-                    <div class="status" v-if="user.is_online">
+                    <div class="name">{{ user.name }}</div>
+                    <div class="status">
                         {{ user.is_online ? 'Online' : 'Offline' }}
                     </div>
                 </div>
             </div>
         </div>
         <div class="chat-screen">
-            <div class="replies">
+            <div class="replies" v-if="messages.length">
                 <div
-                    class=""
-                    :class="[
-                        'reply',
-                        { my: conversation.sender_id === currentUser.id }
-                    ]"
+                    class="reply"
+                    :class="{ my: conversation.sender_id === currentUser.id }"
                     v-for="(conversation, index) in messages"
                     :key="index"
                 >
@@ -150,20 +140,35 @@ const setCurrentChat = async () => {
             </div>
         </div>
         <div class="message-box flex align-items-center">
-            <form @submit.prevent="sendMessage">
+            <form
+                @submit.prevent="sendMessage"
+                class="flex align-items-center justify-content-between w-full pr-3"
+            >
                 <InputText
                     v-model="message"
                     type="text"
                     placeholder="Type a message"
-                    class="text-sm message-input"
+                    class="text-sm message-input w-full"
+                />
+                <Button
+                    size="small"
+                    style="
+                        padding: 0 !important;
+                        --p-button-icon-only-width: 2.1rem;
+                    "
+                    type="submit"
+                    icon="fa-solid fa-arrow-right"
+                    rounded
+                    :disabled="message.length < 1"
                 />
             </form>
         </div>
     </div>
 </template>
+
 <style>
 .chat-screen {
-    height: calc(100vh - 6.95rem);
+    height: calc(100vh - 7.25rem);
     overflow-y: auto;
     position: relative;
     background: var(--chat-bg);
@@ -175,7 +180,7 @@ const setCurrentChat = async () => {
 }
 .message-box {
     background: var(--header-bg);
-    padding: 0.35rem 0.7rem;
+    padding: 0.5rem 0.7rem;
     border-top: 1px solid var(--header-shadow);
 }
 .message-box .actions button .p-button-icon {

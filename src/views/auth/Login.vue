@@ -37,7 +37,7 @@ const login = async () => {
         await authStore.login(credentials.value);
         pushRoute('home');
     } catch (error) {
-        console.log(error);
+        console.error(error);
     } finally {
         loading.value = false;
     }

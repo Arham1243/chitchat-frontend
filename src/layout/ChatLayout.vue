@@ -1,6 +1,6 @@
 <script setup>
 import ChatMenu from '@/layout/ChatMenu.vue';
-import { useChatStore, useUserStore, useAuthStore } from '@/stores';
+import { useChatStore, useAuthStore } from '@/stores';
 import { onMounted, ref } from 'vue';
 import { useRoute } from 'vue-router';
 import Loader from '@/components/common/Loader.vue';
@@ -8,14 +8,15 @@ import Loader from '@/components/common/Loader.vue';
 const authStore = useAuthStore();
 const chatStore = useChatStore();
 const route = useRoute();
-const userStore = useUserStore();
-const loading = ref(false);
+const loading = ref(true);
 
 onMounted(async () => {
     toggleTheme();
     await authStore.me();
     if (route.params.username !== '-1') {
-        fetchUser();
+        getMessages(route.params.username);
+    } else {
+        loading.value = false;
     }
 });
 
@@ -28,13 +29,12 @@ const toggleTheme = () => {
     }
 };
 
-const fetchUser = async () => {
+const getMessages = async (username) => {
     try {
-        loading.value = true;
-        const res = await userStore.getUser(route.params.username);
+        const res = await chatStore.getMessages(username);
         chatStore.setCurrentChatUser(res);
     } catch (error) {
-        console.log(error);
+        console.error('Error fetching messages:', error);
     } finally {
         loading.value = false;
     }

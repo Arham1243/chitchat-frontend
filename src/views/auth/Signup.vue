@@ -32,7 +32,7 @@ const signup = async () => {
         await authStore.register(credentials.value);
         pushRoute('home');
     } catch (error) {
-        console.log(error);
+        console.error(error);
     } finally {
         loading.value = false;
     }

@@ -116,7 +116,7 @@ const logout = async () => {
         await authStore.logout();
         pushRoute('login');
     } catch (error) {
-        console.log(error);
+        console.error(error);
     }
 };
 
@@ -126,7 +126,7 @@ const getNotifications = async () => {
         const res = await notificationStore.getNotifications();
         notifications.value = res;
     } catch (error) {
-        console.log(error);
+        console.error(error);
     } finally {
         loadingNotifications.value = false;
     }
@@ -137,7 +137,7 @@ const getUnreadNotifications = async () => {
         const res = await notificationStore.getUnreadNotifications();
         unreadNotifications.value = res;
     } catch (error) {
-        console.log(error);
+        console.error(error);
     } finally {
         loadingUnreadNotifications.value = false;
     }
@@ -152,7 +152,7 @@ const markAsRead = async (notification) => {
             await getUnreadNotifications();
         }
     } catch (error) {
-        console.log(error);
+        console.error(error);
     }
 };
 

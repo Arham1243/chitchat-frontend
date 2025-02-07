@@ -25,7 +25,7 @@ const getUsers = async () => {
         const res = await userStore.getUsers();
         users.value = res;
     } catch (error) {
-        console.log(error);
+        console.error(error);
     }
 };
 
@@ -34,7 +34,7 @@ const getOnlineUsers = async () => {
         const res = await userStore.getOnlineFriends();
         onlineUsers.value = res;
     } catch (error) {
-        console.log(error);
+        console.error(error);
     }
 };
 onMounted(async () => {
@@ -119,7 +119,7 @@ onMounted(async () => {
                 <div class="contact-list" v-if="onlineUsers.length > 0">
                     <router-link
                         :to="{
-                            name: 'user-detail',
+                            name: 'chats',
                             params: { username: user.username }
                         }"
                         class="contact-item"

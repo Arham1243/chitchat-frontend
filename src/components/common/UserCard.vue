@@ -86,7 +86,7 @@ const sendRequest = async (user) => {
         await friendRequestStore.sendRequest({ recipient_id: user.id });
         requestSent.value = true;
     } catch (error) {
-        console.log(error);
+        console.error(error);
     } finally {
         sendingRequest.value = false;
     }
@@ -98,7 +98,7 @@ const removeFriend = async (user) => {
         await friendRequestStore.removeFriend(user.id);
         emit('reloadFriends', user);
     } catch (error) {
-        console.log(error);
+        console.error(error);
     } finally {
         busy.value = false;
     }
@@ -110,7 +110,7 @@ const cancelRequest = async (user) => {
         await friendRequestStore.cancelRequest(user.id);
         requestSent.value = false;
     } catch (error) {
-        console.log(error);
+        console.error(error);
     } finally {
         cancelingRequest.value = false;
     }
@@ -122,7 +122,7 @@ const acceptRequest = async (friendRequestId) => {
         await friendRequestStore.acceptRequest(friendRequestId);
         emit('requestAction');
     } catch (error) {
-        console.log(error);
+        console.error(error);
     } finally {
         acceptingRequest.value = false;
     }
@@ -134,7 +134,7 @@ const deleteFriend = async (user) => {
         await friendRequestStore.deleteFriendRequest(user.id);
         emit('requestAction');
     } catch (error) {
-        console.log(error);
+        console.error(error);
     } finally {
         busy.value = false;
     }

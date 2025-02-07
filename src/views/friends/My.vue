@@ -18,7 +18,7 @@ const getUsers = async () => {
         const res = await userStore.getFriends();
         users.value = res;
     } catch (error) {
-        console.log(error);
+        console.error(error);
     }
 };
 const reloadFriends = async () => {

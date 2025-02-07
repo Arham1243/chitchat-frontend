@@ -17,7 +17,7 @@ const getMyRequests = async () => {
         const res = await friendRequestStore.getMyRequests();
         requests.value = res;
     } catch (error) {
-        console.log(error);
+        console.error(error);
     }
 };
 const handleRequestAction = async () => {

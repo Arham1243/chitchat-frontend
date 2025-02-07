@@ -3,8 +3,9 @@ import helpers from '@/utils/helpers';
 import { onBeforeMount, onMounted, ref, watch } from 'vue';
 import { useUserStore, useChatStore } from '@/stores';
 import { useRouter, useRoute } from 'vue-router';
-import { echo } from '@/plugins/echo';
+import useEventsBus from '@/utils/event-bus';
 
+const { bus } = useEventsBus();
 const userStore = useUserStore();
 const chatStore = useChatStore();
 const route = useRoute();
@@ -13,43 +14,90 @@ const search = ref('');
 const loading = ref(false);
 const conversations = ref([]);
 const onlineUsers = ref([]);
+const filteredConversations = ref([]);
+
+watch(
+    () => bus.value.get('reloadMessages'),
+    async () => {
+        await getConversationsData();
+    }
+);
+
+watch(search, (newSearch) => {
+    if (!newSearch) {
+        filteredConversations.value =
+            conversations.value?.length > 0 ? conversations.value : [];
+    } else {
+        const onlineRecipients = onlineUsers.value.map((user) =>
+            normalizeUserAsRecipient(user)
+        );
+        const allItems = [...(conversations.value || []), ...onlineRecipients];
+
+        const uniqueItems = [];
+        const seenUsernames = new Set();
+        for (const item of allItems) {
+            const username = item.recipient.username;
+            if (!seenUsernames.has(username)) {
+                seenUsernames.add(username);
+                uniqueItems.push(item);
+            }
+        }
+
+        filteredConversations.value = uniqueItems.filter((item) =>
+            item.recipient.name.toLowerCase().includes(newSearch.toLowerCase())
+        );
+    }
+});
 
 onBeforeMount(async () => {
     await getConversations();
     await getOnlineUsers();
 });
 
-watch(search, (newSearch) => {
-    if (!newSearch) {
-        conversations.value = onlineUsers.value;
-    } else {
-        conversations.value = onlineUsers.value.filter((user) =>
-            user.name.toLowerCase().includes(newSearch.toLowerCase())
-        );
+const getConversationsData = async () => {
+    const res = await chatStore.getConversations();
+    conversations.value = res?.length > 0 ? res : [];
+
+    if (!search.value) {
+        filteredConversations.value = conversations.value;
     }
-});
+};
 
 const getConversations = async () => {
     try {
         loading.value = true;
-        const res = await chatStore.getConversations();
-        conversations.value = res;
+        await getConversationsData();
     } catch (error) {
-        console.log(error);
+        console.error(error);
     } finally {
         loading.value = false;
     }
 };
 
+const normalizeUserAsRecipient = (user) => {
+    return {
+        recipient: {
+            id: user.id,
+            username: user.username,
+            name: user.name,
+            profile_picture: user.profile_picture || 'default-avatar.png'
+        },
+        last_message: null,
+        unread_count: 0
+    };
+};
+
 const getOnlineUsers = async () => {
     try {
         const res = await userStore.getOnlineFriends();
-        onlineUsers.value = res;
+        onlineUsers.value = res?.length > 0 ? res : [];
     } catch (error) {
-        console.log(error);
+        console.error(error);
     }
 };
+
 const setCurrentChatUser = (user) => {
+    console.log(user);
     chatStore.setCurrentChatUser(user);
 };
 
@@ -101,13 +149,17 @@ const isActive = (username) => route.params.username === username;
             v-else
             :class="{
                 'chats-wrapper': true,
-                scroll: conversations.length > 7
+                scroll: filteredConversations.length > 7
             }"
         >
-            <div v-if="conversations.length > 0 && !loading">
-                <Menu :model="conversations" class="bg-transparent border-none">
+            <div v-if="filteredConversations.length > 0 && !loading">
+                <Menu
+                    :model="filteredConversations"
+                    class="bg-transparent border-none"
+                >
                     <template #item="{ item }">
                         <router-link
+                            @click="setCurrentChatUser(item)"
                             :to="item.recipient.username"
                             v-ripple
                             :class="[
@@ -130,6 +182,7 @@ const isActive = (username) => route.params.username === username;
                                         {{ item.recipient.name }}
                                     </div>
                                     <div
+                                        v-if="item.last_message"
                                         :class="[
                                             'date',
                                             {
@@ -140,15 +193,16 @@ const isActive = (username) => route.params.username === username;
                                         ]"
                                     >
                                         {{
-                                            helpers.formatDateAgo(
+                                            helpers.formatTime(
                                                 item.last_message.created_at
                                             )
                                         }}
                                     </div>
                                 </div>
-                                <div class="wrapper">
+                                <div class="wrapper" v-if="item.last_message">
                                     <div class="message">
                                         <i
+                                            v-if="item.last_message.is_mine"
                                             :class="[
                                                 'bx',
                                                 'bx-check-double',

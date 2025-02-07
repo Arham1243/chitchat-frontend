@@ -14,9 +14,9 @@ export const useChatStore = defineStore('ChatStore', () => {
         });
     };
 
-    const getMessages = (userId) => {
+    const getMessages = (username) => {
         return globalStore.actionWrapper(async () => {
-            const res = await ChatService.getMessages(userId);
+            const res = await ChatService.getMessages(username);
             return res.data;
         });
     };

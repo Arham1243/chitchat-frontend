@@ -15,7 +15,7 @@ const forgetPassword = async () => {
         await authStore.forgetPassword(credentials.value);
         credentials.value.email = '';
     } catch (error) {
-        console.log(error);
+        console.error(error);
     } finally {
         loading.value = false;
     }
