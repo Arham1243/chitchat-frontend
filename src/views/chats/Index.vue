@@ -232,15 +232,12 @@ const scrollToBottomSmoothly = async () => {
                     class="text-sm message-input w-full"
                 />
                 <Button
-                    size="small"
-                    style="
-                        padding: 0 !important;
-                        --p-button-icon-only-width: 2.1rem;
-                    "
                     type="submit"
-                    icon="fa-solid fa-arrow-right"
-                    rounded
                     :disabled="message.length < 1"
+                    icon="icon pi pi-arrow-right"
+                    variant="text"
+                    rounded
+                    class="text-black-alpha-90 back-btn"
                 />
             </form>
         </div>
@@ -249,7 +246,7 @@ const scrollToBottomSmoothly = async () => {
 
 <style>
 .chat-screen {
-    height: calc(100vh - 117px);
+    height: calc(100vh - 123px);
     overflow: hidden;
     position: relative;
     background: var(--chat-bg);
