@@ -9,7 +9,7 @@ import {
 } from 'vue';
 import { useRoute } from 'vue-router';
 import helpers from '@/utils/helpers';
-import { useAuthStore, useNotificationStore } from '@/stores';
+import { useAuthStore, useChatStore, useNotificationStore } from '@/stores';
 import { useRouter } from 'vue-router';
 import Logo from '@/assets/images/c.png';
 import GlobalSearch from '@/components/GlobalSearch.vue';
@@ -23,6 +23,7 @@ const NAV_ITEMS = [
 
 const notificationStore = useNotificationStore();
 const authStore = useAuthStore();
+const chatStore = useChatStore();
 const route = useRoute();
 const router = useRouter();
 const optionBoxWrapper = ref(null);
@@ -33,6 +34,7 @@ const loadingUnreadNotifications = ref(false);
 const contentType = ref(null);
 const notifications = ref([]);
 const unreadNotifications = ref([]);
+const unreadMessages = ref([]);
 const dark = ref(localStorage.getItem('darkMode') || '0');
 const user = computed(() => authStore.currentUser);
 const triggerElements = ref(
@@ -45,6 +47,7 @@ const triggerElements = ref(
 onBeforeMount(async () => {
     await getNotifications();
     await getUnreadNotifications();
+    await getUnreadMessages();
 });
 watch(dark, () => {
     toggleTheme();
@@ -55,22 +58,41 @@ onMounted(async () => {
             await getNotifications();
             await getUnreadNotifications();
             if (data.id !== user.value.id) {
-                showNotification(data.name, data.message);
+                showNotification(data.name, data.message, 'request');
             }
         }, 1500);
     });
+
+    echo.channel('messages').listen('.new', async (data) => {
+        await getUnreadMessages();
+        if (data.sender_id !== user.value.id) {
+            showNotification(data.recipient, data.message, 'message');
+        }
+    });
+    echo.channel('messages').listen('.read', async () => {
+        await getUnreadMessages();
+    });
 });
 
-const showNotification = (sender, message) => {
+const showNotification = (sender, message, type) => {
+    let title = 'New Message';
+    let body = 'New message';
+    if (type === 'request') {
+        title = sender;
+        body = `${sender} ${message}`;
+    } else if (type === 'message') {
+        title = 'New Message';
+        body = `${message}`;
+    }
     if (Notification.permission === 'granted') {
-        new Notification(sender?.name || 'New Message', {
-            body: `${sender} ${message}`,
+        new Notification(title, {
+            body: body,
             icon: Logo
         });
     } else if (Notification.permission !== 'denied') {
         Notification.requestPermission().then((permission) => {
             if (permission === 'granted') {
-                showNotification(sender, message, Logo);
+                showNotification(sender, message, 'request');
             }
         });
     }
@@ -115,6 +137,15 @@ const logout = async () => {
     try {
         await authStore.logout();
         pushRoute('login');
+    } catch (error) {
+        console.error(error);
+    }
+};
+
+const getUnreadMessages = async () => {
+    try {
+        const res = await chatStore.getUnreadMessages();
+        unreadMessages.value = res;
     } catch (error) {
         console.error(error);
     }
@@ -207,9 +238,13 @@ const toggleOptionBox = (type) => {
                 >
                     <OverlayBadge
                         severity="danger"
-                        value="0"
+                        :value="unreadMessages.length"
                         v-tooltip.bottom="'messenger'"
-                        class="header-options__item cursor-pointer"
+                        :class="[
+                            'header-options__item',
+                            'cursor-pointer',
+                            { 'no-badge': unreadMessages.length === 0 }
+                        ]"
                     >
                         <i class="fa-brands fa-facebook-messenger" />
                     </OverlayBadge>

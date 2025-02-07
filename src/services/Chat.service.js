@@ -17,3 +17,6 @@ export const getMessages = (username) => {
 export const sendMessage = (recipientId, payload) => {
     return AxiosService.post(`${BASE_URL}/chat/${recipientId}`, payload);
 };
+export const getUnreadMessages = () => {
+    return AxiosService.get(`${BASE_URL}/chat/messages/unread`);
+};

@@ -37,6 +37,12 @@ export const useChatStore = defineStore('ChatStore', () => {
             return res.data;
         });
     };
+    const getUnreadMessages = () => {
+        return globalStore.actionWrapper(async () => {
+            const res = await ChatService.getUnreadMessages();
+            return res.data;
+        });
+    };
 
     const setCurrentChatUser = (user) => {
         currentUserChat.value = user;
@@ -46,6 +52,7 @@ export const useChatStore = defineStore('ChatStore', () => {
         markMessagesAsRead,
         sendMessage,
         currentUserChat,
+        getUnreadMessages,
         setCurrentChatUser,
         getMessages
     };

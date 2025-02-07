@@ -1,11 +1,11 @@
 <script setup>
 import { useRoute } from 'vue-router';
-import { computed, nextTick, onBeforeMount, ref, watch } from 'vue';
-import axios from 'axios';
+import { computed, nextTick, onBeforeMount, onMounted, ref, watch } from 'vue';
 import Logo from '@/assets/images/logo.png';
 import useEventsBus from '@/utils/event-bus';
 import helpers from '@/utils/helpers';
 import { useAuthStore, useChatStore } from '@/stores';
+import { echo } from '@/plugins/echo';
 
 const chatStore = useChatStore();
 const { emit } = useEventsBus();
@@ -28,18 +28,51 @@ onBeforeMount(() => {
     markMessageAsRead();
 });
 
+onMounted(async () => {
+    echo.channel('messages').listen('.new', async (data) => {
+        emit('reloadMessages');
+        await getMessages(route.params.username);
+        if (data.sender_id !== currentUser.value.id) {
+            newMessageReceived();
+        }
+        await markMessageAsRead(data.conversation_id);
+        scrollToBottom();
+    });
+
+    echo.channel('messages').listen('.read', async () => {
+        emit('reloadMessages');
+        await getMessages(route.params.username);
+        scrollToBottom();
+    });
+});
+
+onMounted(async () => {
+    echo.channel('messages').listen('.new', async (data) => {
+        emit('reloadMessages');
+        await getMessages(route.params.username);
+        await markMessageAsRead(data.conversation_id);
+        scrollToBottom();
+    });
+
+    echo.channel('messages').listen('.read', async () => {
+        emit('reloadMessages');
+        await getMessages(route.params.username);
+        scrollToBottom();
+    });
+});
+
 watch(
     () => route.params.username,
     (newUsername) => {
         if (newUsername) {
             setCurrentChat();
-            markMessageAsRead();
+            markMessageAsRead(conversationId.value);
             scrollToBottom();
         }
     }
 );
 
-const markMessageAsRead = async () => {
+const markMessageAsRead = async (conversationId) => {
     try {
         const otherUserMessages = messages.value.filter(
             (message) => message.sender_id !== currentUser.value.id
@@ -48,7 +81,7 @@ const markMessageAsRead = async () => {
             .filter((message) => message.read_at === null)
             .map((message) => message.id);
         if (unreadMessageIds.length > 0) {
-            await chatStore.markMessagesAsRead(conversationId.value, {
+            await chatStore.markMessagesAsRead(conversationId, {
                 messagesIds: unreadMessageIds
             });
             emit('reloadMessages');
