@@ -28,35 +28,38 @@ onBeforeMount(() => {
     markMessageAsRead();
 });
 
-onMounted(async () => {
-    echo.channel('messages').listen('.new', async (data) => {
-        emit('reloadMessages');
-        await getMessages(route.params.username);
-        await markMessageAsRead(data.conversation_id);
-        scrollToBottom();
-    });
+if (route.name === 'chats') {
+    onMounted(async () => {
+        echo.channel('messages').listen('.new', async (data) => {
+            emit('reloadMessages');
+            await getMessages(route.params.username);
+            await markMessageAsRead(data.conversation_id);
+            scrollToBottom();
+        });
 
-    echo.channel('messages').listen('.read', async () => {
-        emit('reloadMessages');
-        await getMessages(route.params.username);
-        scrollToBottom();
-    });
-});
+        echo.channel('messages').listen('.read', async () => {
+            emit('reloadMessages');
+            await getMessages(route.params.username);
+            scrollToBottom();
+        });
 
-onMounted(async () => {
-    echo.channel('messages').listen('.new', async (data) => {
-        emit('reloadMessages');
-        await getMessages(route.params.username);
-        await markMessageAsRead(data.conversation_id);
-        scrollToBottom();
+        echo.channel('users')
+            .listen('.user.logged.in', async (data) => {
+                if (data.user_id === user.value.id) {
+                    user.value.is_online = 'Online';
+                }
+                emit('reloadMessages');
+                await getMessages(route.params.username);
+            })
+            .listen('.user.logged.out', async (data) => {
+                if (data.user_id === user.value.id) {
+                    user.value.is_online = 'Offline';
+                }
+                emit('reloadMessages');
+                await getMessages(route.params.username);
+            });
     });
-
-    echo.channel('messages').listen('.read', async () => {
-        emit('reloadMessages');
-        await getMessages(route.params.username);
-        scrollToBottom();
-    });
-});
+}
 
 watch(
     () => route.params.username,
@@ -121,9 +124,11 @@ const sendMessage = async () => {
 const setCurrentChat = async () => {
     try {
         const foundUser = chatStore.currentUserChat;
-        conversationId.value = foundUser.conversation
-            ? foundUser.conversation.id
-            : foundUser.id;
+        conversationId.value = foundUser
+            ? foundUser.conversation
+                ? foundUser.conversation.id
+                : foundUser.id
+            : null;
         user.value = foundUser?.recipient || {};
         messages.value = foundUser?.messages || [];
     } catch (error) {

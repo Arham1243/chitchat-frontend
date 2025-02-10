@@ -97,7 +97,6 @@ const getOnlineUsers = async () => {
 };
 
 const setCurrentChatUser = (user) => {
-    console.log(user);
     chatStore.setCurrentChatUser(user);
 };
 

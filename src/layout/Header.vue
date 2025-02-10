@@ -53,18 +53,16 @@ watch(dark, () => {
 });
 onMounted(async () => {
     echo.channel(`users`).listen('.new', async (data) => {
-        setTimeout(async () => {
-            await getNotifications();
-            await getUnreadNotifications();
-            if (data.id !== user.value.id) {
-                showNotification(data.name, data.message, 'request');
-            }
-        }, 1500);
+        await getNotifications();
+        await getUnreadNotifications();
+        if (data.id !== user.value.id) {
+            showNotification(data.name, data.message, 'request');
+        }
     });
 
     echo.channel('messages').listen('.new', async (data) => {
         await getUnreadMessages();
-        if (data.sender_id !== user.value.id) {
+        if (data.sender_id !== user.value.id && route.name !== 'chats') {
             showNotification(data.recipient, data.message, 'message');
         }
     });
