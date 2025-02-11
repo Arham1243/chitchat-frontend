@@ -102,14 +102,14 @@ const getMessages = async (username) => {
     }
 };
 
-const sendMessage = async () => {
-    if (!message.value.trim()) return;
+const sendMessage = async (userMessage) => {
+    if (!userMessage.trim()) return;
     try {
-        const payload = { message: message.value.trim() };
+        const payload = { message: userMessage.trim() };
         await chatStore.sendMessage(user.value.id, payload);
         messages.value.push({
             sender_id: currentUser.value.id,
-            message: message.value,
+            message: userMessage,
             created_at: new Date().toISOString()
         });
         scrollToBottomSmoothly();
@@ -195,7 +195,7 @@ const scrollToBottomSmoothly = async () => {
                 <div class="content">
                     <div class="name">{{ user.name }}</div>
                     <div class="status">
-                        {{ user.is_online ? 'Online' : 'Offline' }}
+                        {{ user.is_online ? 'Online' : '' }}
                     </div>
                 </div>
             </div>
@@ -227,7 +227,7 @@ const scrollToBottomSmoothly = async () => {
         </div>
         <div class="message-box flex align-items-center">
             <form
-                @submit.prevent="sendMessage"
+                @submit.prevent="sendMessage(message)"
                 class="flex align-items-center justify-content-between w-full pr-3"
             >
                 <InputText
