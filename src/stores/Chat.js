@@ -21,6 +21,13 @@ export const useChatStore = defineStore('ChatStore', () => {
         });
     };
 
+    const getSuggestions = (message) => {
+        return globalStore.actionWrapper(async () => {
+            const res = await ChatService.getSuggestions(message);
+            return res.data;
+        });
+    };
+
     const sendMessage = (recipientId, payload) => {
         return globalStore.actionWrapper(async () => {
             const res = await ChatService.sendMessage(recipientId, payload);
@@ -54,6 +61,7 @@ export const useChatStore = defineStore('ChatStore', () => {
         currentUserChat,
         getUnreadMessages,
         setCurrentChatUser,
-        getMessages
+        getMessages,
+        getSuggestions
     };
 });

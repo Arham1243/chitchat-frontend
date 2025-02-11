@@ -17,15 +17,16 @@ const message = ref('');
 const messages = ref([]);
 const conversationId = ref('');
 const repliesContainer = ref(null);
+const showSuggestions = ref(false);
+const suggestions = ref([]);
+const API_KEY = import.meta.env.VITE_OPENAI_API_KEY;
+const sendingMessage = ref(false);
 
 onBeforeMount(() => {
     setCurrentChat();
-    scrollToBottom();
-});
-
-onBeforeMount(() => {
-    setCurrentChat();
+    getSuggestions();
     markMessageAsRead();
+    scrollToBottom();
 });
 
 if (route.name === 'chats') {
@@ -34,6 +35,7 @@ if (route.name === 'chats') {
             emit('reloadMessages');
             await getMessages(route.params.username);
             await markMessageAsRead(data.conversation_id);
+            await getSuggestions();
             scrollToBottom();
         });
 
@@ -68,6 +70,7 @@ watch(
             setCurrentChat();
             markMessageAsRead(conversationId.value);
             scrollToBottom();
+            getSuggestions();
         }
     }
 );
@@ -98,26 +101,78 @@ const getMessages = async (username) => {
         user.value = res.recipient || {};
         messages.value = res.messages || [];
     } catch (error) {
-        console.error('Error fetching messages:', error);
+        console.error(error);
+    }
+};
+
+import OpenAI from 'openai';
+const openai = new OpenAI({
+    apiKey: API_KEY,
+    dangerouslyAllowBrowser: true
+});
+
+const getSuggestions = async () => {
+    try {
+        if (
+            messages.value[messages.value.length - 1]?.sender_id ===
+            user.value.id
+        ) {
+            const promptContext = `Below is a conversation between two individuals: ${user.value.name} and ${currentUser.value.name}. Analyze their previous interactions and generate at least three one-liner minimal responses maximumm 5 to 6 words only from ${user.value.name} that mirror the tone, style, words, and phrasing typically used by ${currentUser.value.name}. Ensure the responses align with ${currentUser.value.name}'s established manner in past conversations. dont use bullets/counting and etc in response just 3 messaged seprated with |.`;
+
+            const conversation = messages.value
+                .map(
+                    (message) =>
+                        `${message.sender_id === currentUser.value.id ? currentUser.value.name : user.value.name}: ${message.message}`
+                )
+                .join('\n');
+
+            const prompt = `${promptContext} \n\nCONVERSATION BETWEEN ${user.value.name} and ${currentUser.value.name}:\n\n${conversation}`;
+
+            const completion = await openai.chat.completions.create({
+                model: 'gpt-4o',
+                messages: [
+                    {
+                        role: 'system',
+                        content: prompt
+                    },
+                    {
+                        role: 'user',
+                        content: promptContext
+                    }
+                ],
+                store: true
+            });
+            scrollToBottomSmoothly();
+            showSuggestions.value = true;
+            suggestions.value =
+                completion.choices[0].message.content.split('|');
+        }
+    } catch (error) {
+        console.error(error);
     }
 };
 
 const sendMessage = async (userMessage) => {
-    if (!userMessage.trim()) return;
+    if (!userMessage.trim() && sendingMessage.value) return;
     try {
-        const payload = { message: userMessage.trim() };
-        await chatStore.sendMessage(user.value.id, payload);
+        sendingMessage.value = true;
+        showSuggestions.value = false;
         messages.value.push({
             sender_id: currentUser.value.id,
             message: userMessage,
             created_at: new Date().toISOString()
         });
-        scrollToBottomSmoothly();
         message.value = '';
+        scrollToBottomSmoothly();
+        const payload = { message: userMessage.trim() };
+        await chatStore.sendMessage(user.value.id, payload);
+        scrollToBottomSmoothly();
         emit('reloadMessages');
         await getMessages(route.params.username);
     } catch (error) {
         console.error(error);
+    } finally {
+        sendingMessage.value = false;
     }
 };
 
@@ -224,7 +279,22 @@ const scrollToBottomSmoothly = async () => {
                     </div>
                 </div>
             </div>
+            <div
+                class="suggestions flex justify-content-end gap-2 mt-4 mb-1 mr-5 pr-2 w-fit ml-auto"
+                v-if="suggestions.length > 0 && showSuggestions"
+            >
+                <Button
+                    v-for="(suggestion, index) in suggestions"
+                    :key="index"
+                    @click="sendMessage(suggestion, true)"
+                    class="text-xs"
+                    :label="suggestion"
+                    variant="outlined"
+                    size="small"
+                />
+            </div>
         </div>
+
         <div class="message-box flex align-items-center">
             <form
                 @submit.prevent="sendMessage(message)"
@@ -312,6 +382,8 @@ const scrollToBottomSmoothly = async () => {
     color: var(--text-gray-color);
 }
 .reply {
+    max-width: 50%;
+    line-height: 1.3;
     border: 1px solid var(--header-shadow);
     background: var(--reply-bg);
     width: fit-content;
@@ -341,6 +413,7 @@ const scrollToBottomSmoothly = async () => {
 .reply .time {
     font-size: 0.65rem;
     font-weight: 300;
+    width: max-content;
 }
 .reply i {
     font-size: 1.01rem;
