@@ -20,16 +20,16 @@ axiosApi.interceptors.request.use(
     }
 );
 
-// axiosApi.interceptors.response.use(
-//     (response) => response,
-//     (error) => {
-//         if (error.response && error.response.status === 401) {
-//             const sessionStore = useSessionStore();
-//             sessionStore.clearSessionState();
-//             window.location.reload();
-//         }
-//         return Promise.reject(error);
-//     }
-// );
+axiosApi.interceptors.response.use(
+    (response) => response,
+    (error) => {
+        if (error.response && error.response.status === 401) {
+            const sessionStore = useSessionStore();
+            sessionStore.clearSessionState();
+            window.location.reload();
+        }
+        return Promise.reject(error);
+    }
+);
 
 export default axiosApi;
