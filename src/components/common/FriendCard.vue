@@ -33,7 +33,14 @@ const friend = props.friend;
             >
                 {{ friend.name }}
             </router-link>
-            <div class="friend" v-if="friend.is_friend">Friend</div>
+            <div
+                class="friend"
+                v-if="friend.mutual_friends && friend.mutual_friends.length > 0"
+            >
+                {{ friend.mutual_friends.length }} mutual friend{{
+                    friend.mutual_friends.length > 1 ? 's' : ''
+                }}
+            </div>
         </div>
     </div>
 </template>
