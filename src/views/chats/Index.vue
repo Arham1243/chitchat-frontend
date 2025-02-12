@@ -115,8 +115,9 @@ const openai = new OpenAI({
 const getSuggestions = async () => {
     try {
         if (
+            messages.value.length > 20 &&
             messages.value[messages.value.length - 1]?.sender_id ===
-            user.value.id
+                user.value.id
         ) {
             const promptContext = `Below is a conversation between two individuals: ${user.value.name} and ${currentUser.value.name}. Analyze their previous interactions and generate at least three one-liner minimal responses maximumm 5 to 6 words only from ${user.value.name} that mirror the tone, style, words, and phrasing typically used by ${currentUser.value.name}. Ensure the responses align with ${currentUser.value.name}'s established manner in past conversations. dont use bullets/counting and etc in response just 3 messaged seprated with |.`;
 
