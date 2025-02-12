@@ -254,7 +254,7 @@ body .mb-show {
 }
 
 .friend-card__image {
-  width: 65px;
+  width: 75px;
   aspect-ratio: 1/1;
   border-radius: 0.65rem;
   overflow: hidden;
@@ -264,6 +264,10 @@ body .mb-show {
   width: 100%;
   height: 100%;
   object-fit: cover;
+}
+
+.friend-card__content {
+  width: 100%;
 }
 
 .friend-card__content .name {
@@ -289,11 +293,12 @@ body .mb-show {
 .card-btns {
   display: flex;
   align-items: center;
-  gap: 0.5rem;
+  gap: 0.35rem;
+  width: 100%;
 }
 
 .card-btns button {
-  font-size: 0.7rem;
+  font-size: 0.75rem;
 }
 
 @import '@/assets/css/responsive.scss';

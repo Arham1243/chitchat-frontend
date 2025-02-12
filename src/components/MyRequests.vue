@@ -33,11 +33,12 @@ const handleRequestAction = async () => {
             <div class="friends">
                 <div class="grid grid-nogutter">
                     <div
-                        class="p-col-12 p-md-6 p-lg-3"
+                        class="col-12 sm:col-6 lg:col-3"
                         v-for="(user, index) in requests"
                         :key="index"
                     >
                         <UserCard
+                            list-view
                             :user="user.sender"
                             friend-request
                             :friend-request-id="user.id"
