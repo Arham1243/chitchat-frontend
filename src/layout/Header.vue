@@ -7,10 +7,9 @@ import {
     onBeforeMount,
     onMounted
 } from 'vue';
-import { useRoute } from 'vue-router';
+import { useRoute, useRouter } from 'vue-router';
 import helpers from '@/utils/helpers';
 import { useAuthStore, useChatStore, useNotificationStore } from '@/stores';
-import { useRouter } from 'vue-router';
 import Logo from '@/assets/images/c.png';
 import GlobalSearch from '@/components/GlobalSearch.vue';
 import { echo } from '@/plugins/echo';
@@ -35,6 +34,7 @@ const contentType = ref(null);
 const notifications = ref([]);
 const unreadNotifications = ref([]);
 const unreadMessages = ref([]);
+const isLoading = ref(false);
 const dark = ref(localStorage.getItem('darkMode') || '0');
 const user = computed(() => authStore.currentUser);
 const triggerElements = ref(
@@ -44,6 +44,18 @@ const triggerElements = ref(
     ])
 );
 
+onMounted(() => {
+    router.beforeEach((to, from, next) => {
+        isLoading.value = true;
+        next();
+    });
+
+    router.afterEach(() => {
+        setTimeout(() => {
+            isLoading.value = false;
+        }, 300);
+    });
+});
 onBeforeMount(async () => {
     await getNotifications();
     await getUnreadNotifications();
@@ -631,6 +643,11 @@ const toggleOptionBox = (type) => {
                 </TabList>
             </Tabs>
         </div>
+        <ProgressBar
+            v-if="isLoading"
+            mode="indeterminate"
+            style="height: 3px"
+        ></ProgressBar>
     </header>
 </template>
 

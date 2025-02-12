@@ -31,6 +31,7 @@ onBeforeMount(async () => {
     </div>
     <div class="main" v-else>
         <Header />
+
         <div class="first-section-padding">
             <div class="grid grid-nogutter">
                 <div class="col-3">

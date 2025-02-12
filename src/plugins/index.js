@@ -10,6 +10,7 @@ import '@fortawesome/fontawesome-free/css/all.css';
 import 'boxicons/css/boxicons.min.css';
 
 import Dialog from 'primevue/dialog';
+import ProgressBar from 'primevue/progressbar';
 import FileUpload from 'primevue/fileupload';
 import InputField from '@/components/common/InputField.vue';
 import Button from 'primevue/button';
@@ -64,6 +65,7 @@ export function registerPlugins(app) {
     app.component('FileUpload', FileUpload);
     app.component('Dialog', Dialog);
     app.component('Tabs', Tabs);
+    app.component('ProgressBar', ProgressBar);
     app.component('ProgressSpinner', ProgressSpinner);
     app.component('OverlayBadge', OverlayBadge);
     app.component('TabList', TabList);
@@ -131,6 +133,7 @@ const components = {
     Toast,
     TabPanels,
     TabPanel,
+    ProgressBar,
     Message,
     ProgressSpinner,
     Dialog,
