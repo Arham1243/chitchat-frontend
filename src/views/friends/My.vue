@@ -29,7 +29,7 @@ const reloadFriends = async () => {
 </script>
 
 <template>
-    <div class="col-8 col-offset-1">
+    <div class="col-12 lg:col-8 lg:col-offset-1">
         <MyRequests @reloadFriends="reloadFriends" />
         <div class="page-content">
             <div class="page-title">My Friends</div>
@@ -37,7 +37,7 @@ const reloadFriends = async () => {
                 <template v-if="loading">
                     <div class="grid grid-nogutter pr-2">
                         <div
-                            class="p-col-12 p-md-6 p-lg-3 pb-0"
+                            class="p-col-12 p-md-6 p-lg-3 pb-0 mb-hidden"
                             v-for="index in 8"
                             :key="index"
                         >
@@ -46,6 +46,57 @@ const reloadFriends = async () => {
                                 height="322px"
                                 width="205px"
                             ></Skeleton>
+                        </div>
+                        <div
+                            class="col-12 p-md-6 p-lg-3 mb-show"
+                            v-for="index in 2"
+                            :key="index"
+                        >
+                            <div class="friend-card w-full">
+                                <div class="friend-card__image border-circle">
+                                    <Skeleton
+                                        shape="circle"
+                                        size="70px"
+                                    ></Skeleton>
+                                </div>
+                                <div class="friend-card__content">
+                                    <Skeleton
+                                        width="3rem"
+                                        height="8px"
+                                        borderRadius="100px"
+                                        class="mt-1"
+                                    ></Skeleton>
+                                    <div class="mutual-friends mt-2">
+                                        <div class="flex">
+                                            <Skeleton
+                                                v-for="index in 2"
+                                                :key="index"
+                                                width="36px"
+                                                height="36px"
+                                                borderRadius="100px"
+                                            ></Skeleton>
+                                        </div>
+                                        <Skeleton
+                                            width="3rem"
+                                            height="8px"
+                                            borderRadius="100px"
+                                            class="mt-1"
+                                        ></Skeleton>
+                                    </div>
+                                    <div class="card-btns">
+                                        <Skeleton
+                                            width="80px"
+                                            height="32px"
+                                            borderRadius="6px"
+                                        ></Skeleton>
+                                        <Skeleton
+                                            width="80px"
+                                            height="32px"
+                                            borderRadius="6px"
+                                        ></Skeleton>
+                                    </div>
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </template>
@@ -58,6 +109,7 @@ const reloadFriends = async () => {
                                 :key="index"
                             >
                                 <UserCard
+                                    list-view
                                     :user="user"
                                     show-remove
                                     my-friends

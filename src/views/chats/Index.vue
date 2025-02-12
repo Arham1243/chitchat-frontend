@@ -1,5 +1,5 @@
 <script setup>
-import { useRoute } from 'vue-router';
+import { useRoute, useRouter } from 'vue-router';
 import { computed, nextTick, onBeforeMount, onMounted, ref, watch } from 'vue';
 import Logo from '@/assets/images/logo.png';
 import useEventsBus from '@/utils/event-bus';
@@ -11,6 +11,7 @@ const chatStore = useChatStore();
 const { emit } = useEventsBus();
 const authStore = useAuthStore();
 const route = useRoute();
+const router = useRouter();
 const user = ref({});
 const currentUser = computed(() => authStore.currentUser);
 const message = ref('');
@@ -114,9 +115,8 @@ const openai = new OpenAI({
 const getSuggestions = async () => {
     try {
         if (
-            messages.value.length > 20 &&
             messages.value[messages.value.length - 1]?.sender_id ===
-                user.value.id
+            user.value.id
         ) {
             const promptContext = `Below is a conversation between two individuals: ${user.value.name} and ${currentUser.value.name}. Analyze their previous interactions and generate at least three one-liner minimal responses maximumm 5 to 6 words only from ${user.value.name} that mirror the tone, style, words, and phrasing typically used by ${currentUser.value.name}. Ensure the responses align with ${currentUser.value.name}'s established manner in past conversations. dont use bullets/counting and etc in response just 3 messaged seprated with |.`;
 
@@ -214,7 +214,7 @@ const scrollToBottomSmoothly = async () => {
 <template>
     <div v-if="route.params.username === '-1'">
         <div
-            class="w-full h-screen flex justify-content-center align-items-center"
+            class="w-full h-screen flex justify-content-center align-items-center mb-hidden"
         >
             <div class="grid w-full justify-content-center">
                 <div class="text-center mb-4">
@@ -233,6 +233,18 @@ const scrollToBottomSmoothly = async () => {
     <div v-else>
         <div class="chat-header">
             <div class="chat-profile flex items-center" v-if="user">
+                <Button
+                    @click="
+                        router.push({
+                            name: 'chats',
+                            params: { username: '-1' }
+                        })
+                    "
+                    icon="icon pi pi-arrow-left"
+                    variant="text"
+                    rounded
+                    class="text-black-alpha-90 back-btn mb-show"
+                />
                 <router-link
                     :to="{
                         name: 'user-detail',

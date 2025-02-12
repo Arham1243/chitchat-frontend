@@ -48,10 +48,10 @@ const getMessages = async (username) => {
         <Loader />
     </div>
     <div class="grid grid-nogutter" v-else>
-        <div class="col-3">
+        <div class="col-12 lg:col-3">
             <ChatMenu />
         </div>
-        <div class="col-9">
+        <div class="col-12 lg:col-9">
             <router-view />
         </div>
     </div>
