@@ -235,7 +235,11 @@ const updateProfilePicture = async () => {
                         <div class="profile-info">
                             <div class="name">{{ user.name }}</div>
                             <div class="friends">
-                                <template v-if="user.friends">
+                                <template
+                                    v-if="
+                                        user.friends && user.friends.length > 0
+                                    "
+                                >
                                     {{ user.friends.length }} friend{{
                                         user.friends.length > 1 ? 's' : ''
                                     }}
@@ -334,10 +338,17 @@ const updateProfilePicture = async () => {
             </div>
             <Tabs
                 value="0"
-                v-if="!loading && (user.mutual_friends || user.friends)"
+                v-if="
+                    !loading &&
+                    (user.mutual_friends.length > 0 || user.friends.length > 0)
+                "
             >
                 <TabList>
-                    <Tab value="0">Friends</Tab>
+                    <Tab
+                        value="0"
+                        v-if="user.friends && user.friends.length > 0"
+                        >Friends</Tab
+                    >
                     <Tab
                         value="1"
                         v-if="

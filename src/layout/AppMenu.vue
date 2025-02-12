@@ -46,7 +46,7 @@ const isActive = (to) => {
 };
 </script>
 <template>
-    <Menu :model="items" class="bg-transparent border-none">
+    <Menu :model="items" class="bg-transparent border-none mb-hidden">
         <template #item="{ item, props }">
             <router-link v-slot="{ href, navigate }" :to="item.to" custom>
                 <a

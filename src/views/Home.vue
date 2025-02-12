@@ -49,23 +49,38 @@ onMounted(async () => {
 </script>
 
 <template>
-    <div class="col-4 col-offset-1">
+    <div class="col-12 lg:col-4 lg:col-offset-1">
         <div class="box pr-0">
             <div class="box-header">
                 <div class="title">People you may know</div>
             </div>
             <div class="box-body">
                 <template v-if="loading">
-                    <div class="grid grid-nogutter">
-                        <Skeleton
-                            v-for="index in 2"
-                            :key="index"
-                            style="margin-right: 0.6rem"
-                            height="310px"
-                            width="181px"
-                        ></Skeleton>
-                        <Skeleton height="310px" width="61px"></Skeleton>
-                    </div>
+                    <Swiper
+                        :slides-per-view="2.39"
+                        :space-between="12"
+                        :pagination="{ clickable: true }"
+                        :navigation="true"
+                        :modules="swiperModules"
+                        :breakpoints="{
+                            320: {
+                                slidesPerView: 1.5,
+                                spaceBetween: 8
+                            },
+                            640: {
+                                slidesPerView: 1.8,
+                                spaceBetween: 10
+                            },
+                            1024: {
+                                slidesPerView: 2.39,
+                                spaceBetween: 12
+                            }
+                        }"
+                    >
+                        <SwiperSlide v-for="index in 3" :key="index">
+                            <Skeleton height="310px"></Skeleton>
+                        </SwiperSlide>
+                    </Swiper>
                 </template>
                 <template v-else>
                     <Swiper
@@ -74,6 +89,20 @@ onMounted(async () => {
                         :pagination="{ clickable: true }"
                         :navigation="true"
                         :modules="swiperModules"
+                        :breakpoints="{
+                            320: {
+                                slidesPerView: 1.5,
+                                spaceBetween: 8
+                            },
+                            640: {
+                                slidesPerView: 1.8,
+                                spaceBetween: 10
+                            },
+                            1024: {
+                                slidesPerView: 2.39,
+                                spaceBetween: 12
+                            }
+                        }"
                         v-if="users.length > 0"
                     >
                         <SwiperSlide
@@ -92,7 +121,7 @@ onMounted(async () => {
             </div>
         </div>
     </div>
-    <div class="col-3 col-offset-1">
+    <div class="col-3 col-offset-1 mb-hidden">
         <div class="contact">
             <div class="contact-header">
                 <div class="title">Online friends</div>
@@ -135,6 +164,7 @@ onMounted(async () => {
                                 height="30"
                                 class="border-circle"
                             />
+
                             <div
                                 class="status"
                                 :class="user.is_online ? 'green' : 'red'"
