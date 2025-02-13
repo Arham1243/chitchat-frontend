@@ -1,19 +1,33 @@
-# chitchat-frontend
+# Chitchat Frontend
 
-## Project Setup
+---
 
-```sh
-npm install
-```
+## 🚀 Quick Start
 
-### Compile and Hot-Reload for Development
+Follow these steps to set up and run the project locally.
 
-```sh
-npm run dev
-```
+### Installation
 
-### Compile and Minify for Production
+1. Clone the repository:
+    ```bash
+    git clone https://github.com/your-username/chitchat-frontend.git
+    cd chitchat-frontend
+    ```
 
-```sh
-npm run build
-```
+- **Install dependencies**:
+
+    ```bash
+    npm install
+    ```
+
+    - **Configure Husky**:
+
+    ```bash
+    npm run configure-husky
+    ```
+
+    - **Run Project**:
+
+    ```bash
+    npm run dev
+    ```
