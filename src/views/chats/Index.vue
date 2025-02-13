@@ -395,7 +395,6 @@ const scrollToBottomSmoothly = async () => {
     background: var(--header-bg);
     padding: 0 0.7rem;
     border-top: 1px solid var(--header-shadow);
-    height: 57px;
 }
 body .message-box .back-btn {
     --p-button-icon-only-width: 2.75rem;
@@ -413,6 +412,7 @@ body .message-box .back-btn {
     box-shadow: none !important;
     background: transparent !important;
     padding: 0 1rem !important;
+    height: 57px;
 }
 .message-input::placeholder {
     color: var(--text-placeholder-color) !important;
