@@ -354,27 +354,25 @@ const scrollToBottomSmoothly = async () => {
             </div>
         </div>
 
-        <div class="message-box flex align-items-center">
-            <form
-                @submit.prevent="sendMessage(message)"
-                class="flex align-items-center justify-content-between w-full pr-3"
-            >
-                <InputText
-                    v-model="message"
-                    type="text"
-                    placeholder="Type a message"
-                    class="text-sm message-input w-full"
-                />
-                <Button
-                    type="submit"
-                    :disabled="message.length < 1"
-                    icon="icon pi pi-arrow-right"
-                    variant="text"
-                    rounded
-                    class="text-black-alpha-90 back-btn"
-                />
-            </form>
-        </div>
+        <form
+            @submit.prevent="sendMessage(message)"
+            class="message-box flex align-items-center justify-content-between w-full pr-3"
+        >
+            <InputText
+                v-model="message"
+                type="text"
+                placeholder="Type a message"
+                class="text-sm message-input w-full"
+            />
+            <Button
+                type="submit"
+                :disabled="message.length < 1"
+                icon="icon pi pi-arrow-right"
+                variant="text"
+                rounded
+                class="text-black-alpha-90 back-btn"
+            />
+        </form>
     </div>
 </template>
 
@@ -395,8 +393,13 @@ const scrollToBottomSmoothly = async () => {
 }
 .message-box {
     background: var(--header-bg);
-    padding: 0.5rem 0.7rem;
+    padding: 0 0.7rem;
     border-top: 1px solid var(--header-shadow);
+    height: 57px;
+}
+body .message-box .back-btn {
+    --p-button-icon-only-width: 2.75rem;
+    border-radius: 0.5rem;
 }
 .message-box .actions button .p-button-icon {
     color: var(--icon-color);
@@ -409,6 +412,7 @@ const scrollToBottomSmoothly = async () => {
     border: none !important;
     box-shadow: none !important;
     background: transparent !important;
+    padding: 0 1rem !important;
 }
 .message-input::placeholder {
     color: var(--text-placeholder-color) !important;
@@ -417,6 +421,7 @@ const scrollToBottomSmoothly = async () => {
     background: var(--header-bg);
     border-bottom: 1px solid var(--header-shadow);
     padding: 0.5rem 1.5rem;
+    height: 66px;
 }
 .chat-profile {
     display: flex;
