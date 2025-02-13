@@ -1,6 +1,14 @@
 <script setup>
 import { useRoute, useRouter } from 'vue-router';
-import { computed, nextTick, onBeforeMount, onMounted, ref, watch } from 'vue';
+import {
+    computed,
+    nextTick,
+    onBeforeMount,
+    onMounted,
+    onUnmounted,
+    ref,
+    watch
+} from 'vue';
 import Logo from '@/assets/images/logo.png';
 import useEventsBus from '@/utils/event-bus';
 import helpers from '@/utils/helpers';
@@ -26,41 +34,78 @@ const sendingMessage = ref(false);
 onBeforeMount(() => {
     setCurrentChat();
     getSuggestions();
-    markMessageAsRead();
+    markMessageAsRead(conversationId.value);
     scrollToBottom();
 });
 
-if (route.name === 'chats') {
-    onMounted(async () => {
-        echo.channel('messages').listen('.new', async (data) => {
-            emit('reloadMessages');
-            await getMessages(route.params.username);
-            await markMessageAsRead(data.conversation_id);
-            await getSuggestions();
-            scrollToBottom();
-        });
+if (route.name === 'chats' && route.params.username) {
+    let messagesChannel;
+    let usersChannel;
 
-        echo.channel('messages').listen('.read', async () => {
-            emit('reloadMessages');
-            await getMessages(route.params.username);
-            scrollToBottom();
-        });
+    onMounted(() => {
+        messagesChannel = echo.channel('messages');
+        usersChannel = echo.channel('users');
 
-        echo.channel('users')
-            .listen('.user.logged.in', async (data) => {
-                if (data.user_id === user.value.id) {
-                    user.value.is_online = 'Online';
-                }
+        messagesChannel.listen('.new', async (data) => {
+            try {
                 emit('reloadMessages');
                 await getMessages(route.params.username);
+                await markMessageAsRead(data.conversation_id);
+                await getSuggestions();
+                scrollToBottom();
+            } catch (error) {
+                console.error('Error in .new event listener:', error);
+            }
+        });
+
+        messagesChannel.listen('.read', async () => {
+            try {
+                emit('reloadMessages');
+                await getMessages(route.params.username);
+                scrollToBottom();
+            } catch (error) {
+                console.error('Error in .read event listener:', error);
+            }
+        });
+
+        usersChannel
+            .listen('.user.logged.in', async (data) => {
+                try {
+                    if (data.user_id === user.value.id) {
+                        user.value.is_online = 'Online';
+                    }
+                    emit('reloadMessages');
+                    await getMessages(route.params.username);
+                } catch (error) {
+                    console.error(
+                        'Error in .user.logged.in event listener:',
+                        error
+                    );
+                }
             })
             .listen('.user.logged.out', async (data) => {
-                if (data.user_id === user.value.id) {
-                    user.value.is_online = 'Offline';
+                try {
+                    if (data.user_id === user.value.id) {
+                        user.value.is_online = 'Offline';
+                    }
+                    emit('reloadMessages');
+                    await getMessages(route.params.username);
+                } catch (error) {
+                    console.error(
+                        'Error in .user.logged.out event listener:',
+                        error
+                    );
                 }
-                emit('reloadMessages');
-                await getMessages(route.params.username);
             });
+    });
+
+    onUnmounted(() => {
+        if (messagesChannel) {
+            echo.leaveChannel('messages');
+        }
+        if (usersChannel) {
+            echo.leaveChannel('users');
+        }
     });
 }
 
