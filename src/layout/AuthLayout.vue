@@ -7,7 +7,7 @@ onMounted(() => {
 </script>
 
 <template>
-    <div class="w-screen auth-main flex justify-content-center align-items-center">
+    <div class="w-screen h-screen flex justify-content-center align-items-center">
         <div class="grid w-full justify-content-center">
             <div class="auth-wrapper">
                 <div class="text-center mb-4">
@@ -18,19 +18,20 @@ onMounted(() => {
                 </div>
             </div>
         </div>
-    </div>
-    <div class="px-3 py-4 auth-footer">
-        <div class="flex gap-3 justify-content-center">
-            <a href="https://github.com/Arham1243/chitchat-frontend" target="_blank" rel="noopener noreferrer"
-                v-tooltip.bottom="`ChitChat Frontend`">
-                <Button icon="icon pi pi-github" variant="outlined" rounded />
-            </a>
-            <a href="https://github.com/Arham1243/chitchat-backend" target="_blank" rel="noopener noreferrer"
-                v-tooltip.bottom="`ChitChat Backend`">
-                <Button icon="icon pi pi-github" variant="outlined" rounded />
-            </a>
+        <div class="auth-footer">
+            <div class="flex gap-3">
+                <a href="https://github.com/Arham1243/chitchat-frontend" target="_blank" rel="noopener noreferrer"
+                    v-tooltip.left="`ChitChat Frontend`">
+                    <Button icon="icon pi pi-github" variant="outlined" rounded />
+                </a>
+                <a href="https://github.com/Arham1243/chitchat-backend" target="_blank" rel="noopener noreferrer"
+                    v-tooltip.left="`ChitChat Backend`">
+                    <Button icon="icon pi pi-github" variant="outlined" rounded />
+                </a>
+            </div>
         </div>
     </div>
+
     <Toast />
 </template>
 
@@ -38,7 +39,11 @@ onMounted(() => {
 .auth-wrapper {
     width: 303px;
 }
-.auth-main{
-    min-height: 93vh;
+
+.auth-footer {
+    position: fixed;
+    bottom: 0.75rem;
+    right: 2rem;
 }
+
 </style>
