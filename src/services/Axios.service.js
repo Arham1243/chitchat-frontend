@@ -20,10 +20,11 @@ axiosApi.interceptors.request.use(
     }
 );
 
+const isAuth = window.location.pathname.startsWith('/auth');
 axiosApi.interceptors.response.use(
     (response) => response,
     (error) => {
-        if (error.response && error.response.status === 401) {
+        if (error.response && error.response.status === 401 && !isAuth) {
             const sessionStore = useSessionStore();
             sessionStore.clearSessionState();
             window.location.reload();
