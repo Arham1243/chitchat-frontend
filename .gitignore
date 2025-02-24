@@ -1,6 +1,5 @@
 .sass-cache
 sassdoc
-.vscode
 
 
 # dependencies
@@ -13,6 +12,8 @@ yarn.lock
 dist
 /idea
 /.idea
+.vscode
+/.vscode
 
 # misc
 .env
