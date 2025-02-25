@@ -178,7 +178,7 @@ const deleteFriend = async (user) => {
                             2
                         )"
                         :key="index"
-                        :image="user.profile_picture"
+                        :image="friend.profile_picture"
                         shape="circle"
                     />
                 </AvatarGroup>
