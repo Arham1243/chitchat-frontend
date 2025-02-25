@@ -12,7 +12,7 @@ import helpers from '@/utils/helpers';
 import { useAuthStore, useChatStore, useNotificationStore } from '@/stores';
 import Logo from '@/assets/images/c.png';
 import GlobalSearch from '@/components/GlobalSearch.vue';
-import { echo } from '@/plugins/echo';
+import pusher from '@/plugins/pusher';
 
 const NAV_ITEMS = [
     { to: 'home', icon: 'fa-solid fa-house' },
@@ -64,24 +64,41 @@ onBeforeMount(async () => {
 watch(dark, () => {
     toggleTheme();
 });
-onMounted(async () => {
-    echo.channel(`users`).listen('.new', async (data) => {
-        await getNotifications();
-        await getUnreadNotifications();
-        if (data.id !== user.value.id) {
-            showNotification(data.name, data.message, 'request');
-        }
-    });
 
-    echo.channel('messages').listen('.new', async (data) => {
-        await getUnreadMessages();
-        if (data.sender_id !== user.value.id && route.name !== 'chats') {
-            showNotification(data.recipient, data.message, 'message');
-        }
-    });
-    echo.channel('messages').listen('.read', async () => {
-        await getUnreadMessages();
-    });
+let usersChannel;
+let messagesChannel;
+
+onMounted(async () => {
+  usersChannel = pusher.subscribe('users');
+  messagesChannel = pusher.subscribe('messages');
+
+  usersChannel.bind('new', async (data) => {
+    await getNotifications();
+    await getUnreadNotifications();
+    if (data.id !== user.value.id) {
+      showNotification(data.name, data.message, 'request');
+    }
+  });
+
+  messagesChannel.bind('new', async (data) => {
+    await getUnreadMessages();
+    if (data.sender_id !== user.value.id && route.name !== 'chats') {
+      showNotification(data.recipient, data.message, 'message');
+    }
+  });
+
+  messagesChannel.bind('read', async () => {
+    await getUnreadMessages();
+  });
+});
+
+onUnmounted(() => {
+  if (usersChannel) {
+    pusher.unsubscribe('users');
+  }
+  if (messagesChannel) {
+    pusher.unsubscribe('messages');
+  }
 });
 
 const showNotification = (sender, message, type) => {
