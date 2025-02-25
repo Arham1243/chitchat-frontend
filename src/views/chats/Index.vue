@@ -111,6 +111,7 @@ watch(
             markMessageAsRead(conversationId.value);
             scrollToBottom();
             getSuggestions();
+            suggestions.value = []
         }
     }
 );
