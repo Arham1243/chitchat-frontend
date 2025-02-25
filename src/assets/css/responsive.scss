@@ -198,4 +198,12 @@
     body .suggestions button {
         font-size: 0.65rem !important;
     }
+    body .chat-header {
+        padding-inline: 0;
+    }
+    
+    body .chat-header .chat-profile .back-btn {
+        background: none !important;
+        width: 35px;
+    }
 }

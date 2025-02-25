@@ -42,65 +42,65 @@ let messagesChannel;
 let usersChannel;
 
 if (route.name === 'chats' && route.params.username) {
-  onMounted(() => {
-    messagesChannel = pusher.subscribe('messages');
-    usersChannel = pusher.subscribe('users');
+    onMounted(() => {
+        messagesChannel = pusher.subscribe('messages');
+        usersChannel = pusher.subscribe('users');
 
-    messagesChannel.bind('new', async (data) => {
-      try {
-        emit('reloadMessages');
-        await getMessages(route.params.username);
-        await markMessageAsRead(data.conversation_id);
-        await getSuggestions();
-        scrollToBottom();
-      } catch (error) {
-        console.error('Error in new message event:', error);
-      }
+        messagesChannel.bind('new', async (data) => {
+            try {
+                emit('reloadMessages');
+                await getMessages(route.params.username);
+                await markMessageAsRead(data.conversation_id);
+                await getSuggestions();
+                scrollToBottom();
+            } catch (error) {
+                console.error('Error in new message event:', error);
+            }
+        });
+
+        messagesChannel.bind('read', async () => {
+            try {
+                emit('reloadMessages');
+                await getMessages(route.params.username);
+                scrollToBottom();
+            } catch (error) {
+                console.error('Error in read event:', error);
+            }
+        });
+
+        usersChannel.bind('user.logged.in', async (data) => {
+            try {
+                if (data.user_id === user.value.id) {
+                    user.value.is_online = 'Online';
+                }
+                emit('reloadMessages');
+                await getMessages(route.params.username);
+            } catch (error) {
+                console.error('Error in user.logged.in event:', error);
+            }
+        });
+
+        usersChannel.bind('user.logged.out', async (data) => {
+            try {
+                if (data.user_id === user.value.id) {
+                    user.value.is_online = 'Offline';
+                }
+                emit('reloadMessages');
+                await getMessages(route.params.username);
+            } catch (error) {
+                console.error('Error in user.logged.out event:', error);
+            }
+        });
     });
 
-    messagesChannel.bind('read', async () => {
-      try {
-        emit('reloadMessages');
-        await getMessages(route.params.username);
-        scrollToBottom();
-      } catch (error) {
-        console.error('Error in read event:', error);
-      }
-    });
-
-    usersChannel.bind('user.logged.in', async (data) => {
-      try {
-        if (data.user_id === user.value.id) {
-          user.value.is_online = 'Online';
+    onUnmounted(() => {
+        if (messagesChannel) {
+            pusher.unsubscribe('messages');
         }
-        emit('reloadMessages');
-        await getMessages(route.params.username);
-      } catch (error) {
-        console.error('Error in user.logged.in event:', error);
-      }
-    });
-
-    usersChannel.bind('user.logged.out', async (data) => {
-      try {
-        if (data.user_id === user.value.id) {
-          user.value.is_online = 'Offline';
+        if (usersChannel) {
+            pusher.unsubscribe('users');
         }
-        emit('reloadMessages');
-        await getMessages(route.params.username);
-      } catch (error) {
-        console.error('Error in user.logged.out event:', error);
-      }
     });
-  });
-  
-  onUnmounted(() => {
-    if (messagesChannel) {
-      pusher.unsubscribe('messages');
-    }
-    if (usersChannel) {
-      pusher.unsubscribe('users');
-    }
-  });
 }
 
 watch(
@@ -110,8 +110,8 @@ watch(
             setCurrentChat();
             markMessageAsRead(conversationId.value);
             scrollToBottom();
+            suggestions.value = [];
             getSuggestions();
-            suggestions.value = []
         }
     }
 );
@@ -383,21 +383,26 @@ const scrollToBottomSmoothly = async () => {
     flex-direction: column;
     justify-content: flex-end;
 }
+
 .replies {
     overflow-y: auto;
 }
+
 .message-box {
     background: var(--header-bg);
     padding: 0 0.7rem;
     border-top: 1px solid var(--header-shadow);
 }
+
 body .message-box .back-btn {
     --p-button-icon-only-width: 2.75rem;
     border-radius: 0.5rem;
 }
+
 .message-box .actions button .p-button-icon {
     color: var(--icon-color);
 }
+
 .message-input {
     color: var(--text-color) !important;
     flex: 1;
@@ -409,19 +414,25 @@ body .message-box .back-btn {
     padding: 0 1rem !important;
     height: 57px;
 }
+
 .message-input::placeholder {
     color: var(--text-placeholder-color) !important;
 }
+
 .chat-header {
     background: var(--header-bg);
     border-bottom: 1px solid var(--header-shadow);
     padding: 0.5rem 1.5rem;
     height: 66px;
 }
+
 .chat-profile {
     display: flex;
     align-items: center;
-    gap: 0.85rem;
+}
+
+.chat-profile .content {
+    margin-left: 0.85rem;
 }
 
 .chat-profile .name {
@@ -429,17 +440,21 @@ body .message-box .back-btn {
     font-weight: 500;
     margin-bottom: 2px;
 }
+
 .chat-profile .status {
     color: var(--text-gray-color);
     font-size: 0.75rem;
     font-weight: 500;
 }
+
 .heading {
     color: var(--text-color);
 }
+
 .para {
     color: var(--text-gray-color);
 }
+
 .reply {
     max-width: 50%;
     line-height: 1.3;
@@ -474,9 +489,11 @@ body .message-box .back-btn {
     font-weight: 300;
     width: max-content;
 }
+
 .reply i {
     font-size: 1.01rem;
 }
+
 .reply i.seen {
     color: #007bfc;
 }
