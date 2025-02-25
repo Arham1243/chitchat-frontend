@@ -108,7 +108,7 @@ const showNotification = (sender, message, type) => {
         title = sender;
         body = `${sender} ${message}`;
     } else if (type === 'message') {
-        title = 'New Message';
+        title = sender;
         body = `${message}`;
     }
     if (Notification.permission === 'granted') {
