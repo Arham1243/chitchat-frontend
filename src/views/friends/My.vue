@@ -37,7 +37,7 @@ const reloadFriends = async () => {
                 <template v-if="loading">
                     <div class="grid grid-nogutter pr-2">
                         <div
-                            class="p-col-12 p-md-6 p-lg-3 pb-0 mb-hidden"
+                            class="col-12 sm:col-6 lg:col-3 pb-0 mb-hidden"
                             v-for="index in 8"
                             :key="index"
                         >
@@ -48,7 +48,7 @@ const reloadFriends = async () => {
                             ></Skeleton>
                         </div>
                         <div
-                            class="col-12 p-md-6 p-lg-3 mb-show"
+                            class="col-12 sm:col-6 lg:col-3 mb-show"
                             v-for="index in 2"
                             :key="index"
                         >
@@ -104,7 +104,7 @@ const reloadFriends = async () => {
                     <template v-if="users.length > 0">
                         <div class="grid grid-nogutter">
                             <div
-                                class="p-col-12 p-md-6 p-lg-3"
+                                class="col-12 sm:col-6 lg:col-3"
                                 v-for="(user, index) in users"
                                 :key="index"
                             >
