@@ -139,7 +139,7 @@ const removeProfile = () => {
 const updateProfilePicture = async () => {
     try {
         updatingProfilePicture.value = true;
-        const res = await userStore.updateProfilePicture({
+        await userStore.updateProfilePicture({
             profile_picture: profile_picture.value
         });
         closeProfileDialog();
@@ -154,20 +154,20 @@ const updateProfilePicture = async () => {
 </script>
 
 <template>
-    <div class="col-8 col-offset-1">
+    <div class="col-12 lg:col-8 lg:col-offset-1">
         <div class="page-content mb-5">
             <div class="profile">
-                <div class="grid align-items-center" v-if="loading">
-                    <div class="col-3">
+                <div class="grid align-items-center mb-block" v-if="loading">
+                    <div class="col-9 lg:col-3">
                         <div class="profile-image">
                             <Skeleton
-                                width="180px"
-                                height="180px"
+                                width="170px"
+                                height="170px"
                                 borderRadius="100px"
                             ></Skeleton>
                         </div>
                     </div>
-                    <div class="col-9">
+                    <div class="col-12 lg:col-9">
                         <div class="profile-info">
                             <Skeleton
                                 width="200px"
@@ -212,8 +212,8 @@ const updateProfilePicture = async () => {
                         </div>
                     </div>
                 </div>
-                <div v-else class="grid align-items-center">
-                    <div class="col-3">
+                <div v-else class="grid align-items-center mb-block">
+                    <div class="col-9 lg:col-3">
                         <div class="profile-image">
                             <Image
                                 :src="user.profile_picture"
@@ -231,11 +231,15 @@ const updateProfilePicture = async () => {
                             </button>
                         </div>
                     </div>
-                    <div class="col-9">
+                    <div class="col-12 lg:col-9">
                         <div class="profile-info">
                             <div class="name">{{ user.name }}</div>
                             <div class="friends">
-                                <template v-if="user.friends">
+                                <template
+                                    v-if="
+                                        user.friends && user.friends.length > 0
+                                    "
+                                >
                                     {{ user.friends.length }} friend{{
                                         user.friends.length > 1 ? 's' : ''
                                     }}
@@ -334,10 +338,17 @@ const updateProfilePicture = async () => {
             </div>
             <Tabs
                 value="0"
-                v-if="!loading && (user.mutual_friends || user.friends)"
+                v-if="
+                    !loading &&
+                    (user.mutual_friends.length > 0 || user.friends.length > 0)
+                "
             >
                 <TabList>
-                    <Tab value="0">Friends</Tab>
+                    <Tab
+                        value="0"
+                        v-if="user.friends && user.friends.length > 0"
+                        >Friends</Tab
+                    >
                     <Tab
                         value="1"
                         v-if="
@@ -351,7 +362,7 @@ const updateProfilePicture = async () => {
                     <TabPanel value="0">
                         <div class="grid mt-3">
                             <div
-                                class="col-6"
+                                class="col-12 lg:col-6"
                                 v-for="(friend, index) in user.friends"
                                 :key="index"
                             >
@@ -368,7 +379,7 @@ const updateProfilePicture = async () => {
                     >
                         <div class="grid mt-3">
                             <div
-                                class="col-6"
+                                class="col-12 lg:col-6"
                                 v-for="(friend, index) in user.mutual_friends"
                                 :key="index"
                             >
@@ -449,7 +460,7 @@ const updateProfilePicture = async () => {
     justify-content: center;
 }
 .profile-image .p-image {
-    width: 180px;
+    width: 170px;
     aspect-ratio: 1/1;
     border-radius: 100%;
     overflow: hidden;

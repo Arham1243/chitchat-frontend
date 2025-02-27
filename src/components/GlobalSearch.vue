@@ -62,8 +62,12 @@ const handleSearchInput = (event) => {
 </script>
 
 <template>
-    <div class="search-field-wrapper" ref="searchWrapper">
-        <div class="icon-field-wrapper">
+    <div
+        class="search-field-wrapper"
+        ref="searchWrapper"
+        :class="{ active: showSearchResults }"
+    >
+        <div class="icon-field-wrapper" @click="showSearchResults = true">
             <IconField>
                 <InputIcon class="pi pi-search" />
                 <InputText
@@ -72,7 +76,6 @@ const handleSearchInput = (event) => {
                     @search="searchUsers"
                     placeholder="Search friends"
                     class="global-search"
-                    @click="showSearchResults = true"
                 />
             </IconField>
         </div>

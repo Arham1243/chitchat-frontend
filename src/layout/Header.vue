@@ -7,13 +7,12 @@ import {
     onBeforeMount,
     onMounted
 } from 'vue';
-import { useRoute } from 'vue-router';
+import { useRoute, useRouter } from 'vue-router';
 import helpers from '@/utils/helpers';
 import { useAuthStore, useChatStore, useNotificationStore } from '@/stores';
-import { useRouter } from 'vue-router';
 import Logo from '@/assets/images/c.png';
 import GlobalSearch from '@/components/GlobalSearch.vue';
-import { echo } from '@/plugins/echo';
+import pusher from '@/plugins/pusher';
 
 const NAV_ITEMS = [
     { to: 'home', icon: 'fa-solid fa-house' },
@@ -35,6 +34,7 @@ const contentType = ref(null);
 const notifications = ref([]);
 const unreadNotifications = ref([]);
 const unreadMessages = ref([]);
+const isLoading = ref(false);
 const dark = ref(localStorage.getItem('darkMode') || '0');
 const user = computed(() => authStore.currentUser);
 const triggerElements = ref(
@@ -44,31 +44,61 @@ const triggerElements = ref(
     ])
 );
 
+onMounted(() => {
+    router.beforeEach((to, from, next) => {
+        isLoading.value = true;
+        next();
+    });
+
+    router.afterEach(() => {
+        setTimeout(() => {
+            isLoading.value = false;
+        }, 300);
+    });
+});
 onBeforeMount(async () => {
     await getNotifications();
     await getUnreadNotifications();
+    await getUnreadMessages();
 });
 watch(dark, () => {
     toggleTheme();
 });
-onMounted(async () => {
-    echo.channel(`users`).listen('.new', async (data) => {
-        await getNotifications();
-        await getUnreadNotifications();
-        if (data.id !== user.value.id) {
-            showNotification(data.name, data.message, 'request');
-        }
-    });
 
-    echo.channel('messages').listen('.new', async (data) => {
-        await getUnreadMessages();
-        if (data.sender_id !== user.value.id && route.name !== 'chats') {
-            showNotification(data.recipient, data.message, 'message');
-        }
-    });
-    echo.channel('messages').listen('.read', async () => {
-        await getUnreadMessages();
-    });
+let usersChannel;
+let messagesChannel;
+
+onMounted(async () => {
+  usersChannel = pusher.subscribe('users');
+  messagesChannel = pusher.subscribe('messages');
+
+  usersChannel.bind('new', async (data) => {
+    await getNotifications();
+    await getUnreadNotifications();
+    if (data.id !== user.value.id) {
+      showNotification(data.name, data.message, 'request');
+    }
+  });
+
+  messagesChannel.bind('new', async (data) => {
+    await getUnreadMessages();
+    if (data.sender_id !== user.value.id && route.name !== 'chats') {
+      showNotification(data.recipient, data.message, 'message');
+    }
+  });
+
+  messagesChannel.bind('read', async () => {
+    await getUnreadMessages();
+  });
+});
+
+onUnmounted(() => {
+  if (usersChannel) {
+    pusher.unsubscribe('users');
+  }
+  if (messagesChannel) {
+    pusher.unsubscribe('messages');
+  }
 });
 
 const showNotification = (sender, message, type) => {
@@ -78,7 +108,7 @@ const showNotification = (sender, message, type) => {
         title = sender;
         body = `${sender} ${message}`;
     } else if (type === 'message') {
-        title = 'New Message';
+        title = sender;
         body = `${message}`;
     }
     if (Notification.permission === 'granted') {
@@ -192,15 +222,419 @@ const toggleOptionBox = (type) => {
 </script>
 
 <template>
-    <header class="header flex align-items-center justify-content-between px-3">
-        <div class="header-logo">
-            <router-link :to="{ name: 'home' }">
-                <img :src="Logo" width="30" class="mt-1" alt="logo" />
-            </router-link>
-            <GlobalSearch />
+    <header class="header">
+        <div class="flex align-items-center justify-content-between px-3">
+            <div class="header-logo">
+                <router-link :to="{ name: 'home' }">
+                    <img :src="Logo" width="30" class="mt-1" alt="logo" />
+                </router-link>
+                <GlobalSearch />
+            </div>
+
+            <div class="header-nav mb-hidden">
+                <Tabs :value="activeTab">
+                    <TabList>
+                        <Tab
+                            v-for="tab in NAV_ITEMS"
+                            :key="tab.to"
+                            class="header-tab"
+                            :value="tab.to"
+                        >
+                            <router-link
+                                :to="{ name: tab.to }"
+                                v-slot="{ href, navigate }"
+                                custom
+                            >
+                                <a
+                                    v-ripple
+                                    :href="href"
+                                    @click="navigate"
+                                    class="flex items-center gap-2 text-inherit"
+                                >
+                                    <i :class="tab.icon" />
+                                </a>
+                            </router-link>
+                        </Tab>
+                    </TabList>
+                </Tabs>
+            </div>
+
+            <ul
+                class="header-options flex align-items-center justify-content-end"
+            >
+                <li>
+                    <router-link
+                        :to="{ name: 'chats', params: { username: '-1' } }"
+                    >
+                        <OverlayBadge
+                            severity="danger"
+                            :value="unreadMessages.length"
+                            v-tooltip.bottom="'messenger'"
+                            :class="[
+                                'header-options__item',
+                                'cursor-pointer',
+                                { 'no-badge': unreadMessages.length === 0 }
+                            ]"
+                        >
+                            <i class="fa-brands fa-facebook-messenger" />
+                        </OverlayBadge>
+                    </router-link>
+                </li>
+                <li>
+                    <OverlayBadge
+                        :value="unreadNotifications.length"
+                        :ref="
+                            (el) =>
+                                (triggerElements.get('notifications').value =
+                                    el)
+                        "
+                        @click="toggleOptionBox('notifications')"
+                        severity="danger"
+                        v-tooltip.bottom="'notifications'"
+                        :class="[
+                            'header-options__item',
+                            'cursor-pointer',
+                            { 'no-badge': unreadNotifications.length === 0 }
+                        ]"
+                    >
+                        <i
+                            :class="[
+                                'fa-solid',
+                                unreadNotifications.length > 0
+                                    ? 'fa-bell fa-shake'
+                                    : 'fa-bell'
+                            ]"
+                        />
+                    </OverlayBadge>
+                </li>
+                <li>
+                    <OverlayBadge
+                        :ref="
+                            (el) => (triggerElements.get('account').value = el)
+                        "
+                        @click="toggleOptionBox('account')"
+                        v-tooltip.bottom="'account'"
+                        severity="danger"
+                        class="header-options__item no-badge cursor-pointer"
+                    >
+                        <img
+                            :src="user.profile_picture"
+                            class="border-circle"
+                            alt="account"
+                            width="43"
+                            height="43"
+                        />
+                    </OverlayBadge>
+                </li>
+            </ul>
+
+            <div v-if="showOptionBox" class="option-box" ref="optionBoxWrapper">
+                <template v-if="contentType === 'account'">
+                    <router-link
+                        @click="showOptionBox = false"
+                        :to="{
+                            name: 'user-detail',
+                            params: { username: user.username }
+                        }"
+                        class="user-profile"
+                        v-ripple
+                    >
+                        <div class="profile-picture">
+                            <img
+                                :src="user.profile_picture"
+                                class="border-circle"
+                                alt="account"
+                                width="36"
+                                height="36"
+                            />
+                        </div>
+                        <div class="name">{{ user.name }}</div>
+                    </router-link>
+                    <div class="lookups-list">
+                        <div
+                            class="lookups-item cursor-pointer pr-4"
+                            v-ripple
+                            @click.stop="contentType = 'appearance'"
+                        >
+                            <div class="wrapper">
+                                <div class="icon">
+                                    <i class="fa-solid fa-moon" />
+                                </div>
+                                <div class="title">Appearance</div>
+                            </div>
+                            <i class="fa-solid fa-chevron-right" />
+                        </div>
+                        <div
+                            class="lookups-item cursor-pointer"
+                            v-ripple
+                            @click="logout"
+                        >
+                            <div class="wrapper">
+                                <div class="icon">
+                                    <i class="fa-solid fa-right-from-bracket" />
+                                </div>
+                                <div class="title">Logout</div>
+                            </div>
+                        </div>
+                    </div>
+                </template>
+                <template v-else-if="contentType === 'notifications'">
+                    <div class="option-box__header">
+                        <div class="title">Notifications</div>
+                    </div>
+                    <Tabs value="0">
+                        <TabList>
+                            <Tab value="0">All</Tab>
+                            <Tab value="1">Unread</Tab>
+                        </TabList>
+                        <TabPanels>
+                            <TabPanel value="0">
+                                <template v-if="!loadingNotifications">
+                                    <template v-if="notifications.length > 0">
+                                        <div
+                                            :class="[
+                                                'lookups-list border-none mt-0',
+                                                {
+                                                    scroll:
+                                                        notifications.length > 4
+                                                }
+                                            ]"
+                                        >
+                                            <router-link
+                                                :to="{ name: 'my-friends' }"
+                                                v-for="(
+                                                    notification, index
+                                                ) in notifications"
+                                                :key="index"
+                                                class="lookups-item lookups-item--notify"
+                                                v-ripple
+                                                @click="
+                                                    markAsRead(notification)
+                                                "
+                                            >
+                                                <div class="wrapper">
+                                                    <div class="icon">
+                                                        <img
+                                                            :src="
+                                                                notification
+                                                                    .sender
+                                                                    ?.profile_picture
+                                                            "
+                                                            class="border-circle"
+                                                            :alt="
+                                                                notification
+                                                                    .sender
+                                                                    ?.name
+                                                            "
+                                                            width="56"
+                                                            height="56"
+                                                        />
+                                                    </div>
+                                                    <div>
+                                                        <div class="title">
+                                                            <span>{{
+                                                                notification
+                                                                    .sender
+                                                                    ?.name
+                                                            }}</span>
+                                                            {{
+                                                                notification
+                                                                    .data
+                                                                    .message
+                                                            }}
+                                                        </div>
+                                                        <div class="time">
+                                                            {{
+                                                                helpers.formatDateAgo(
+                                                                    notification.created_at
+                                                                )
+                                                            }}
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <div
+                                                    v-if="!notification.read_at"
+                                                    class="read-dot"
+                                                ></div>
+                                            </router-link>
+                                        </div>
+                                    </template>
+
+                                    <template v-else>
+                                        <div
+                                            class="flex flex-column text-center justify-content-center py-4 gap-3"
+                                            style="
+                                                color: var(--text-gray-color);
+                                            "
+                                        >
+                                            <i
+                                                class="text-7xl fa-solid fa-bell"
+                                            ></i>
+                                            <div class="text-base font-bold">
+                                                You have no notifications
+                                            </div>
+                                        </div>
+                                    </template>
+                                </template>
+                                <template v-else>
+                                    <ProgressSpinner
+                                        style="width: 30px; height: 30px"
+                                        class="my-3 mx-auto block"
+                                        strokeWidth="3"
+                                        fill="transparent"
+                                    />
+                                </template>
+                            </TabPanel>
+                            <TabPanel value="1">
+                                <template v-if="!loadingUnreadNotifications">
+                                    <template
+                                        v-if="unreadNotifications.length > 0"
+                                    >
+                                        <div
+                                            :class="[
+                                                'lookups-list border-none mt-0',
+                                                {
+                                                    scroll:
+                                                        unreadNotifications.length >
+                                                        4
+                                                }
+                                            ]"
+                                        >
+                                            <router-link
+                                                :to="{ name: 'my-friends' }"
+                                                v-for="(
+                                                    notification, index
+                                                ) in unreadNotifications"
+                                                :key="index"
+                                                class="lookups-item lookups-item--notify"
+                                                v-ripple
+                                                @click="
+                                                    markAsRead(notification)
+                                                "
+                                            >
+                                                <div class="wrapper">
+                                                    <div class="icon">
+                                                        <img
+                                                            :src="
+                                                                notification
+                                                                    .sender
+                                                                    ?.profile_picture
+                                                            "
+                                                            class="border-circle"
+                                                            :alt="
+                                                                notification
+                                                                    .sender
+                                                                    ?.name
+                                                            "
+                                                            width="56"
+                                                            height="56"
+                                                        />
+                                                    </div>
+                                                    <div>
+                                                        <div class="title">
+                                                            <span>{{
+                                                                notification
+                                                                    .sender
+                                                                    ?.name
+                                                            }}</span>
+                                                            {{
+                                                                notification
+                                                                    .data
+                                                                    .message
+                                                            }}
+                                                        </div>
+                                                        <div class="time">
+                                                            {{
+                                                                helpers.formatDateAgo(
+                                                                    notification.created_at
+                                                                )
+                                                            }}
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <div
+                                                    v-if="!notification.read_at"
+                                                    class="read-dot"
+                                                ></div>
+                                            </router-link>
+                                        </div>
+                                    </template>
+                                    <template v-else>
+                                        <div
+                                            class="flex flex-column text-center justify-content-center py-4 gap-3"
+                                            style="
+                                                color: var(--text-gray-color);
+                                            "
+                                        >
+                                            <i
+                                                class="text-7xl fa-solid fa-bell"
+                                            ></i>
+                                            <div class="text-base font-bold">
+                                                You have no notifications
+                                            </div>
+                                        </div>
+                                    </template>
+                                </template>
+                                <template v-else>
+                                    <ProgressSpinner
+                                        style="width: 30px; height: 30px"
+                                        class="my-3 mx-auto block"
+                                        strokeWidth="3"
+                                        fill="transparent"
+                                    />
+                                </template>
+                            </TabPanel>
+                        </TabPanels>
+                    </Tabs>
+                </template>
+                <template v-else-if="contentType === 'appearance'">
+                    <div
+                        class="option-box__header flex align-items-center gap-2 pb-0 px-2"
+                    >
+                        <Button
+                            @click.stop="contentType = 'account'"
+                            icon="icon pi pi-arrow-left"
+                            variant="text"
+                            rounded
+                            class="text-black-alpha-90 back-btn"
+                        />
+                        <div class="title pl-1">Appearance</div>
+                    </div>
+                    <div class="actions-list">
+                        <div class="actions-item">
+                            <div class="icon">
+                                <i class="fa-solid fa-moon" />
+                            </div>
+                            <div class="content">
+                                <div class="title">Dark mode</div>
+                                <p>
+                                    Adjust the appearance of App to reduce glare
+                                    and give your eyes a break.
+                                </p>
+                                <label for="off" class="action-option mt-3"
+                                    >Off
+                                    <RadioButton
+                                        v-model="dark"
+                                        inputId="off"
+                                        value="0"
+                                    />
+                                </label>
+                                <label for="on" class="action-option"
+                                    >On
+                                    <RadioButton
+                                        v-model="dark"
+                                        inputId="on"
+                                        value="1"
+                                    />
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+                </template>
+            </div>
         </div>
 
-        <div class="header-nav">
+        <div class="header-nav header-nav--mob hidden">
             <Tabs :value="activeTab">
                 <TabList>
                     <Tab
@@ -227,354 +661,11 @@ const toggleOptionBox = (type) => {
                 </TabList>
             </Tabs>
         </div>
-
-        <ul class="header-options flex align-items-center justify-content-end">
-            <li>
-                <router-link
-                    :to="{ name: 'chats', params: { username: '-1' } }"
-                >
-                    <OverlayBadge
-                        severity="danger"
-                        :value="unreadMessages.length"
-                        v-tooltip.bottom="'messenger'"
-                        :class="[
-                            'header-options__item',
-                            'cursor-pointer',
-                            { 'no-badge': unreadMessages.length === 0 }
-                        ]"
-                    >
-                        <i class="fa-brands fa-facebook-messenger" />
-                    </OverlayBadge>
-                </router-link>
-            </li>
-            <li>
-                <OverlayBadge
-                    :value="unreadNotifications.length"
-                    :ref="
-                        (el) =>
-                            (triggerElements.get('notifications').value = el)
-                    "
-                    @click="toggleOptionBox('notifications')"
-                    severity="danger"
-                    v-tooltip.bottom="'notifications'"
-                    :class="[
-                        'header-options__item',
-                        'cursor-pointer',
-                        { 'no-badge': unreadNotifications.length === 0 }
-                    ]"
-                >
-                    <i
-                        :class="[
-                            'fa-solid',
-                            unreadNotifications.length > 0
-                                ? 'fa-bell fa-shake'
-                                : 'fa-bell'
-                        ]"
-                    />
-                </OverlayBadge>
-            </li>
-            <li>
-                <OverlayBadge
-                    :ref="(el) => (triggerElements.get('account').value = el)"
-                    @click="toggleOptionBox('account')"
-                    v-tooltip.bottom="'account'"
-                    severity="danger"
-                    class="header-options__item no-badge cursor-pointer"
-                >
-                    <img
-                        :src="user.profile_picture"
-                        class="border-circle"
-                        alt="account"
-                        width="43"
-                        height="43"
-                    />
-                </OverlayBadge>
-            </li>
-        </ul>
-
-        <div v-if="showOptionBox" class="option-box" ref="optionBoxWrapper">
-            <template v-if="contentType === 'account'">
-                <router-link
-                    @click="showOptionBox = false"
-                    :to="{
-                        name: 'user-detail',
-                        params: { username: user.username }
-                    }"
-                    class="user-profile"
-                    v-ripple
-                >
-                    <div class="profile-picture">
-                        <img
-                            :src="user.profile_picture"
-                            class="border-circle"
-                            alt="account"
-                            width="36"
-                            height="36"
-                        />
-                    </div>
-                    <div class="name">{{ user.name }}</div>
-                </router-link>
-                <div class="lookups-list">
-                    <div
-                        class="lookups-item cursor-pointer pr-4"
-                        v-ripple
-                        @click.stop="contentType = 'appearance'"
-                    >
-                        <div class="wrapper">
-                            <div class="icon">
-                                <i class="fa-solid fa-moon" />
-                            </div>
-                            <div class="title">Appearance</div>
-                        </div>
-                        <i class="fa-solid fa-chevron-right" />
-                    </div>
-                    <div
-                        class="lookups-item cursor-pointer"
-                        v-ripple
-                        @click="logout"
-                    >
-                        <div class="wrapper">
-                            <div class="icon">
-                                <i class="fa-solid fa-right-from-bracket" />
-                            </div>
-                            <div class="title">Logout</div>
-                        </div>
-                    </div>
-                </div>
-            </template>
-            <template v-else-if="contentType === 'notifications'">
-                <div class="option-box__header">
-                    <div class="title">Notifications</div>
-                </div>
-                <Tabs value="0">
-                    <TabList>
-                        <Tab value="0">All</Tab>
-                        <Tab value="1">Unread</Tab>
-                    </TabList>
-                    <TabPanels>
-                        <TabPanel value="0">
-                            <template v-if="!loadingNotifications">
-                                <template v-if="notifications.length > 0">
-                                    <div
-                                        :class="[
-                                            'lookups-list border-none mt-0',
-                                            { scroll: notifications.length > 4 }
-                                        ]"
-                                    >
-                                        <router-link
-                                            :to="{ name: 'my-friends' }"
-                                            v-for="(
-                                                notification, index
-                                            ) in notifications"
-                                            :key="index"
-                                            class="lookups-item lookups-item--notify"
-                                            v-ripple
-                                            @click="markAsRead(notification)"
-                                        >
-                                            <div class="wrapper">
-                                                <div class="icon">
-                                                    <img
-                                                        :src="
-                                                            notification.sender
-                                                                ?.profile_picture
-                                                        "
-                                                        class="border-circle"
-                                                        :alt="
-                                                            notification.sender
-                                                                ?.name
-                                                        "
-                                                        width="56"
-                                                        height="56"
-                                                    />
-                                                </div>
-                                                <div>
-                                                    <div class="title">
-                                                        <span>{{
-                                                            notification.sender
-                                                                ?.name
-                                                        }}</span>
-                                                        {{
-                                                            notification.data
-                                                                .message
-                                                        }}
-                                                    </div>
-                                                    <div class="time">
-                                                        {{
-                                                            helpers.formatDateAgo(
-                                                                notification.created_at
-                                                            )
-                                                        }}
-                                                    </div>
-                                                </div>
-                                            </div>
-                                            <div
-                                                v-if="!notification.read_at"
-                                                class="read-dot"
-                                            ></div>
-                                        </router-link>
-                                    </div>
-                                </template>
-
-                                <template v-else>
-                                    <div
-                                        class="flex flex-column text-center justify-content-center py-4 gap-3"
-                                        style="color: var(--text-gray-color)"
-                                    >
-                                        <i
-                                            class="text-7xl fa-solid fa-bell"
-                                        ></i>
-                                        <div class="text-base font-bold">
-                                            You have no notifications
-                                        </div>
-                                    </div>
-                                </template>
-                            </template>
-                            <template v-else>
-                                <ProgressSpinner
-                                    style="width: 30px; height: 30px"
-                                    class="my-3 mx-auto block"
-                                    strokeWidth="3"
-                                    fill="transparent"
-                                />
-                            </template>
-                        </TabPanel>
-                        <TabPanel value="1">
-                            <template v-if="!loadingUnreadNotifications">
-                                <template v-if="unreadNotifications.length > 0">
-                                    <div
-                                        :class="[
-                                            'lookups-list border-none mt-0',
-                                            {
-                                                scroll:
-                                                    unreadNotifications.length >
-                                                    4
-                                            }
-                                        ]"
-                                    >
-                                        <router-link
-                                            :to="{ name: 'my-friends' }"
-                                            v-for="(
-                                                notification, index
-                                            ) in unreadNotifications"
-                                            :key="index"
-                                            class="lookups-item lookups-item--notify"
-                                            v-ripple
-                                            @click="markAsRead(notification)"
-                                        >
-                                            <div class="wrapper">
-                                                <div class="icon">
-                                                    <img
-                                                        :src="
-                                                            notification.sender
-                                                                ?.profile_picture
-                                                        "
-                                                        class="border-circle"
-                                                        :alt="
-                                                            notification.sender
-                                                                ?.name
-                                                        "
-                                                        width="56"
-                                                        height="56"
-                                                    />
-                                                </div>
-                                                <div>
-                                                    <div class="title">
-                                                        <span>{{
-                                                            notification.sender
-                                                                ?.name
-                                                        }}</span>
-                                                        {{
-                                                            notification.data
-                                                                .message
-                                                        }}
-                                                    </div>
-                                                    <div class="time">
-                                                        {{
-                                                            helpers.formatDateAgo(
-                                                                notification.created_at
-                                                            )
-                                                        }}
-                                                    </div>
-                                                </div>
-                                            </div>
-                                            <div
-                                                v-if="!notification.read_at"
-                                                class="read-dot"
-                                            ></div>
-                                        </router-link>
-                                    </div>
-                                </template>
-                                <template v-else>
-                                    <div
-                                        class="flex flex-column text-center justify-content-center py-4 gap-3"
-                                        style="color: var(--text-gray-color)"
-                                    >
-                                        <i
-                                            class="text-7xl fa-solid fa-bell"
-                                        ></i>
-                                        <div class="text-base font-bold">
-                                            You have no notifications
-                                        </div>
-                                    </div>
-                                </template>
-                            </template>
-                            <template v-else>
-                                <ProgressSpinner
-                                    style="width: 30px; height: 30px"
-                                    class="my-3 mx-auto block"
-                                    strokeWidth="3"
-                                    fill="transparent"
-                                />
-                            </template>
-                        </TabPanel>
-                    </TabPanels>
-                </Tabs>
-            </template>
-            <template v-else-if="contentType === 'appearance'">
-                <div
-                    class="option-box__header flex align-items-center gap-2 pb-0 px-2"
-                >
-                    <Button
-                        @click.stop="contentType = 'account'"
-                        icon="icon pi pi-arrow-left"
-                        variant="text"
-                        rounded
-                        class="text-black-alpha-90 back-btn"
-                    />
-                    <div class="title pl-1">Appearance</div>
-                </div>
-                <div class="actions-list">
-                    <div class="actions-item">
-                        <div class="icon">
-                            <i class="fa-solid fa-moon" />
-                        </div>
-                        <div class="content">
-                            <div class="title">Dark mode</div>
-                            <p>
-                                Adjust the appearance of App to reduce glare and
-                                give your eyes a break.
-                            </p>
-                            <label for="off" class="action-option mt-3"
-                                >Off
-                                <RadioButton
-                                    v-model="dark"
-                                    inputId="off"
-                                    value="0"
-                                />
-                            </label>
-                            <label for="on" class="action-option"
-                                >On
-                                <RadioButton
-                                    v-model="dark"
-                                    inputId="on"
-                                    value="1"
-                                />
-                            </label>
-                        </div>
-                    </div>
-                </div>
-            </template>
-        </div>
+        <ProgressBar
+            v-if="isLoading"
+            mode="indeterminate"
+            style="height: 3px"
+        ></ProgressBar>
     </header>
 </template>
 

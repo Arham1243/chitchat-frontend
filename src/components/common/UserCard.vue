@@ -15,6 +15,9 @@ const props = defineProps({
     myFriends: {
         type: Boolean
     },
+    listView: {
+        type: Boolean
+    },
     friendRequest: {
         type: Boolean
     },
@@ -141,7 +144,7 @@ const deleteFriend = async (user) => {
 };
 </script>
 <template>
-    <div class="user-card" v-if="user">
+    <div class="user-card" :class="{ 'mb-hidden': listView }" v-if="user">
         <router-link
             :to="{
                 name: 'user-detail',
@@ -249,6 +252,118 @@ const deleteFriend = async (user) => {
                 :loading="busy"
                 :disabled="busy"
             />
+        </div>
+    </div>
+    <div class="friend-card w-full mb-show" v-if="listView">
+        <router-link
+            :to="{
+                name: 'user-detail',
+                params: { username: user.username }
+            }"
+            class="friend-card__image border-circle"
+        >
+            <img
+                class="imgFluid"
+                :src="user.profile_picture"
+                :alt="user.name"
+            />
+        </router-link>
+        <div class="friend-card__content">
+            <router-link
+                :to="{
+                    name: 'user-detail',
+                    params: { username: user.username }
+                }"
+                class="name hover:underline"
+            >
+                {{ user.name }}
+            </router-link>
+            <div class="mutual-friends">
+                <AvatarGroup
+                    v-if="user.mutual_friends && user.mutual_friends.length > 0"
+                >
+                    <Avatar
+                        v-for="(friend, index) in user.mutual_friends.slice(
+                            0,
+                            2
+                        )"
+                        :key="index"
+                        :image="friend.profile_picture"
+                        shape="circle"
+                    />
+                </AvatarGroup>
+                <span
+                    class="friend"
+                    v-if="user.mutual_friends && user.mutual_friends.length > 0"
+                    >{{ user.mutual_friends.length }} mutual friend{{
+                        user.mutual_friends.length > 1 ? 's' : ''
+                    }}</span
+                >
+            </div>
+            <div class="card-btns">
+                <template v-if="!props.myFriends">
+                    <template v-if="!props.friendRequest">
+                        <Button
+                            v-if="!requestSent"
+                            class=""
+                            label="Add friend"
+                            icon="fa-solid fa-user-plus"
+                            @click="sendRequest(user)"
+                            :loading="sendingRequest"
+                            :disabled="sendingRequest"
+                        />
+                        <Button
+                            v-if="requestSent"
+                            class=""
+                            label="Cancel Request"
+                            icon="fa-solid fa-user-minus"
+                            @click="cancelRequest(user)"
+                            :loading="cancelingRequest"
+                            :disabled="cancelingRequest"
+                        />
+                    </template>
+                    <template v-else>
+                        <Button
+                            class=""
+                            label="Confirm"
+                            @click="acceptRequest(friendRequestId)"
+                            :loading="acceptingRequest"
+                            :disabled="acceptingRequest"
+                        />
+                        <Button
+                            class="bg-primary-light"
+                            label="Delete"
+                            variant="outlined"
+                            @click="deleteConfirmation(user)"
+                            :loading="busy"
+                            :disabled="busy"
+                        />
+                    </template>
+                </template>
+                <template v-else>
+                    <Button
+                        label="Message"
+                        class=""
+                        icon="fa-brands fa-facebook-messenger"
+                        @click="
+                            router.push({
+                                name: 'chats',
+                                params: { username: user.username }
+                            })
+                        "
+                    />
+                </template>
+                <Button
+                    v-if="showRemove"
+                    class="bg-primary-light"
+                    label="Remove"
+                    variant="outlined"
+                    icon="fa-solid fa-user-minus"
+                    @click="unfriendConfirmation(user)"
+                    :loading="busy"
+                    :disabled="busy"
+                />
+            </div>
         </div>
     </div>
 </template>

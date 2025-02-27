@@ -1,13 +1,12 @@
 <script setup>
-import { onBeforeMount, ref } from 'vue';
+import { onBeforeMount, ref, onUnmounted } from 'vue';
 import { useUserStore } from '@/stores';
 import UserCard from '@/components/common/UserCard.vue';
-
 import 'swiper/swiper-bundle.css';
 import { Swiper, SwiperSlide } from 'swiper/vue';
 import { Navigation } from 'swiper/modules';
 import { onMounted } from 'vue';
-import { echo } from '@/plugins/echo';
+import pusher from '@/plugins/pusher';
 
 const userStore = useUserStore();
 const swiperModules = [Navigation];
@@ -37,49 +36,72 @@ const getOnlineUsers = async () => {
         console.error(error);
     }
 };
+let usersChannel;
+
 onMounted(async () => {
-    echo.channel('users')
-        .listen('.user.logged.in', async () => {
-            await getOnlineUsers();
-        })
-        .listen('.user.logged.out', async () => {
-            await getOnlineUsers();
-        });
+    usersChannel = pusher.subscribe('users');
+
+    usersChannel.bind('user.logged.in', async () => {
+        await getOnlineUsers();
+    });
+
+    usersChannel.bind('user.logged.out', async () => {
+        await getOnlineUsers();
+    });
+});
+
+onUnmounted(() => {
+    if (usersChannel) {
+        pusher.unsubscribe('users');
+    }
 });
 </script>
 
 <template>
-    <div class="col-4 col-offset-1">
+    <div class="col-12 lg:col-4 lg:col-offset-1">
         <div class="box pr-0">
             <div class="box-header">
                 <div class="title">People you may know</div>
             </div>
             <div class="box-body">
                 <template v-if="loading">
-                    <div class="grid grid-nogutter">
-                        <Skeleton
-                            v-for="index in 2"
-                            :key="index"
-                            style="margin-right: 0.6rem"
-                            height="310px"
-                            width="181px"
-                        ></Skeleton>
-                        <Skeleton height="310px" width="61px"></Skeleton>
-                    </div>
+                    <Swiper :slides-per-view="2.39" :space-between="12" :pagination="{ clickable: true }"
+                        :navigation="true" :modules="swiperModules" :breakpoints="{
+                            320: {
+                                slidesPerView: 1.5,
+                                spaceBetween: 8
+                            },
+                            640: {
+                                slidesPerView: 1.8,
+                                spaceBetween: 10
+                            },
+                            1024: {
+                                slidesPerView: 2.39,
+                                spaceBetween: 12
+                            }
+                        }">
+                        <SwiperSlide v-for="index in 3" :key="index">
+                            <Skeleton height="310px"></Skeleton>
+                        </SwiperSlide>
+                    </Swiper>
                 </template>
                 <template v-else>
-                    <Swiper
-                        :slides-per-view="2.39"
-                        :space-between="12"
-                        :pagination="{ clickable: true }"
-                        :navigation="true"
-                        :modules="swiperModules"
-                        v-if="users.length > 0"
-                    >
-                        <SwiperSlide
-                            v-for="(user, index) in users"
-                            :key="index"
-                        >
+                    <Swiper :slides-per-view="2.39" :space-between="12" :pagination="{ clickable: true }"
+                        :navigation="true" :modules="swiperModules" :breakpoints="{
+                            320: {
+                                slidesPerView: 1.5,
+                                spaceBetween: 8
+                            },
+                            640: {
+                                slidesPerView: 1.8,
+                                spaceBetween: 10
+                            },
+                            1024: {
+                                slidesPerView: 2.39,
+                                spaceBetween: 12
+                            }
+                        }" v-if="users.length > 0">
+                        <SwiperSlide v-for="(user, index) in users" :key="index">
                             <UserCard :user="user" />
                         </SwiperSlide>
                     </Swiper>
@@ -92,53 +114,32 @@ onMounted(async () => {
             </div>
         </div>
     </div>
-    <div class="col-3 col-offset-1">
+    <div class="col-3 col-offset-1 mb-hidden">
         <div class="contact">
             <div class="contact-header">
                 <div class="title">Online friends</div>
             </div>
             <div class="contact-list" v-if="loading">
-                <div
-                    class="contact-item"
-                    v-for="index in 4"
-                    :key="'skeleton-' + index"
-                >
+                <div class="contact-item" v-for="index in 4" :key="'skeleton-' + index">
                     <div class="avatar">
                         <Skeleton shape="circle" size="30px"></Skeleton>
                     </div>
                     <div class="info">
-                        <Skeleton
-                            width="7rem"
-                            height="10px"
-                            borderRadius="100px"
-                        ></Skeleton>
+                        <Skeleton width="7rem" height="10px" borderRadius="100px"></Skeleton>
                     </div>
                 </div>
             </div>
             <template v-else>
                 <div class="contact-list" v-if="onlineUsers.length > 0">
-                    <router-link
-                        :to="{
-                            name: 'chats',
-                            params: { username: user.username }
-                        }"
-                        class="contact-item"
-                        v-for="(user, index) in onlineUsers"
-                        :key="index"
-                        v-ripple
-                    >
+                    <router-link :to="{
+                        name: 'chats',
+                        params: { username: user.username }
+                    }" class="contact-item" v-for="(user, index) in onlineUsers" :key="index" v-ripple>
                         <div class="avatar">
-                            <img
-                                :src="user.profile_picture"
-                                :alt="user.name"
-                                width="30"
-                                height="30"
-                                class="border-circle"
-                            />
-                            <div
-                                class="status"
-                                :class="user.is_online ? 'green' : 'red'"
-                            ></div>
+                            <img :src="user.profile_picture" :alt="user.name" width="30" height="30"
+                                class="border-circle" />
+
+                            <div class="status" :class="user.is_online ? 'green' : 'red'"></div>
                         </div>
                         <div class="info">
                             <div class="name">{{ user.name }}</div>
@@ -156,11 +157,13 @@ onMounted(async () => {
 .contact-header {
     margin-bottom: 1.25rem;
 }
+
 .contact-header .title {
     font-size: 0.99rem;
     color: var(--text-color);
     font-weight: 600;
 }
+
 .contact-item {
     display: flex;
     align-items: center;
@@ -168,9 +171,11 @@ onMounted(async () => {
     padding: 0.25rem 0;
     border-radius: 0.75rem;
 }
+
 .contact-item .avatar {
     position: relative;
 }
+
 .contact-item .avatar .status {
     width: 9px;
     aspect-ratio: 1 / 1;
@@ -181,15 +186,19 @@ onMounted(async () => {
     right: 2px;
     z-index: 10;
 }
+
 .contact-item .avatar .status.green {
     background: #007e32;
 }
+
 .contact-item .avatar .status.red {
     background: #f50019;
 }
+
 .contact-item:hover {
     background: var(--menu-hover-bg) !important;
 }
+
 .contact-item .name {
     color: var(--text-color);
     font-size: 0.95rem;

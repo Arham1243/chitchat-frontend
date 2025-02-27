@@ -1,16 +1,25 @@
 <script setup>
-import { useRoute } from 'vue-router';
-import { computed, nextTick, onBeforeMount, onMounted, ref, watch } from 'vue';
+import { useRoute, useRouter } from 'vue-router';
+import {
+    computed,
+    nextTick,
+    onBeforeMount,
+    onMounted,
+    onUnmounted,
+    ref,
+    watch
+} from 'vue';
 import Logo from '@/assets/images/logo.png';
 import useEventsBus from '@/utils/event-bus';
 import helpers from '@/utils/helpers';
 import { useAuthStore, useChatStore } from '@/stores';
-import { echo } from '@/plugins/echo';
+import pusher from '@/plugins/pusher';
 
 const chatStore = useChatStore();
 const { emit } = useEventsBus();
 const authStore = useAuthStore();
 const route = useRoute();
+const router = useRouter();
 const user = ref({});
 const currentUser = computed(() => authStore.currentUser);
 const message = ref('');
@@ -25,41 +34,72 @@ const sendingMessage = ref(false);
 onBeforeMount(() => {
     setCurrentChat();
     getSuggestions();
-    markMessageAsRead();
+    markMessageAsRead(conversationId.value);
     scrollToBottom();
 });
 
-if (route.name === 'chats') {
-    onMounted(async () => {
-        echo.channel('messages').listen('.new', async (data) => {
-            emit('reloadMessages');
-            await getMessages(route.params.username);
-            await markMessageAsRead(data.conversation_id);
-            await getSuggestions();
-            scrollToBottom();
+let messagesChannel;
+let usersChannel;
+
+if (route.name === 'chats' && route.params.username) {
+    onMounted(() => {
+        messagesChannel = pusher.subscribe('messages');
+        usersChannel = pusher.subscribe('users');
+
+        messagesChannel.bind('new', async (data) => {
+            try {
+                emit('reloadMessages');
+                await getMessages(route.params.username);
+                await markMessageAsRead(data.conversation_id);
+                await getSuggestions();
+                scrollToBottom();
+            } catch (error) {
+                console.error('Error in new message event:', error);
+            }
         });
 
-        echo.channel('messages').listen('.read', async () => {
-            emit('reloadMessages');
-            await getMessages(route.params.username);
-            scrollToBottom();
+        messagesChannel.bind('read', async () => {
+            try {
+                emit('reloadMessages');
+                await getMessages(route.params.username);
+                scrollToBottom();
+            } catch (error) {
+                console.error('Error in read event:', error);
+            }
         });
 
-        echo.channel('users')
-            .listen('.user.logged.in', async (data) => {
+        usersChannel.bind('user.logged.in', async (data) => {
+            try {
                 if (data.user_id === user.value.id) {
                     user.value.is_online = 'Online';
                 }
                 emit('reloadMessages');
                 await getMessages(route.params.username);
-            })
-            .listen('.user.logged.out', async (data) => {
+            } catch (error) {
+                console.error('Error in user.logged.in event:', error);
+            }
+        });
+
+        usersChannel.bind('user.logged.out', async (data) => {
+            try {
                 if (data.user_id === user.value.id) {
                     user.value.is_online = 'Offline';
                 }
                 emit('reloadMessages');
                 await getMessages(route.params.username);
-            });
+            } catch (error) {
+                console.error('Error in user.logged.out event:', error);
+            }
+        });
+    });
+
+    onUnmounted(() => {
+        if (messagesChannel) {
+            pusher.unsubscribe('messages');
+        }
+        if (usersChannel) {
+            pusher.unsubscribe('users');
+        }
     });
 }
 
@@ -70,6 +110,7 @@ watch(
             setCurrentChat();
             markMessageAsRead(conversationId.value);
             scrollToBottom();
+            suggestions.value = [];
             getSuggestions();
         }
     }
@@ -214,7 +255,7 @@ const scrollToBottomSmoothly = async () => {
 <template>
     <div v-if="route.params.username === '-1'">
         <div
-            class="w-full h-screen flex justify-content-center align-items-center"
+            class="w-full h-screen flex justify-content-center align-items-center mb-hidden"
         >
             <div class="grid w-full justify-content-center">
                 <div class="text-center mb-4">
@@ -233,6 +274,18 @@ const scrollToBottomSmoothly = async () => {
     <div v-else>
         <div class="chat-header">
             <div class="chat-profile flex items-center" v-if="user">
+                <Button
+                    @click="
+                        router.push({
+                            name: 'chats',
+                            params: { username: '-1' }
+                        })
+                    "
+                    icon="icon pi pi-arrow-left"
+                    variant="text"
+                    rounded
+                    class="text-black-alpha-90 back-btn mb-show"
+                />
                 <router-link
                     :to="{
                         name: 'user-detail',
@@ -296,27 +349,25 @@ const scrollToBottomSmoothly = async () => {
             </div>
         </div>
 
-        <div class="message-box flex align-items-center">
-            <form
-                @submit.prevent="sendMessage(message)"
-                class="flex align-items-center justify-content-between w-full pr-3"
-            >
-                <InputText
-                    v-model="message"
-                    type="text"
-                    placeholder="Type a message"
-                    class="text-sm message-input w-full"
-                />
-                <Button
-                    type="submit"
-                    :disabled="message.length < 1"
-                    icon="icon pi pi-arrow-right"
-                    variant="text"
-                    rounded
-                    class="text-black-alpha-90 back-btn"
-                />
-            </form>
-        </div>
+        <form
+            @submit.prevent="sendMessage(message)"
+            class="message-box flex align-items-center justify-content-between w-full pr-3"
+        >
+            <InputText
+                v-model="message"
+                type="text"
+                placeholder="Type a message"
+                class="text-sm message-input w-full"
+            />
+            <Button
+                type="submit"
+                :disabled="message.length < 1"
+                icon="icon pi pi-arrow-right"
+                variant="text"
+                rounded
+                class="text-black-alpha-90 back-btn"
+            />
+        </form>
     </div>
 </template>
 
@@ -332,17 +383,26 @@ const scrollToBottomSmoothly = async () => {
     flex-direction: column;
     justify-content: flex-end;
 }
+
 .replies {
     overflow-y: auto;
 }
+
 .message-box {
     background: var(--header-bg);
-    padding: 0.5rem 0.7rem;
+    padding: 0 0.7rem;
     border-top: 1px solid var(--header-shadow);
 }
+
+body .message-box .back-btn {
+    --p-button-icon-only-width: 2.75rem;
+    border-radius: 0.5rem;
+}
+
 .message-box .actions button .p-button-icon {
     color: var(--icon-color);
 }
+
 .message-input {
     color: var(--text-color) !important;
     flex: 1;
@@ -351,19 +411,28 @@ const scrollToBottomSmoothly = async () => {
     border: none !important;
     box-shadow: none !important;
     background: transparent !important;
+    padding: 0 1rem !important;
+    height: 57px;
 }
+
 .message-input::placeholder {
     color: var(--text-placeholder-color) !important;
 }
+
 .chat-header {
     background: var(--header-bg);
     border-bottom: 1px solid var(--header-shadow);
     padding: 0.5rem 1.5rem;
+    height: 66px;
 }
+
 .chat-profile {
     display: flex;
     align-items: center;
-    gap: 0.85rem;
+}
+
+.chat-profile .content {
+    margin-left: 0.85rem;
 }
 
 .chat-profile .name {
@@ -371,17 +440,21 @@ const scrollToBottomSmoothly = async () => {
     font-weight: 500;
     margin-bottom: 2px;
 }
+
 .chat-profile .status {
     color: var(--text-gray-color);
     font-size: 0.75rem;
     font-weight: 500;
 }
+
 .heading {
     color: var(--text-color);
 }
+
 .para {
     color: var(--text-gray-color);
 }
+
 .reply {
     max-width: 50%;
     line-height: 1.3;
@@ -416,9 +489,11 @@ const scrollToBottomSmoothly = async () => {
     font-weight: 300;
     width: max-content;
 }
+
 .reply i {
     font-size: 1.01rem;
 }
+
 .reply i.seen {
     color: #007bfc;
 }

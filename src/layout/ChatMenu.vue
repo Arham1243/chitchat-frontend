@@ -103,7 +103,10 @@ const setCurrentChatUser = (user) => {
 const isActive = (username) => route.params.username === username;
 </script>
 <template>
-    <div class="chat-menu">
+    <div
+        class="chat-menu"
+        :class="{ 'mb-hidden': route.params.username !== '-1' }"
+    >
         <div class="flex align-items-center gap-3 px-3 py-3">
             <Button
                 @click="router.push({ name: 'home' })"
@@ -120,7 +123,7 @@ const isActive = (username) => route.params.username === username;
                 <InputText
                     v-model="search"
                     placeholder="Search"
-                    class="global-search"
+                    class="global-search global-search--chat"
                 />
             </IconField>
         </div>
