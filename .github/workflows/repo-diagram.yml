@@ -12,21 +12,15 @@ jobs:
     steps:
     - name: Checkout code
       uses: actions/checkout@v3
-      with:
-        persist-credentials: false
-    
-    - name: Generate Repo Diagram
+
+    - name: Generate Diagram
       uses: githubocto/repo-visualizer@0.7.1
       with:
-        output_file: src/assets/images/diagram.svg
-        excluded_paths: "dist,node_modules"
-    
-    - name: Commit and Push diagram
-      env:
-        TOKEN: ${{ secrets.PERSONAL_TOKEN }}
-      run: |
-        git config user.name "GitHub Actions"
-        git config user.email "actions@github.com"
-        git add src/assets/images/diagram.svg
-        git commit -m "Repo visualizer: updated diagram" || echo "No changes to commit"
-        git push https://x-access-token:$TOKEN@github.com/Arham1243/chitchat-frontend.git HEAD:main
+        output_file: diagram.svg
+        artifact_name: my-diagram
+
+    - name: Download Diagram Artifact
+      uses: actions/download-artifact@v2
+      with:
+        name: my-diagram
+        path: src/assets/images
