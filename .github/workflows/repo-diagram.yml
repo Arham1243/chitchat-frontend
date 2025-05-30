@@ -1,0 +1,20 @@
+name: Generate Repo Diagram
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+jobs:
+  generate-diagram:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Generate Repo Diagram
+        uses: githubocto/repo-visualizer@0.7.1
+        with:
+          output_file: src/assets/images/diagram.svg
+          excluded_paths: "dist,node_modules"
