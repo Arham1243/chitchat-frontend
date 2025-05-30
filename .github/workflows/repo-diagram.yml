@@ -10,19 +10,19 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-     - name: Checkout code
-       uses: actions/checkout@v3
+      - name: Checkout code
+        uses: actions/checkout@v3
 
-    - name: Generate Repo Diagram
-      uses: githubocto/repo-visualizer@0.7.1
-      with:
-        output_file: src/assets/images/diagram.svg
-        excluded_paths: "dist,node_modules"
-    
-    - name: Commit and Push diagram
-      run: |
-        git config user.name "GitHub Actions"
-        git config user.email "actions@github.com"
-        git add src/assets/images/diagram.svg
-        git commit -m "Repo visualizer: updated diagram" || echo "No changes to commit"
-        git push https://x-access-token:${{ secrets.PERSONAL_TOKEN }}@github.com/Arham1243/chitchat-frontend.git HEAD:main
+      - name: Generate Repo Diagram
+        uses: githubocto/repo-visualizer@0.7.1
+        with:
+          output_file: src/assets/images/diagram.svg
+          excluded_paths: "dist,node_modules"
+
+      - name: Commit and Push diagram
+        run: |
+          git config user.name "GitHub Actions"
+          git config user.email "actions@github.com"
+          git add src/assets/images/diagram.svg
+          git commit -m "Repo visualizer: updated diagram" || echo "No changes to commit"
+          git push https://x-access-token:${{ secrets.PERSONAL_TOKEN }}@github.com/Arham1243/chitchat-frontend.git HEAD:main
