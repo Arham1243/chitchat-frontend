@@ -1,4 +1,4 @@
-# Chitchat Social App Frontend
+# Chitchat Social App 
 
 ## 🎥 Watch In Action
 [![](https://raw.githubusercontent.com/Arham1243/chitchat-frontend/main/thumbnail.png)](https://vimeo.com/1064296809/90eee11c4d)
